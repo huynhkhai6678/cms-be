@@ -1,0 +1,1228 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model addresses {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  owner_id          BigInt?
+  owner_type        String?   @db.VarChar(255)
+  address1          String?   @db.VarChar(255)
+  address2          String?   @db.VarChar(255)
+  country_id        BigInt?   @db.UnsignedBigInt
+  state_id          BigInt?   @db.UnsignedBigInt
+  city_id           BigInt?   @db.UnsignedBigInt
+  postal_code       String?   @db.VarChar(255)
+  other_region_code String    @db.VarChar(255)
+  other_contact     String    @db.VarChar(255)
+  other_address1    String    @db.VarChar(255)
+  other_address2    String    @db.VarChar(255)
+  other_country_id  String    @db.VarChar(255)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+
+  @@index([city_id], map: "addresses_city_id_foreign")
+  @@index([country_id], map: "addresses_country_id_foreign")
+  @@index([state_id], map: "addresses_state_id_foreign")
+}
+
+model appointment_google_calendars {
+  id                      BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id                 BigInt                @db.UnsignedBigInt
+  google_calendar_list_id BigInt                @db.UnsignedBigInt
+  google_calendar_id      String                @db.VarChar(255)
+  created_at              DateTime?             @db.Timestamp(0)
+  updated_at              DateTime?             @db.Timestamp(0)
+  google_calendar_lists   google_calendar_lists @relation(fields: [google_calendar_list_id], references: [id], onDelete: Cascade, map: "appointment_google_calendars_google_calendar_list_id_foreign")
+  users                   users                 @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "appointment_google_calendars_user_id_foreign")
+
+  @@index([google_calendar_list_id], map: "appointment_google_calendars_google_calendar_list_id_foreign")
+  @@index([user_id], map: "appointment_google_calendars_user_id_foreign")
+}
+
+model appointments {
+  id                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  doctor_id             BigInt    @db.UnsignedBigInt
+  patient_id            Int?      @db.UnsignedInt
+  date                  String    @db.VarChar(255)
+  from_time             String    @db.VarChar(255)
+  from_time_type        String    @db.VarChar(255)
+  to_time               String    @db.VarChar(255)
+  to_time_type          String    @db.VarChar(255)
+  status                Int       @default(1) @db.TinyInt
+  description           String?   @db.Text
+  service_id            BigInt    @db.UnsignedBigInt
+  region_code           String    @db.VarChar(255)
+  contact               String    @db.VarChar(255)
+  id_type               String    @db.VarChar(255)
+  id_number             String    @db.VarChar(255)
+  dob                   String    @db.VarChar(255)
+  age                   String    @db.VarChar(255)
+  payable_amount        String    @db.VarChar(255)
+  payment_type          Int       @default(1)
+  payment_method        Int       @default(1)
+  appointment_unique_id String    @db.VarChar(255)
+  created_at            DateTime? @db.Timestamp(0)
+  updated_at            DateTime? @db.Timestamp(0)
+  patient_name          String?   @db.VarChar(255)
+  clinic_id             BigInt    @default(1) @db.UnsignedBigInt
+
+  @@index([doctor_id], map: "appointments_doctor_id_foreign")
+  @@index([patient_id], map: "appointments_patient_id_foreign")
+  @@index([service_id], map: "appointments_service_id_foreign")
+}
+
+model brands {
+  id             BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  name           String      @db.VarChar(160)
+  email          String?     @db.VarChar(255)
+  phone          String?     @db.VarChar(255)
+  created_at     DateTime?   @db.Timestamp(0)
+  updated_at     DateTime?   @db.Timestamp(0)
+  address        String?     @db.VarChar(255)
+  contact_person String?     @db.VarChar(255)
+  payment_terms  String?     @db.VarChar(255)
+  website        String?     @db.VarChar(255)
+  comment        String?     @db.Text
+  clinic_id      BigInt      @default(1) @db.UnsignedBigInt
+  medicines      medicines[]
+}
+
+model categories {
+  id         BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String      @db.VarChar(160)
+  is_active  Boolean     @default(false)
+  created_at DateTime?   @db.Timestamp(0)
+  updated_at DateTime?   @db.Timestamp(0)
+  clinic_id  BigInt      @default(1) @db.UnsignedBigInt
+  medicines  medicines[]
+}
+
+model chain {
+  id           Int       @id @default(autoincrement())
+  name         String    @db.VarChar(255)
+  phone        String    @db.VarChar(255)
+  default      Boolean   @default(false)
+  code         String    @default("") @db.VarChar(255)
+  landing_name String    @db.VarChar(255)
+  region_code  String    @db.VarChar(255)
+  email        String    @db.VarChar(255)
+  social_link  String?   @db.VarChar(255)
+  country_id   BigInt    @default(0) @db.UnsignedBigInt
+  type         Int       @db.TinyInt
+  created_at   DateTime? @db.DateTime(0)
+  updated_at   DateTime? @db.DateTime(0)
+}
+
+model cities {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  state_id   BigInt    @db.UnsignedBigInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+
+  @@index([state_id], map: "cities_state_id_foreign")
+}
+
+model clinic_chain_groups {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  clinic_chain_id BigInt?   @db.UnsignedBigInt
+  clinic_id       BigInt?   @db.UnsignedBigInt
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+}
+
+model clinic_chains {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model clinic_document_setting {
+  id                           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  header                       String    @db.Text
+  created_at                   DateTime? @db.Timestamp(0)
+  updated_at                   DateTime? @db.Timestamp(0)
+  transaction_receipt_template String    @db.Text
+  medical_certificate_template String    @db.Text
+  transaction_invoice_template String    @db.Text
+  clinic_id                    BigInt    @default(1) @db.UnsignedBigInt
+}
+
+model clinic_schedules {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  day_of_week String    @db.VarChar(255)
+  start_time  String    @db.VarChar(255)
+  end_time    String    @db.VarChar(255)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  clinic_id   BigInt    @default(1) @db.UnsignedBigInt
+}
+
+model clinic_services {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  category    BigInt?   @db.UnsignedBigInt
+  name        String?   @db.VarChar(255)
+  description String?   @db.Text
+  price       Float?
+  cost        Float?
+  currency_id BigInt?   @db.UnsignedBigInt
+  active      Boolean   @default(true)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  clinic_id   BigInt    @default(1) @db.UnsignedBigInt
+}
+
+model clinics {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name         String    @db.VarChar(255)
+  phone        String    @db.VarChar(255)
+  default      Boolean
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  code         String    @db.VarChar(255)
+  landing_name String    @db.VarChar(255)
+  region_code  String    @db.VarChar(255)
+  email        String    @db.VarChar(255)
+  social_link  String?   @db.VarChar(255)
+  country_id   BigInt    @db.UnsignedBigInt
+  type         Int       @db.TinyInt
+
+  user_clinic user_clinics[]
+}
+
+model countries {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  short_code String?   @db.VarChar(255)
+  phone_code String?   @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  states     states[]
+}
+
+model currencies {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  currency_name String    @db.VarChar(255)
+  currency_icon String    @db.VarChar(255)
+  currency_code String    @db.VarChar(255)
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+}
+
+model doctor_holidays {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String?   @db.VarChar(255)
+  doctor_id  BigInt    @db.UnsignedBigInt
+  date       String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  clinic_id  BigInt    @default(1) @db.UnsignedBigInt
+  doctors    doctors   @relation(fields: [doctor_id], references: [id], onDelete: Cascade, map: "doctor_holidays_doctor_id_foreign")
+
+  @@index([doctor_id], map: "doctor_holidays_doctor_id_foreign")
+}
+
+model doctor_sessions {
+  id                   BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  doctor_id            BigInt              @db.UnsignedBigInt
+  session_meeting_time BigInt
+  session_gap          String              @default("0") @db.VarChar(255)
+  created_at           DateTime?           @db.Timestamp(0)
+  updated_at           DateTime?           @db.Timestamp(0)
+  clinic_id            BigInt              @default(1) @db.UnsignedBigInt
+  doctors              doctors             @relation(fields: [doctor_id], references: [id], onDelete: Cascade, map: "doctor_sessions_doctor_id_foreign")
+  session_week_days    session_week_days[]
+
+  @@index([doctor_id], map: "doctor_sessions_doctor_id_foreign")
+}
+
+model doctor_specialization {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  doctor_id         BigInt    @db.UnsignedBigInt
+  specialization_id BigInt    @db.UnsignedBigInt
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+
+  @@index([doctor_id], map: "doctor_specialization_doctor_id_foreign")
+  @@index([specialization_id], map: "doctor_specialization_specialization_id_foreign")
+}
+
+model doctors {
+  id                 BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id            BigInt               @unique @db.UnsignedBigInt
+  experience         Float?
+  twitter_url        String?              @db.VarChar(255)
+  linkedin_url       String?              @db.VarChar(255)
+  instagram_url      String?              @db.VarChar(255)
+  created_at         DateTime?            @db.Timestamp(0)
+  updated_at         DateTime?            @db.Timestamp(0)
+  doctor_holidays    doctor_holidays[]
+  doctor_sessions    doctor_sessions[]
+  live_consultations live_consultations[]
+  prescriptions      prescriptions[]
+  reviews            reviews[]
+  service_doctor     service_doctor[]
+  session_week_days  session_week_days[]
+  visits             visits[]
+  user               users                @relation(fields: [user_id], references: [id])
+
+  @@index([user_id], map: "doctors_user_id_foreign")
+}
+
+model enquiries {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name        String    @db.VarChar(255)
+  email       String    @db.VarChar(255)
+  phone       String?   @db.VarChar(255)
+  subject     String    @db.VarChar(255)
+  message     String    @db.Text
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  view        Boolean   @default(false)
+  region_code String?   @db.VarChar(255)
+  clinic_id   BigInt    @default(1) @db.UnsignedBigInt
+}
+
+model failed_jobs {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  uuid       String   @unique(map: "failed_jobs_uuid_unique")
+  connection String   @db.Text
+  queue      String   @db.Text
+  payload    String   @db.LongText
+  exception  String   @db.LongText
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model faqs {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  question   String    @db.Text
+  answer     String    @db.Text
+  is_default Boolean   @default(false)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  clinic_id  BigInt    @default(1) @db.UnsignedBigInt
+}
+
+model frequencies {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  frequency  String?   @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model front_patient_testimonials {
+  id                Int       @id @default(autoincrement()) @db.UnsignedInt
+  name              String    @db.VarChar(255)
+  designation       String    @db.VarChar(255)
+  short_description String    @db.Text
+  is_default        Boolean   @default(false)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+  clinic_id         BigInt    @default(1) @db.UnsignedBigInt
+}
+
+model google_calendar_integrations {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id      BigInt    @db.UnsignedBigInt
+  access_token String    @db.VarChar(255)
+  meta         String    @db.LongText
+  last_used_at String    @db.VarChar(255)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  users        users     @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "google_calendar_integrations_user_id_foreign")
+
+  @@index([user_id], map: "google_calendar_integrations_user_id_foreign")
+}
+
+model google_calendar_lists {
+  id                           BigInt                         @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id                      BigInt                         @db.UnsignedBigInt
+  calendar_name                String                         @db.VarChar(255)
+  google_calendar_id           String                         @db.VarChar(255)
+  meta                         String                         @db.LongText
+  created_at                   DateTime?                      @db.Timestamp(0)
+  updated_at                   DateTime?                      @db.Timestamp(0)
+  appointment_google_calendars appointment_google_calendars[]
+  users                        users                          @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "google_calendar_lists_user_id_foreign")
+
+  @@index([user_id], map: "google_calendar_lists_user_id_foreign")
+}
+
+model labels {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  type       Int
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  clinic_id  BigInt    @default(1) @db.UnsignedBigInt
+}
+
+model live_consultations {
+  id                            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  doctor_id                     BigInt    @db.UnsignedBigInt
+  patient_id                    Int       @db.UnsignedInt
+  consultation_title            String    @db.VarChar(255)
+  consultation_date             DateTime  @db.DateTime(0)
+  host_video                    Boolean
+  participant_video             Boolean
+  consultation_duration_minutes String    @db.VarChar(255)
+  created_by                    String    @db.VarChar(255)
+  status                        Int?
+  description                   String?   @db.Text
+  meeting_id                    String?   @db.VarChar(255)
+  meta                          String?   @db.Text
+  time_zone                     String?   @db.VarChar(255)
+  password                      String?   @db.VarChar(255)
+  created_at                    DateTime? @db.Timestamp(0)
+  updated_at                    DateTime? @db.Timestamp(0)
+  doctors                       doctors   @relation(fields: [doctor_id], references: [id], onDelete: Cascade, map: "live_consultations_doctor_id_foreign")
+  patients                      patients  @relation(fields: [patient_id], references: [id], onDelete: Cascade, map: "live_consultations_patient_id_foreign")
+
+  @@index([doctor_id], map: "live_consultations_doctor_id_foreign")
+  @@index([patient_id], map: "live_consultations_patient_id_foreign")
+}
+
+model media {
+  id                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  model_type            String
+  model_id              BigInt    @db.UnsignedBigInt
+  uuid                  String?   @unique(map: "media_uuid_unique") @db.Char(36)
+  collection_name       String    @db.VarChar(255)
+  name                  String    @db.VarChar(255)
+  file_name             String    @db.VarChar(255)
+  mime_type             String?   @db.VarChar(255)
+  disk                  String    @db.VarChar(255)
+  conversions_disk      String?   @db.VarChar(255)
+  size                  BigInt    @db.UnsignedBigInt
+  manipulations         String    @db.LongText
+  custom_properties     String    @db.LongText
+  generated_conversions String    @db.LongText
+  responsive_images     String    @db.LongText
+  order_column          Int?      @db.UnsignedInt
+  created_at            DateTime? @db.Timestamp(0)
+  updated_at            DateTime? @db.Timestamp(0)
+
+  @@index([model_id, model_type], map: "media_model_type_model_id_index")
+}
+
+model medicine_bills {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  bill_number    String    @db.VarChar(255)
+  patient_id     BigInt    @db.UnsignedBigInt
+  doctor_id      BigInt?   @db.UnsignedBigInt
+  model_type     String    @db.VarChar(255)
+  model_id       String    @db.VarChar(255)
+  discount       Float
+  net_amount     Float
+  total          Float
+  tax_amount     Float
+  payment_status Int
+  payment_type   Int
+  note           String?   @db.VarChar(255)
+  bill_date      DateTime  @db.DateTime(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+model medicine_inventories {
+  id                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  medicine_id        BigInt?   @db.UnsignedBigInt
+  quantity           Int       @default(0)
+  bonus              String?   @db.VarChar(255)
+  price              Int       @default(0)
+  cost_per_unit      Float     @default(0.00)
+  batch_number       String?   @db.VarChar(255)
+  type               Int       @db.SmallInt
+  description        String?   @db.Text
+  expiration_date    DateTime? @db.Timestamp(0)
+  created_at         DateTime? @db.Timestamp(0)
+  updated_at         DateTime? @db.Timestamp(0)
+  available_quantity Int       @default(0)
+  uom                String?   @db.VarChar(255)
+}
+
+model medicine_inventory_usages {
+  id                     BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  medicine_inventory_id  BigInt?   @db.UnsignedBigInt
+  quantity               Int       @default(0)
+  type                   Int       @db.SmallInt
+  description            String?   @db.Text
+  created_at             DateTime? @db.Timestamp(0)
+  updated_at             DateTime? @db.Timestamp(0)
+  transaction_invoice_id BigInt?   @db.UnsignedBigInt
+}
+
+model medicine_types {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  type       String?   @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model medicines {
+  id                      BigInt                    @id @default(autoincrement()) @db.UnsignedBigInt
+  category_id             BigInt?                   @db.UnsignedBigInt
+  category_ids            String?                   @db.LongText
+  brand_id                BigInt?                   @db.UnsignedBigInt
+  brand_ids               String?                   @db.LongText
+  name                    String                    @db.VarChar(255)
+  selling_price           Float?
+  buying_price            Float?
+  quantity                Int
+  available_quantity      Int
+  salt_composition        String?                   @db.Text
+  description             String?                   @db.Text
+  side_effects            String?                   @db.Text
+  comment                 String?                   @db.Text
+  type                    String                    @db.VarChar(255)
+  code                    String?                   @db.VarChar(255)
+  default_dispense        String                    @db.VarChar(255)
+  uom                     String                    @db.VarChar(255)
+  dosage                  String                    @db.VarChar(255)
+  frequency               String                    @db.VarChar(255)
+  purpose                 String                    @db.VarChar(255)
+  administration          String                    @db.VarChar(255)
+  packing                 String?                   @db.VarChar(255)
+  inventory_image         String                    @db.VarChar(255)
+  currency_symbol         String?                   @db.VarChar(100)
+  created_at              DateTime?                 @db.Timestamp(0)
+  updated_at              DateTime?                 @db.Timestamp(0)
+  low_stock_level         Int?                      @db.SmallInt
+  reorder_level           Int?                      @db.SmallInt
+  expiration_warning      Int?                      @db.SmallInt
+  first_expiration_date   DateTime?                 @db.Timestamp(0)
+  active                  Boolean                   @default(true)
+  clinic_id               BigInt                    @default(1) @db.UnsignedBigInt
+  brands                  brands?                   @relation(fields: [brand_id], references: [id], map: "medicines_brand_id_foreign")
+  categories              categories?               @relation(fields: [category_id], references: [id], map: "medicines_category_id_foreign")
+  prescriptions_medicines prescriptions_medicines[]
+  purchased_medicines     purchased_medicines[]
+  used_medicines          used_medicines[]
+
+  @@index([brand_id], map: "medicines_brand_id_foreign")
+  @@index([category_id], map: "medicines_category_id_foreign")
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model model_has_permissions {
+  permission_id BigInt      @db.UnsignedBigInt
+  model_type    String
+  model_id      BigInt      @db.UnsignedBigInt
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "model_has_permissions_permission_id_foreign")
+
+  @@id([permission_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_permissions_model_id_model_type_index")
+}
+
+model model_has_roles {
+  role_id    BigInt @db.UnsignedBigInt
+  model_type String
+  model_id   BigInt @db.UnsignedBigInt
+  roles      roles  @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "model_has_roles_role_id_foreign")
+
+  @@id([role_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_roles_model_id_model_type_index")
+}
+
+model notifications {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  title      String?   @db.VarChar(255)
+  type       String?   @db.VarChar(255)
+  read_at    DateTime? @db.Timestamp(0)
+  user_id    BigInt?   @db.UnsignedBigInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  users      users?    @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "notifications_user_id_foreign")
+
+  @@index([user_id], map: "notifications_user_id_foreign")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model password_reset_tokens {
+  email      String
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+
+  @@index([email], map: "password_resets_email_index")
+  @@ignore
+}
+
+model patient_medical_record_blood_pressures {
+  id                        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  patient_medical_record_id BigInt    @db.UnsignedBigInt
+  bp_systolic               Int
+  bp_diastolic              Int
+  date                      DateTime  @default(now()) @db.Timestamp(0)
+  created_at                DateTime? @db.Timestamp(0)
+  updated_at                DateTime? @db.Timestamp(0)
+}
+
+model patient_medical_record_documents {
+  id                        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  patient_medical_record_id BigInt    @db.UnsignedBigInt
+  path                      String    @db.VarChar(255)
+  type                      String    @db.VarChar(255)
+  file_name                 String?   @db.VarChar(255)
+  title                     String?   @db.VarChar(255)
+  category_id               Int
+  created_at                DateTime? @db.Timestamp(0)
+  updated_at                DateTime? @db.Timestamp(0)
+}
+
+model patient_medical_record_histories {
+  id                        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  patient_medical_record_id BigInt    @db.UnsignedBigInt
+  created_by                BigInt    @db.UnsignedBigInt
+  type                      Int       @default(1) @db.TinyInt
+  data                      String    @db.Text
+  created_at                DateTime? @db.Timestamp(0)
+  updated_at                DateTime? @db.Timestamp(0)
+}
+
+model patient_medical_record_pulse_rates {
+  id                        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  patient_medical_record_id BigInt    @db.UnsignedBigInt
+  pulse                     Int
+  date                      DateTime  @default(now()) @db.Timestamp(0)
+  created_at                DateTime? @db.Timestamp(0)
+  updated_at                DateTime? @db.Timestamp(0)
+}
+
+model patient_medical_record_temperatures {
+  id                        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  patient_medical_record_id BigInt    @db.UnsignedBigInt
+  temperature               Int
+  date                      DateTime  @default(now()) @db.Timestamp(0)
+  created_at                DateTime? @db.Timestamp(0)
+  updated_at                DateTime? @db.Timestamp(0)
+}
+
+model patient_medical_record_weights {
+  id                        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  patient_medical_record_id BigInt    @db.UnsignedBigInt
+  weight                    Int
+  date                      DateTime  @default(now()) @db.Timestamp(0)
+  created_at                DateTime? @db.Timestamp(0)
+  updated_at                DateTime? @db.Timestamp(0)
+}
+
+model patient_medical_records {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  patient_id       BigInt    @db.UnsignedBigInt
+  allergy          String?   @db.Text
+  important_notes  String?   @db.Text
+  notes            String?   @db.Text
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+  notes_updated_at DateTime? @db.Timestamp(0)
+  diagnosis        String?   @db.VarChar(255)
+  changed          Boolean   @default(false)
+  clinic_id        BigInt    @default(1) @db.UnsignedBigInt
+}
+
+model patients {
+  id                  Int                  @id @default(autoincrement()) @db.UnsignedInt
+  patient_unique_id   String               @unique(map: "patients_patient_unique_id_unique")
+  patient_mrn         String               @db.VarChar(255)
+  user_id             BigInt               @unique @db.UnsignedBigInt
+  template_id         BigInt?              @db.UnsignedBigInt
+  qr_code             String?              @db.VarChar(255)
+  created_at          DateTime?            @db.Timestamp(0)
+  updated_at          DateTime?            @db.Timestamp(0)
+  live_consultations  live_consultations[]
+  smart_patient_cards smart_patient_cards? @relation(fields: [template_id], references: [id], onDelete: Cascade, map: "patients_template_id_foreign")
+  users               users                @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "patients_user_id_foreign")
+  prescriptions       prescriptions[]
+  reviews             reviews[]
+  visits              visits[]
+
+  @@index([template_id], map: "patients_template_id_foreign")
+  @@index([user_id], map: "patients_user_id_foreign")
+}
+
+model payment_gateways {
+  id                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  payment_gateway_id Int
+  payment_gateway    String    @db.VarChar(255)
+  created_at         DateTime? @db.Timestamp(0)
+  updated_at         DateTime? @db.Timestamp(0)
+  clinic_id          BigInt    @default(1) @db.UnsignedBigInt
+}
+
+model permissions {
+  id                    BigInt                  @id @default(autoincrement()) @db.UnsignedBigInt
+  name                  String
+  display_name          String                  @db.VarChar(255)
+  guard_name            String
+  created_at            DateTime?               @db.Timestamp(0)
+  updated_at            DateTime?               @db.Timestamp(0)
+  model_has_permissions model_has_permissions[]
+  role                  roles[]                 @relation("role_has_permissions")
+
+  @@unique([name, guard_name], map: "permissions_name_guard_name_unique")
+}
+
+model prescriptions {
+  id                      BigInt                    @id @default(autoincrement()) @db.UnsignedBigInt
+  appointment_id          BigInt                    @db.UnsignedBigInt
+  patient_id              Int                       @db.UnsignedInt
+  doctor_id               BigInt?                   @db.UnsignedBigInt
+  food_allergies          String?                   @db.VarChar(255)
+  tendency_bleed          String?                   @db.VarChar(255)
+  heart_disease           String?                   @db.VarChar(255)
+  high_blood_pressure     String?                   @db.VarChar(255)
+  diabetic                String?                   @db.VarChar(255)
+  surgery                 String?                   @db.VarChar(255)
+  accident                String?                   @db.VarChar(255)
+  others                  String?                   @db.VarChar(255)
+  medical_history         String?                   @db.VarChar(255)
+  current_medication      String?                   @db.VarChar(255)
+  female_pregnancy        String?                   @db.VarChar(255)
+  breast_feeding          String?                   @db.VarChar(255)
+  health_insurance        String?                   @db.VarChar(255)
+  low_income              String?                   @db.VarChar(255)
+  reference               String?                   @db.VarChar(255)
+  status                  Boolean?
+  plus_rate               String?                   @db.VarChar(100)
+  temperature             String?                   @db.VarChar(100)
+  problem_description     String?                   @db.VarChar(100)
+  test                    String?                   @db.VarChar(100)
+  advice                  String?                   @db.VarChar(100)
+  created_at              DateTime?                 @db.Timestamp(0)
+  updated_at              DateTime?                 @db.Timestamp(0)
+  doctors                 doctors?                  @relation(fields: [doctor_id], references: [id], onDelete: Cascade, map: "prescriptions_doctor_id_foreign")
+  patients                patients                  @relation(fields: [patient_id], references: [id], onDelete: Cascade, map: "prescriptions_patient_id_foreign")
+  prescriptions_medicines prescriptions_medicines[]
+
+  @@index([doctor_id], map: "prescriptions_doctor_id_foreign")
+  @@index([patient_id], map: "prescriptions_patient_id_foreign")
+}
+
+model prescriptions_medicines {
+  id              BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  prescription_id BigInt        @db.UnsignedBigInt
+  medicine        BigInt        @db.UnsignedBigInt
+  dosage          String?       @db.VarChar(255)
+  day             String?       @db.VarChar(255)
+  dose_interval   Int
+  time            String?       @db.VarChar(255)
+  comment         String?       @db.VarChar(255)
+  created_at      DateTime?     @db.Timestamp(0)
+  updated_at      DateTime?     @db.Timestamp(0)
+  medicines       medicines     @relation(fields: [medicine], references: [id], onDelete: Cascade, map: "prescriptions_medicines_medicine_foreign")
+  prescriptions   prescriptions @relation(fields: [prescription_id], references: [id], onDelete: Cascade, map: "prescriptions_medicines_prescription_id_foreign")
+
+  @@index([medicine], map: "prescriptions_medicines_medicine_foreign")
+  @@index([prescription_id], map: "prescriptions_medicines_prescription_id_foreign")
+}
+
+model purchase_medicines {
+  id                  BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  purchase_no         String                @db.VarChar(255)
+  tax                 Float
+  total               Float
+  net_amount          Float
+  payment_type        Int
+  discount            Float
+  note                String?               @db.VarChar(255)
+  payment_note        String?               @db.VarChar(255)
+  created_at          DateTime?             @db.Timestamp(0)
+  updated_at          DateTime?             @db.Timestamp(0)
+  brand_id            BigInt?               @db.UnsignedBigInt
+  shipping_fee        Float
+  clinic_id           BigInt                @default(1) @db.UnsignedBigInt
+  purchased_medicines purchased_medicines[]
+}
+
+model purchased_medicines {
+  id                    BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  purchase_medicines_id BigInt             @db.UnsignedBigInt
+  medicine_id           BigInt?            @db.UnsignedBigInt
+  expiry_date           DateTime?          @db.DateTime(0)
+  lot_no                String             @db.VarChar(255)
+  tax                   Float
+  quantity              Int
+  amount                Float
+  created_at            DateTime?          @db.Timestamp(0)
+  updated_at            DateTime?          @db.Timestamp(0)
+  label_id              BigInt?            @db.UnsignedBigInt
+  medicines             medicines?         @relation(fields: [medicine_id], references: [id], map: "purchased_medicines_medicine_id_foreign")
+  purchase_medicines    purchase_medicines @relation(fields: [purchase_medicines_id], references: [id], onDelete: Cascade, map: "purchased_medicines_purchase_medicines_id_foreign")
+
+  @@index([medicine_id], map: "purchased_medicines_medicine_id_foreign")
+  @@index([purchase_medicines_id], map: "purchased_medicines_purchase_medicines_id_foreign")
+}
+
+model qualifications {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt    @db.UnsignedBigInt
+  degree     String    @db.VarChar(255)
+  university String    @db.VarChar(255)
+  year       String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "qualifications_user_id_foreign")
+
+  @@index([user_id], map: "qualifications_user_id_foreign")
+}
+
+model reviews {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  patient_id Int       @db.UnsignedInt
+  doctor_id  BigInt    @db.UnsignedBigInt
+  review     String    @db.VarChar(255)
+  rating     Int
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  doctors    doctors   @relation(fields: [doctor_id], references: [id], onDelete: Cascade, map: "reviews_doctor_id_foreign")
+  patients   patients  @relation(fields: [patient_id], references: [id], onDelete: Cascade, map: "reviews_patient_id_foreign")
+
+  @@index([doctor_id], map: "reviews_doctor_id_foreign")
+  @@index([patient_id], map: "reviews_patient_id_foreign")
+}
+
+model roles {
+  id              BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  name            String
+  display_name    String            @db.VarChar(255)
+  is_default      Int               @default(0)
+  guard_name      String
+  created_at      DateTime?         @db.Timestamp(0)
+  updated_at      DateTime?         @db.Timestamp(0)
+  clinic_id       BigInt            @default(1) @db.UnsignedBigInt
+  model_has_roles model_has_roles[]
+  permissions     permissions[]     @relation("role_has_permissions")
+
+  @@unique([name, guard_name], map: "roles_name_guard_name_unique")
+}
+
+model sale_medicines {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  medicine_bill_id BigInt    @db.UnsignedBigInt
+  medicine_id      BigInt    @db.UnsignedBigInt
+  sale_quantity    Int
+  sale_price       Float
+  tax              Float
+  expiry_date      DateTime  @db.DateTime(0)
+  amount           Float
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+}
+
+model service_categories {
+  id         BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String     @db.VarChar(255)
+  created_at DateTime?  @db.Timestamp(0)
+  updated_at DateTime?  @db.Timestamp(0)
+  clinic_id  BigInt     @default(1) @db.UnsignedBigInt
+  services   services[]
+}
+
+model service_doctor {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  service_id BigInt   @db.UnsignedBigInt
+  doctor_id  BigInt   @db.UnsignedBigInt
+  doctors    doctors  @relation(fields: [doctor_id], references: [id], onDelete: Cascade, map: "service_doctor_doctor_id_foreign")
+  services   services @relation(fields: [service_id], references: [id], onDelete: Cascade, map: "service_doctor_service_id_foreign")
+
+  @@index([doctor_id], map: "service_doctor_doctor_id_foreign")
+  @@index([service_id], map: "service_doctor_service_id_foreign")
+}
+
+model services {
+  id                 BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  category_id        BigInt             @db.UnsignedBigInt
+  name               String             @db.VarChar(255)
+  charges            Float?
+  status             Boolean            @default(true)
+  created_at         DateTime?          @db.Timestamp(0)
+  updated_at         DateTime?          @db.Timestamp(0)
+  short_description  String             @db.Text
+  clinic_id          BigInt             @default(1) @db.UnsignedBigInt
+  service_doctor     service_doctor[]
+  service_categories service_categories @relation(fields: [category_id], references: [id], onDelete: Cascade, map: "services_category_id_foreign")
+
+  @@index([category_id], map: "services_category_id_foreign")
+}
+
+model session_week_days {
+  id                BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  doctor_id         BigInt          @db.UnsignedBigInt
+  doctor_session_id BigInt          @db.UnsignedBigInt
+  day_of_week       String          @db.VarChar(255)
+  start_time        String          @db.VarChar(255)
+  end_time          String          @db.VarChar(255)
+  start_time_type   String          @db.VarChar(255)
+  end_time_type     String          @db.VarChar(255)
+  created_at        DateTime?       @db.Timestamp(0)
+  updated_at        DateTime?       @db.Timestamp(0)
+  clinic_id         BigInt          @default(1) @db.UnsignedBigInt
+  doctors           doctors         @relation(fields: [doctor_id], references: [id], onDelete: Cascade, map: "session_week_days_doctor_id_foreign")
+  doctor_sessions   doctor_sessions @relation(fields: [doctor_session_id], references: [id], onDelete: Cascade, map: "session_week_days_doctor_session_id_foreign")
+
+  @@index([doctor_id], map: "session_week_days_doctor_id_foreign")
+  @@index([doctor_session_id], map: "session_week_days_doctor_session_id_foreign")
+}
+
+model settings {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  key        String    @db.VarChar(255)
+  value      String    @db.Text
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  clinic_id  BigInt    @default(1) @db.UnsignedBigInt
+}
+
+model sliders {
+  id                Int       @id @default(autoincrement()) @db.UnsignedInt
+  title             String    @db.VarChar(255)
+  short_description String    @db.Text
+  is_default        Boolean   @default(false)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+  clinic_id         BigInt    @default(1) @db.UnsignedBigInt
+}
+
+model smart_patient_cards {
+  id                     BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  template_name          String     @db.VarChar(255)
+  address                String     @db.VarChar(255)
+  header_color           String     @db.VarChar(255)
+  show_email             Boolean    @default(true)
+  show_phone             Boolean    @default(true)
+  show_dob               Boolean    @default(true)
+  show_blood_group       Boolean    @default(true)
+  show_address           Boolean    @default(true)
+  show_patient_unique_id Boolean    @default(true)
+  created_at             DateTime?  @db.Timestamp(0)
+  updated_at             DateTime?  @db.Timestamp(0)
+  clinic_id              BigInt     @default(1) @db.UnsignedBigInt
+  patients               patients[]
+}
+
+model specializations {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  clinic_id  BigInt    @default(1) @db.UnsignedBigInt
+}
+
+model states {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  country_id BigInt    @db.UnsignedBigInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  countries  countries @relation(fields: [country_id], references: [id], onDelete: Cascade, map: "states_country_id_foreign")
+
+  @@index([country_id], map: "states_country_id_foreign")
+}
+
+model subscribes {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  email      String    @unique(map: "subscribes_email_unique")
+  subscribe  Boolean
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  clinic_id  BigInt    @default(1) @db.UnsignedBigInt
+}
+
+model transaction_invoice_receipts {
+  id                     BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  transaction_invoice_id BigInt    @db.UnsignedBigInt
+  receipt_number         String    @db.VarChar(255)
+  service_amount         Float     @default(0.00)
+  inventory_amount       Float     @default(0.00)
+  amount                 Float     @default(0.00)
+  created_at             DateTime? @db.Timestamp(0)
+  updated_at             DateTime? @db.Timestamp(0)
+}
+
+model transaction_invoice_services {
+  id                     BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  transaction_invoice_id BigInt    @db.UnsignedBigInt
+  service_id             BigInt    @db.UnsignedBigInt
+  type                   String    @db.VarChar(255)
+  name                   String    @db.VarChar(255)
+  description            String    @db.VarChar(255)
+  quantity               Float
+  price                  Float
+  discount               Float
+  sub_total              Float
+  uom                    String    @db.VarChar(255)
+  dosage                 String    @db.VarChar(255)
+  frequency              String    @db.VarChar(255)
+  administration         String    @db.VarChar(255)
+  purpose                String    @db.VarChar(255)
+  created_at             DateTime? @db.Timestamp(0)
+  updated_at             DateTime? @db.Timestamp(0)
+}
+
+model transaction_invoices {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  doctor_id       BigInt?   @db.UnsignedBigInt
+  user_id         BigInt?   @db.UnsignedBigInt
+  invoice_number  String    @db.VarChar(255)
+  important_notes String?   @db.Text
+  tax             Float
+  total           Float
+  net_amount      Float
+  discount        Float
+  payment_type    Int?
+  status          Int       @default(0)
+  note            String?   @db.VarChar(255)
+  payment_note    String?   @db.VarChar(255)
+  bill_date       DateTime  @default(now()) @db.Timestamp(0)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  visit_id        BigInt?   @db.UnsignedBigInt
+  clinic_id       BigInt    @default(1) @db.UnsignedBigInt
+}
+
+model transaction_medical_certificates {
+  id                     BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  transaction_invoice_id BigInt    @db.UnsignedBigInt
+  doctor_ids             String?   @db.LongText
+  reason                 String?   @db.Text
+  description            String?   @db.Text
+  type                   Int?      @db.TinyInt
+  start_date             DateTime  @default(now()) @db.Timestamp(0)
+  end_date               DateTime  @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  start_time             String?   @db.VarChar(50)
+  end_time               String?   @db.VarChar(50)
+  created_at             DateTime? @db.Timestamp(0)
+  updated_at             DateTime? @db.Timestamp(0)
+  doctor_id              BigInt    @db.UnsignedBigInt
+  certificate_number     String    @db.VarChar(255)
+}
+
+model transactions {
+  id                                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id                               BigInt?   @db.UnsignedBigInt
+  transaction_id                        String    @db.VarChar(255)
+  appointment_id                        String    @db.VarChar(255)
+  amount                                Float
+  type                                  Int
+  status                                Boolean?  @default(true)
+  accepted_by                           BigInt?   @db.UnsignedBigInt
+  meta                                  String?   @db.Text
+  created_at                            DateTime? @db.Timestamp(0)
+  updated_at                            DateTime? @db.Timestamp(0)
+  user_name                             String?   @db.VarChar(255)
+  users_transactions_accepted_byTousers users?    @relation("transactions_accepted_byTousers", fields: [accepted_by], references: [id], onDelete: Cascade, map: "transactions_accepted_by_foreign")
+  users_transactions_user_idTousers     users?    @relation("transactions_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, map: "transactions_user_id_foreign")
+
+  @@index([accepted_by], map: "transactions_accepted_by_foreign")
+  @@index([user_id], map: "transactions_user_id_foreign")
+}
+
+model units {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  unit       String?   @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model used_medicines {
+  id          BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  stock_used  Int
+  medicine_id BigInt?    @db.UnsignedBigInt
+  model_id    Int
+  model_type  String     @db.VarChar(255)
+  created_at  DateTime?  @db.Timestamp(0)
+  updated_at  DateTime?  @db.Timestamp(0)
+  medicines   medicines? @relation(fields: [medicine_id], references: [id], onDelete: Cascade, map: "used_medicines_medicine_id_foreign")
+
+  @@index([medicine_id], map: "used_medicines_medicine_id_foreign")
+}
+
+model user_clinics {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt    @db.UnsignedBigInt
+  clinic_id  BigInt    @db.UnsignedBigInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+
+  user   users   @relation(fields: [user_id], references: [id])
+  clinic clinics @relation(fields: [clinic_id], references: [id])
+}
+
+model user_google_appointments {
+  id                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id            BigInt    @db.UnsignedBigInt
+  appointment_id     String    @db.VarChar(255)
+  google_calendar_id String    @db.VarChar(255)
+  google_event_id    String    @db.VarChar(255)
+  created_at         DateTime? @db.Timestamp(0)
+  updated_at         DateTime? @db.Timestamp(0)
+  users              users     @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "user_google_appointments_user_id_foreign")
+
+  @@index([user_id], map: "user_google_appointments_user_id_foreign")
+}
+
+model user_zoom_credential {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id         BigInt    @db.UnsignedBigInt
+  zoom_api_key    String    @db.VarChar(255)
+  zoom_api_secret String    @db.VarChar(255)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  users           users     @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "user_zoom_credential_user_id_foreign")
+
+  @@index([user_id], map: "user_zoom_credential_user_id_foreign")
+}
+
+model users {
+  id                                           BigInt                         @id @default(autoincrement()) @db.UnsignedBigInt
+  first_name                                   String                         @db.VarChar(255)
+  last_name                                    String                         @db.VarChar(255)
+  email                                        String
+  contact                                      String?                        @db.VarChar(255)
+  dob                                          String                         @db.VarChar(255)
+  gender                                       Int?
+  status                                       Boolean                        @default(true)
+  language                                     String?                        @default("en") @db.VarChar(255)
+  email_verified_at                            DateTime?                      @db.Timestamp(0)
+  password                                     String                         @db.VarChar(255)
+  type                                         Int?
+  blood_group                                  String?                        @db.VarChar(255)
+  G6PD                                         String?                        @db.VarChar(255)
+  allergy                                      String?                        @db.VarChar(255)
+  food_allergy                                 String?                        @db.VarChar(255)
+  region_code                                  String?                        @db.VarChar(255)
+  marital_status                               String?                        @db.VarChar(255)
+  race                                         String                         @db.VarChar(255)
+  ethnicity                                    String                         @db.VarChar(255)
+  id_type                                      String                         @db.VarChar(255)
+  id_number                                    String                         @db.VarChar(255)
+  nationality                                  String                         @db.VarChar(255)
+  religion                                     String                         @db.VarChar(255)
+  remember_token                               String?                        @db.VarChar(100)
+  created_at                                   DateTime?                      @db.Timestamp(0)
+  updated_at                                   DateTime?                      @db.Timestamp(0)
+  email_notification                           Boolean                        @default(true)
+  time_zone                                    String?                        @db.VarChar(255)
+  dark_mode                                    Boolean                        @default(false)
+  important_notes                              String?                        @db.Text
+  clinic_id                                    BigInt                         @default(1) @db.UnsignedBigInt
+  show_all_data                                Boolean
+  clinic_chain_id                              BigInt?                        @db.UnsignedBigInt
+  appointment_google_calendars                 appointment_google_calendars[]
+  google_calendar_integrations                 google_calendar_integrations[]
+  google_calendar_lists                        google_calendar_lists[]
+  notifications                                notifications[]
+  qualifications                               qualifications[]
+  transactions_transactions_accepted_byTousers transactions[]                 @relation("transactions_accepted_byTousers")
+  transactions_transactions_user_idTousers     transactions[]                 @relation("transactions_user_idTousers")
+  user_google_appointments                     user_google_appointments[]
+  user_zoom_credential                         user_zoom_credential[]
+  zoom_o_auth_credentials                      zoom_o_auth_credentials[]
+  user_clinics                                 user_clinics[]
+  doctor                                       doctors?
+  patient                                      patients?
+}
+
+model visit_notes {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  note_name  String    @db.Text
+  visit_id   BigInt    @db.UnsignedBigInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  visits     visits    @relation(fields: [visit_id], references: [id], onDelete: Cascade, map: "visit_notes_visit_id_foreign")
+
+  @@index([visit_id], map: "visit_notes_visit_id_foreign")
+}
+
+model visit_observations {
+  id               Int       @id @default(autoincrement()) @db.UnsignedInt
+  observation_name String    @db.Text
+  visit_id         BigInt    @db.UnsignedBigInt
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+  visits           visits    @relation(fields: [visit_id], references: [id], onDelete: Cascade, map: "visit_observations_visit_id_foreign")
+
+  @@index([visit_id], map: "visit_observations_visit_id_foreign")
+}
+
+model visit_prescriptions {
+  id                Int       @id @default(autoincrement()) @db.UnsignedInt
+  visit_id          BigInt    @db.UnsignedBigInt
+  prescription_name String    @db.VarChar(255)
+  frequency         String    @db.VarChar(255)
+  duration          String    @db.VarChar(255)
+  description       String?   @db.Text
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+  visits            visits    @relation(fields: [visit_id], references: [id], onDelete: Cascade, map: "visit_prescriptions_visit_id_foreign")
+
+  @@index([visit_id], map: "visit_prescriptions_visit_id_foreign")
+}
+
+model visit_problems {
+  id           Int       @id @default(autoincrement()) @db.UnsignedInt
+  problem_name String    @db.Text
+  visit_id     BigInt    @db.UnsignedBigInt
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  visits       visits    @relation(fields: [visit_id], references: [id], onDelete: Cascade, map: "visit_problems_visit_id_foreign")
+
+  @@index([visit_id], map: "visit_problems_visit_id_foreign")
+}
+
+model visits {
+  id                  BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  visit_date          String                @db.VarChar(255)
+  visit_type          String                @db.VarChar(255)
+  doctor_id           BigInt                @db.UnsignedBigInt
+  patient_id          Int                   @db.UnsignedInt
+  description         String?               @db.Text
+  id_type             Int
+  id_number           Int
+  dob                 String                @db.VarChar(255)
+  age                 Int
+  region_code         String                @db.VarChar(255)
+  contact_no          String                @db.VarChar(255)
+  created_at          DateTime?             @db.Timestamp(0)
+  updated_at          DateTime?             @db.Timestamp(0)
+  important_notes     String?               @db.Text
+  encounter_id        String?
+  deleted_at          DateTime?             @db.Timestamp(0)
+  status              Int                   @default(1) @db.TinyInt
+  appointment_id      BigInt?               @db.UnsignedBigInt
+  checkout_date       String?               @db.VarChar(255)
+  clinic_id           BigInt                @default(1) @db.UnsignedBigInt
+  visit_notes         visit_notes[]
+  visit_observations  visit_observations[]
+  visit_prescriptions visit_prescriptions[]
+  visit_problems      visit_problems[]
+  doctors             doctors               @relation(fields: [doctor_id], references: [id], onDelete: Cascade, map: "visits_doctor_id_foreign")
+  patients            patients              @relation(fields: [patient_id], references: [id], onDelete: Cascade, map: "visits_patient_id_foreign")
+
+  @@index([doctor_id], map: "visits_doctor_id_foreign")
+  @@index([patient_id], map: "visits_patient_id_foreign")
+}
+
+model zoom_o_auth_credentials {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id       BigInt    @db.UnsignedBigInt
+  access_token  String    @db.Text
+  refresh_token String    @db.Text
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+  users         users     @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "zoom_o_auth_credentials_user_id_foreign")
+
+  @@index([user_id], map: "zoom_o_auth_credentials_user_id_foreign")
+}
