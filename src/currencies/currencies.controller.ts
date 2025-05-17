@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, ParseIntPipe, Query, UseGuards, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ValidationPipe,
+  ParseIntPipe,
+  Query,
+  UseGuards,
+  NotFoundException,
+} from '@nestjs/common';
 import { CurrenciesService } from './currencies.service';
 import { CreateCurrencyDto } from './dto/create-currency.dto';
 import { UpdateCurrencyDto } from './dto/update-currency.dto';
@@ -15,10 +28,12 @@ export class CurrenciesController {
   ) {}
 
   @Post()
-  async create(@Body(new ValidationPipe()) createCurrencyDto: CreateCurrencyDto) {
+  async create(
+    @Body(new ValidationPipe()) createCurrencyDto: CreateCurrencyDto,
+  ) {
     this.currenciesService.create(createCurrencyDto);
     return {
-      message : await this.i18n.t('main.messages.flash.currency_create')
+      message: await this.i18n.t('main.messages.flash.currency_create'),
     };
   }
 
@@ -33,12 +48,15 @@ export class CurrenciesController {
   }
 
   @Patch(':id')
-  async update(@Param('id', ParseIntPipe) id: number, @Body(new ValidationPipe()) updateCurrencyDto: UpdateCurrencyDto) {
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(new ValidationPipe()) updateCurrencyDto: UpdateCurrencyDto,
+  ) {
     const result = await this.currenciesService.update(+id, updateCurrencyDto);
     if (result) {
       return {
-        message : await this.i18n.t('main.messages.flash.currency_update')
-      }
+        message: await this.i18n.t('main.messages.flash.currency_update'),
+      };
     }
   }
 
@@ -47,8 +65,8 @@ export class CurrenciesController {
     const result = await this.currenciesService.remove(id);
     if (result.affected === 1) {
       return {
-        message : await this.i18n.t('main.messages.flash.currency_delete')
-      }
+        message: await this.i18n.t('main.messages.flash.currency_delete'),
+      };
     }
   }
 }

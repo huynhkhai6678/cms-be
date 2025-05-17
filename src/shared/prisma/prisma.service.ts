@@ -1,9 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '../../../generated/prisma';
 
-@Injectable(
-  
-)
+@Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
   async onModuleInit() {
     await this.$connect();
@@ -21,19 +19,19 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   }: PaginateAndSearchOptions): Promise<{
     data: T[];
     pagination: {
-        page: number;
-        limit: number;
-        total: number;
-        totalPages: number;
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
     };
-    }> {
+  }> {
     const {
-        search,
-        page = 1,
-        limit = 10,
-        orderBy,
-        order,
-        ...restFilters
+      search,
+      page = 1,
+      limit = 10,
+      orderBy,
+      order,
+      ...restFilters
     } = query;
 
     const take = Number(limit);
@@ -44,37 +42,41 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 
     // Search logic
     if (search && searchFields.length) {
-        filters.push({
+      filters.push({
         OR: searchFields.map((field) => ({
-            [field]: {
+          [field]: {
             contains: search,
             mode: 'insensitive',
-            },
+          },
         })),
-        });
+      });
     }
 
     // Exact field filters
     for (const field of filterFields) {
-        const value = restFilters[field];
-        if (value !== undefined && value !== '') {
+      const value = restFilters[field];
+      if (value !== undefined && value !== '') {
         filters.push({
-            [field]: value,
+          [field]: value,
         });
-        }
+      }
     }
 
     // Combine all filters into Prisma's `where`
     const where = filters.length > 0 ? { AND: filters } : {};
 
     // Safe ordering
-    const safeOrderBy = allowedOrderFields.includes(orderBy) ? orderBy : defaultOrderField;
-    const safeOrder = ['asc', 'desc'].includes((order || '').toLowerCase()) ? order.toLowerCase() : defaultOrderDirection;
+    const safeOrderBy = allowedOrderFields.includes(orderBy)
+      ? orderBy
+      : defaultOrderField;
+    const safeOrder = ['asc', 'desc'].includes((order || '').toLowerCase())
+      ? order.toLowerCase()
+      : defaultOrderDirection;
 
     // Query database
     const [total, data] = await Promise.all([
-        prismaModel.count({ where }),
-        prismaModel.findMany({
+      prismaModel.count({ where }),
+      prismaModel.findMany({
         where,
         take,
         skip,
@@ -84,8 +86,8 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     ]);
 
     return {
-        data: this.convertBigIntToString(data),
-        pagination: {
+      data: this.convertBigIntToString(data),
+      pagination: {
         page: Number(page),
         limit: take,
         total,

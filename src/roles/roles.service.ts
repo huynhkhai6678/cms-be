@@ -3,25 +3,25 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { DatabaseService } from '../shared/database/database.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from './entities/role.entity';
+import { Role } from '../entites/role.entity';
 import { In, Repository } from 'typeorm';
-import { Permission } from './entities/permission.entity';
+import { Permission } from '../entites/permission.entity';
 
 @Injectable()
 export class RolesService {
-  constructor( 
+  constructor(
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
-    private database : DatabaseService
+    private database: DatabaseService,
   ) {}
 
   async create(createRoleDto: CreateRoleDto) {
     const role = await this.roleRepository.findOne({
-      where : {
-        display_name : createRoleDto.display_name 
-      }
+      where: {
+        display_name: createRoleDto.display_name,
+      },
     });
 
     if (role) {
@@ -50,47 +50,52 @@ export class RolesService {
       allowedOrderFields: ['name', 'created_at'],
       defaultOrderField: 'created_at',
       defaultOrderDirection: 'DESC',
+      selectFields : [],
       relations: ['permissions'],
     });
   }
 
   async findOne(id: number) {
     const leftList = [
-      'manage_front_cms', 
-      'manage_settings', 
+      'manage_front_cms',
+      'manage_settings',
       'manage_specialities',
-      'manage_doctors', 
-      'manage_staff', 
-      'manage_doctors_holiday', 
+      'manage_doctors',
+      'manage_staff',
+      'manage_doctors_holiday',
       'manage_doctor_sessions',
     ];
 
     const rightList = [
       'manage_admin_dashboard',
-      'manage_appointments', 
-      'manage_patients', 
+      'manage_appointments',
+      'manage_patients',
       'manage_patient_visits',
-      'manage_transactions', 
-      'manage_medicines', 
-      'manage_clinic_service', 
+      'manage_transactions',
+      'manage_medicines',
+      'manage_clinic_service',
       'manage_report',
     ];
 
     const role = await this.roleRepository.findOne({
-      where : {
-        id
+      where: {
+        id,
       },
-      relations : {
-        permissions : true
-      }
+      relations: {
+        permissions: true,
+      },
     });
     const permissions = await this.permissionRepository.find();
 
     return {
       data: role,
-      left_list : permissions.filter(permission => { return leftList.includes(permission.name)}),
-      right_list : permissions.filter(permission => { return rightList.includes(permission.name)})
-    }
+      left_list: permissions.filter((permission) => {
+        return leftList.includes(permission.name);
+      }),
+      right_list: permissions.filter((permission) => {
+        return rightList.includes(permission.name);
+      }),
+    };
   }
 
   async update(id: number, updateRoleDto: UpdateRoleDto) {

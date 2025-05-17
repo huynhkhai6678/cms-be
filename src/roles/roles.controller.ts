@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ValidationPipe, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ValidationPipe,
+  BadRequestException,
+} from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -8,7 +19,7 @@ import { I18nService } from 'nestjs-i18n';
 export class RolesController {
   constructor(
     private readonly rolesService: RolesService,
-    private i18n: I18nService
+    private i18n: I18nService,
   ) {}
 
   @Post()
@@ -18,8 +29,8 @@ export class RolesController {
       throw new BadRequestException('Error');
     }
     return {
-      message : await this.i18n.t('main.messages.flash.role_create')
-    }
+      message: await this.i18n.t('main.messages.flash.role_create'),
+    };
   }
 
   @Get()
@@ -33,21 +44,24 @@ export class RolesController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body(new ValidationPipe()) updateRoleDto: UpdateRoleDto) {
+  async update(
+    @Param('id') id: string,
+    @Body(new ValidationPipe()) updateRoleDto: UpdateRoleDto,
+  ) {
     const result = await this.rolesService.update(+id, updateRoleDto);
     if (!result) {
       throw new BadRequestException('Error');
     }
     return {
-      message : await this.i18n.t('main.messages.flash.role_create')
-    }
+      message: await this.i18n.t('main.messages.flash.role_create'),
+    };
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
     this.rolesService.remove(+id);
     return {
-      message : await this.i18n.t('main.messages.flash.role_delete')
-    }
+      message: await this.i18n.t('main.messages.flash.role_delete'),
+    };
   }
 }

@@ -3,8 +3,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../users/entities/user.entity';
-import { Role } from 'src/roles/entities/role.entity';
+import { User } from '../entites/user.entity';
+import { Role } from 'src/entites/role.entity';
 
 @Module({
   imports: [
@@ -12,13 +12,13 @@ import { Role } from 'src/roles/entities/role.entity';
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
-      signOptions: { 
-        expiresIn: process.env.JWT_EXPIRES_IN 
+      signOptions: {
+        expiresIn: process.env.JWT_EXPIRES_IN,
       },
     }),
   ],
   controllers: [AuthController],
   providers: [AuthService],
-  exports: [AuthService]
+  exports: [AuthService],
 })
 export class AuthModule {}

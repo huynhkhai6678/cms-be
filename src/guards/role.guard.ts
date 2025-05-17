@@ -1,4 +1,3 @@
-
 import {
   CanActivate,
   ExecutionContext,
@@ -29,7 +28,9 @@ export class RoleGuard implements CanActivate {
       throw new ForbiddenException('User not found');
     }
 
-    let role = user?.role.permissions.filter(p => { return p.name === this.permission });
+    let role = user?.role.permissions.filter((p) => {
+      return p.name === this.permission;
+    });
     if (!role.length) {
       return false;
     }

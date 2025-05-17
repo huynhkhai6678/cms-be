@@ -5,4 +5,5 @@ export const AppointmentStatus = {
   CANCELLED: 4,
 } as const;
 
-export type AppointmentStatusType = typeof AppointmentStatus[keyof typeof AppointmentStatus];
+export type AppointmentStatusType =
+  (typeof AppointmentStatus)[keyof typeof AppointmentStatus];

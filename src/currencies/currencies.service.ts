@@ -4,18 +4,17 @@ import { UpdateCurrencyDto } from './dto/update-currency.dto';
 import { DatabaseService } from 'src/shared/database/database.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Currency } from './entities/currency.entity';
+import { Currency } from '../entites/currency.entity';
 import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class CurrenciesService {
-
   constructor(
     @InjectRepository(Currency)
     private readonly currencyRepository: Repository<Currency>,
-    private database : DatabaseService
-  ) { }
-  
+    private database: DatabaseService,
+  ) {}
+
   create(createCurrencyDto: CreateCurrencyDto) {
     const currency = this.currencyRepository.create(createCurrencyDto);
     return this.currencyRepository.save(currency);
@@ -31,13 +30,14 @@ export class CurrenciesService {
       allowedOrderFields: ['currency_name', 'currency_icon', 'currency_code'],
       defaultOrderField: 'created_at',
       defaultOrderDirection: 'ASC',
+      selectFields : [],
       relations: [],
     });
   }
 
   async findOne(id: number) {
     return {
-      data : await this.currencyRepository.findOne({ where: { id } })
+      data: await this.currencyRepository.findOne({ where: { id } }),
     };
   }
 
