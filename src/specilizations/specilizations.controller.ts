@@ -1,20 +1,28 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ValidationPipe, BadRequestException } from '@nestjs/common';
 import { SpecilizationsService } from './specilizations.service';
 import { CreateSpecilizationDto } from './dto/create-specilization.dto';
 import { UpdateSpecilizationDto } from './dto/update-specilization.dto';
+import { I18nService } from 'nestjs-i18n';
 
-@Controller('specilizations')
+@Controller('specializations')
 export class SpecilizationsController {
-  constructor(private readonly specilizationsService: SpecilizationsService) {}
+  constructor(private readonly specilizationsService: SpecilizationsService, private i18n: I18nService) {}
 
   @Post()
-  create(@Body() createSpecilizationDto: CreateSpecilizationDto) {
-    return this.specilizationsService.create(createSpecilizationDto);
+  async create(@Body(new ValidationPipe()) createSpecilizationDto: CreateSpecilizationDto) {
+    let result = await this.specilizationsService.create(createSpecilizationDto);
+    if (!result) {
+      throw new BadRequestException('Error');
+    }
+
+    return {
+      message: await this.i18n.t('main.messages.flash.specialization_create'),
+    };
   }
 
   @Get()
-  findAll() {
-    return this.specilizationsService.findAll();
+  findAll(@Query() query) {
+    return this.specilizationsService.findAll(query);
   }
 
   @Get(':id')
@@ -28,7 +36,10 @@ export class SpecilizationsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.specilizationsService.remove(+id);
+  async remove(@Param('id') id: string) {
+    this.specilizationsService.remove(+id);
+    return {
+      message: await this.i18n.t('main.messages.flash.specialization_delete'),
+    };
   }
 }

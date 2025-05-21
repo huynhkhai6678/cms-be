@@ -9,13 +9,15 @@ import {
   JoinColumn,
   ManyToMany,
   JoinTable,
+  ManyToOne,
 } from 'typeorm';
 import { Doctor } from './doctor.entity';
 import { Patient } from './patient.entity';
 import { Role } from './role.entity';
 import { ClinicChain } from './clinic-chain.entity';
-import { UserClinic } from './user-clinic.entity';
 import { Clinic } from './clinic.entity';
+import { Address } from './address.entity';
+import { UserClinic } from './user-clinic.entity';
 
 @Entity('users')
 export class User {
@@ -157,7 +159,7 @@ export class User {
   clinic_chain_id?: number;
 
   // Relations
-  @OneToOne(() => ClinicChain, (clinicChain) => clinicChain.users)
+  @ManyToOne(() => ClinicChain, (clinicChain) => clinicChain.users)
   @JoinColumn({ name: 'clinic_chain_id' })
   clinic_chain: ClinicChain;
 
@@ -166,9 +168,6 @@ export class User {
 
   @OneToMany(() => Patient, (patient) => patient.user, { eager: false })
   patient: Patient;
-
-  @OneToMany(() => UserClinic, (uc) => uc.user)
-  userClinics: UserClinic[];
 
   @OneToOne(() => Role, (role) => role.users, {
     createForeignKeyConstraints: false,
@@ -183,4 +182,9 @@ export class User {
     inverseJoinColumn: { name: 'clinic_id', referencedColumnName: 'id' },
   })
   clinics: Clinic[];
+
+  @OneToMany(() => UserClinic, (userClinic) => userClinic.user)
+  user_clinics: UserClinic[];
+
+  address: Address;
 }

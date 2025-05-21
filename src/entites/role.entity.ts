@@ -24,10 +24,10 @@ export class Role {
   @Column({ name: 'display_name', length: 255 })
   display_name: string;
 
-  @Column({ name: 'is_default', type: 'int', default: 0 })
+  @Column({ name: 'is_default', type: 'tinyint', default: 0 })
   is_default: number;
 
-  @Column({ name: 'guard_name' })
+  @Column({ name: 'guard_name', type: 'varchar', length : 191 })
   guard_name: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp', nullable: true })

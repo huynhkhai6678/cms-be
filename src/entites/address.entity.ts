@@ -1,4 +1,3 @@
-import { User } from 'src/entites/user.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,

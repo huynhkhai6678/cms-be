@@ -1,3 +1,5 @@
+import { Transform } from 'class-transformer';
+import * as moment from 'moment';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -9,7 +11,7 @@ import {
 @Entity('enquiries')
 export class Enquiry {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-  id: string;
+  id: number;
 
   @Column({ type: 'varchar', length: 255 })
   name: string;
@@ -39,5 +41,5 @@ export class Enquiry {
   region_code?: string;
 
   @Column({ type: 'bigint', unsigned: true, default: 1 })
-  clinic_id: string;
+  clinic_id: number;
 }

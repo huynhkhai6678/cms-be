@@ -125,7 +125,6 @@ export class FrontService {
             .addSelect('COUNT(appointment.id)', 'appointmentCount')
             .groupBy('doctor.id')
             .addGroupBy('user.id')
-            .addGroupBy('userClinic.id')
             .addGroupBy('doctorSpecialization.id')
             .addGroupBy('specialization.id')
             .orderBy('appointmentCount', 'DESC')
@@ -165,15 +164,11 @@ export class FrontService {
 
     async getLanding(clinicId) {
         return {
-            slider : await this.sliderRepo.find({
-                where: {
-                    clinic_id : clinicId,
-                }
+            slider : await this.sliderRepo.findOneBy({
+                clinic_id : clinicId,
             }),
-            services : await this.serviceRepo.find({
-                where: {
-                    clinic_id : clinicId,
-                }
+            services : await this.serviceRepo.findBy({
+                clinic_id : clinicId,
             })
         }
     }

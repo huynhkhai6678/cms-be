@@ -10,6 +10,8 @@ import {
 import { Address } from './address.entity';
 import { User } from '../entites/user.entity';
 import { ClinicChain } from './clinic-chain.entity';
+import { Visit } from './visit.entity';
+import { TransactionInvoice } from './tranasction-invoice.entity';
 
 @Entity('clinics')
 export class Clinic {
@@ -59,4 +61,10 @@ export class Clinic {
 
   @ManyToMany(() => User, (user) => user.clinics)
   users: User[];
+
+  @OneToMany(() => Visit, (visit) => visit.clinic)
+  visits: Visit[];
+
+  @OneToMany(() => TransactionInvoice, (tran) => tran.clinic)
+  transactions: TransactionInvoice[];
 }

@@ -19,7 +19,7 @@ export class Appointment {
 
   @Index('appointments_doctor_id_foreign')
   @Column({ type: 'bigint', unsigned: true })
-  doctor_id: string;
+  doctor_id: number;
 
   @Index('appointments_patient_id_foreign')
   @Column({ type: 'int', unsigned: true, nullable: true })
@@ -90,7 +90,7 @@ export class Appointment {
   patient_name: string;
 
   @Column({ type: 'bigint', unsigned: true, default: 1 })
-  clinic_id: string;
+  clinic_id: number;
 
   //
   // RELATIONS

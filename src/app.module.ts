@@ -42,9 +42,22 @@ import { Slider } from './entites/slider.entity';
 import { Subscribe } from './entites/subcriber.entity';
 import { Clinic } from './entites/clinic.entity';
 import { Address } from './entites/address.entity';
-import { UserClinic } from './entites/user-clinic.entity';
 import { Country } from './entites/country.entity';
 import { EnquiriesModule } from './enquiries/enquiries.module';
+import { ProfileModule } from './profile/profile.module';
+import { SubscribersModule } from './subscribers/subscribers.module';
+import { ClinicServicesModule } from './clinic-services/clinic-services.module';
+import { UserClinic } from './entites/user-clinic.entity';
+import { Visit } from './entites/visit.entity';
+import { TransactionInvoice } from './entites/tranasction-invoice.entity';
+import { ClinicDocumentSettingModule } from './clinic-document-setting/clinic-document-setting.module';
+import { ClinicDocumentSetting } from './entites/clinic-document-setting.entity';
+import { DoctorSession } from './entites/doctor-session.entity';
+import { ClinicSchedule } from './entites/clinic-schedule.entity';
+import { SessionWeekDay } from './entites/session-week-days.entity';
+import { ClinicSchedulesModule } from './clinic-schedules/clinic-schedules.module';
+import { SettingsModule } from './settings/settings.module';
+import { PaymentGateway } from './entites/payment-gateways.entity';
 
 @Module({
   imports: [
@@ -76,7 +89,6 @@ import { EnquiriesModule } from './enquiries/enquiries.module';
         ClinicChain,
         User,
         Address,
-        UserClinic,
         Doctor,
         Patient,
         City,
@@ -93,9 +105,18 @@ import { EnquiriesModule } from './enquiries/enquiries.module';
         Faq,
         Enquiry,
         Slider,
+        ClinicService,
+        UserClinic,
         Subscribe,
+        Visit,
+        ClinicSchedule,
+        SessionWeekDay,
+        DoctorSession,
+        ClinicDocumentSetting,
+        PaymentGateway,
+        TransactionInvoice
       ],
-      synchronize: false,
+      synchronize: true,
     }),
     DashboardModule,
     AuthModule,
@@ -109,8 +130,13 @@ import { EnquiriesModule } from './enquiries/enquiries.module';
     ClinicChainsModule,
     SpecilizationsModule,
     ServicesModule,
-    ClinicService,
-    EnquiriesModule
+    EnquiriesModule,
+    ProfileModule,
+    SubscribersModule,
+    ClinicServicesModule,
+    ClinicDocumentSettingModule,
+    ClinicSchedulesModule,
+    SettingsModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -5,10 +5,10 @@ import { Permission } from './permission.entity';
 @Entity('role_has_permissions')
 export class RoleHasPermission {
   @PrimaryColumn({ name: 'permission_id', type: 'bigint', unsigned: true })
-  permissionId: number;
+  permission_id: number;
 
   @PrimaryColumn({ name: 'role_id', type: 'bigint', unsigned: true })
-  roleId: number;
+  role_id: number;
 
   @ManyToOne(() => Permission, (permission) => permission.roleHasPermissions, {
     onDelete: 'CASCADE',

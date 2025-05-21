@@ -1,61 +1,67 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma/prisma.service';
 import * as moment from 'moment';
 import { AppointmentStatus } from '../constants/appointment-status.constant';
 import { UserRole } from 'src/constants/user.constant';
 import { I18nService } from 'nestjs-i18n';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/entites/user.entity';
+import { Equal, LessThan, MoreThan, Not, Repository } from 'typeorm';
+import { Appointment } from 'src/entites/appointment.entitty';
+import { TransactionInvoice } from 'src/entites/tranasction-invoice.entity';
+import { Visit } from 'src/entites/visit.entity';
 
 @Injectable()
 export class DashboardService {
   constructor(
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
+    @InjectRepository(Appointment)
+    private readonly appoitnementRepo: Repository<Appointment>,
+    @InjectRepository(TransactionInvoice)
+    private readonly transactionRepo: Repository<TransactionInvoice>,
+    @InjectRepository(Visit)
+    private readonly visitRepo: Repository<Visit>,
     private prisma: PrismaService,
     private i18n: I18nService,
   ) {}
 
   async getUserCardData(user) {
-    const doctorCount = await this.prisma.users.count({
-      where: {
-        type: UserRole.DOCTOR,
-        status: true,
-        user_clinics: {
-          some: {
-            clinic_id: user.clinic_id,
-          },
-        },
-      },
-    });
 
-    const patientCount = await this.prisma.users.count({
-      where: {
-        type: UserRole.PATIENT,
-        status: true,
-        user_clinics: {
-          some: {
-            clinic_id: user.clinic_id,
-          },
-        },
-      },
-    });
 
-    const appointmentCount = await this.prisma.appointments.count({
-      where: {
-        clinic_id: user.clinic_id,
-        date: moment().format('YYYY-MM-DD'),
-        status: AppointmentStatus.BOOKED,
-      },
-    });
+   const doctorCount = await this.userRepo
+      .createQueryBuilder('user')
+      .innerJoin('user.user_clinics', 'user_clinic')  // Join the UserClinic table (relation alias 'user_clinic')
+      .innerJoin('user_clinic.clinic', 'clinic')     // Join Clinic through the UserClinic relation
+      .where('user.type = :type', { type: UserRole.DOCTOR })
+      .andWhere('user.status = :status', { status: true })
+      .andWhere('clinic.id = :clinicId', { clinicId: user.clinic_id }) // Filter by clinic ID
+      .getCount();
 
-    const registerCount = await this.prisma.users.count({
-      where: {
-        type: UserRole.PATIENT,
-        created_at: moment().toDate(),
-        user_clinics: {
-          some: {
-            clinic_id: user.clinic_id,
-          },
-        },
-      },
-    });
+    const patientCount = await this.userRepo
+      .createQueryBuilder('user')
+      .innerJoin('user.user_clinics', 'user_clinic')  // Join the UserClinic table (relation alias 'user_clinic')
+      .innerJoin('user_clinic.clinic', 'clinic')     // Join Clinic through the UserClinic relation
+      .where('user.type = :type', { type: UserRole.PATIENT })
+      .andWhere('clinic.id = :clinicId', { clinicId: user.clinic_id }) // Filter by clinic ID
+      .getCount();
+
+    const appointmentCount = await this.appoitnementRepo
+      .createQueryBuilder('appointment')
+      .where('appointment.date = :date', { date: moment().format('YYYY-MM-DD') })
+      .andWhere('appointment.status = :status', { status: AppointmentStatus.BOOKED })
+      .andWhere('appointment.date = :clinicId', { clinicId: user.clinic_id }) // Filter by clinic ID
+      .getCount();
+
+    const registerCount = await this.userRepo
+      .createQueryBuilder('user')
+      .innerJoin('user.user_clinics', 'user_clinic')  // Join the UserClinic table (relation alias 'user_clinic')
+      .innerJoin('user_clinic.clinic', 'clinic')     // Join Clinic through the UserClinic relation
+      .where('user.type = :type', { type: UserRole.PATIENT })
+      .where('user.created_at = :date', { date: moment().format('YYYY-MM-DD') })
+      .andWhere('user.status = :status', { status: true })
+      .andWhere('clinic.id = :clinicId', { clinicId: user.clinic_id }) // Filter by clinic ID
+      .getCount();
 
     return {
       doctor_count: doctorCount,
@@ -69,35 +75,40 @@ export class DashboardService {
     let data = {};
 
     if (user.type === UserRole.DOCTOR) {
-      const upcomingAppointmentCount = await this.prisma.appointments.count({
+      const doctorUser = await this.userRepo.findOne({
+        where : {
+          id: user.id
+        },
+        relations : ['doctor']
+      });
+
+      if (!doctorUser) {
+        throw new NotFoundException('Doctor not found');
+      }
+
+      const upcomingAppointmentCount = await this.appoitnementRepo.count({
         where: {
-          clinic_id: user.clinic_id,
-          doctor_id: user.doctor.id,
-          date: {
-            gte: moment().format('YYYY-MM-DD'),
-          },
-          status: {
-            not: AppointmentStatus.CANCELLED,
-          },
+          clinic_id: doctorUser.clinic_id,
+          doctor_id: doctorUser.doctor.id,
+          date: MoreThan(moment().format('YYYY-MM-DD')),
+          status: Not(Equal(AppointmentStatus.CANCELLED)),
         },
       });
 
-      const todayAppointmentCount = await this.prisma.appointments.count({
+      const todayAppointmentCount = await this.appoitnementRepo.count({
         where: {
-          clinic_id: user.clinic_id,
-          doctor_id: user.doctor.id,
-          date: moment().format('YYYY-MM-DD'),
-          status: {
-            not: AppointmentStatus.CANCELLED,
-          },
+          clinic_id: doctorUser.clinic_id,
+          doctor_id: doctorUser.doctor.id,
+          date: Equal(moment().format('YYYY-MM-DD')),
+          status: Not(Equal(AppointmentStatus.CANCELLED)),
         },
       });
 
-      const totalAppointmentCount = await this.prisma.appointments.count({
+      const totalAppointmentCount = await this.appoitnementRepo.count({
         where: {
-          clinic_id: user.clinic_id,
-          doctor_id: user.doctor.id,
-          status: AppointmentStatus.BOOKED,
+          clinic_id: doctorUser.clinic_id,
+          doctor_id: doctorUser.doctor.id,
+          status: Equal(AppointmentStatus.BOOKED),
         },
       });
 
@@ -107,34 +118,38 @@ export class DashboardService {
         today_appointments: todayAppointmentCount,
       };
     } else if (user.type === UserRole.PATIENT) {
-      const todayAppointmentCount = await this.prisma.appointments.count({
+      const patientUser = await this.userRepo.findOne({
+        where : {
+          id: user.id
+        },
+        relations : ['patient']
+      });
+
+      if (!patientUser) {
+        throw new NotFoundException('Patient not found');
+      }
+
+      const todayAppointmentCount = await this.appoitnementRepo.count({
         where: {
-          clinic_id: user.clinic_id,
-          doctor_id: user.patient.id,
-          date: {
-            gt: moment().format('YYYY-MM-DD'),
-          },
+          clinic_id: patientUser.clinic_id,
+          patient_id : patientUser.patient.id,
+          date : Equal(moment().format('YYYY-MM-DD'))
         },
       });
 
-      const upcomingAppointmentCount = await this.prisma.appointments.count({
+      const upcomingAppointmentCount = await this.appoitnementRepo.count({
         where: {
-          clinic_id: user.clinic_id,
-          doctor_id: user.patient.id,
-          date: {
-            gt: moment().format('YYYY-MM-DD'),
-          },
+          clinic_id: patientUser.clinic_id,
+          patient_id : patientUser.patient.id,
+          date : MoreThan(moment().format('YYYY-MM-DD'))
         },
       });
 
-      const completedAppointment = await this.prisma.appointments.count({
+      const completedAppointment = await this.appoitnementRepo.count({
         where: {
-          clinic_id: user.clinic_id,
-          patient_id: user.patient.id,
-          date: moment().format('YYYY-MM-DD'),
-          status: {
-            not: AppointmentStatus.CHECK_OUT,
-          },
+          clinic_id: patientUser.clinic_id,
+          patient_id : patientUser.patient.id,
+          status : Not(Equal(AppointmentStatus.CHECK_OUT))
         },
       });
 
@@ -144,18 +159,16 @@ export class DashboardService {
         completed_appointments: completedAppointment,
       };
     } else {
-      const upcomingAppointmentCount = await this.prisma.appointments.count({
+      const upcomingAppointmentCount = await this.appoitnementRepo.count({
         where: {
           clinic_id: user.clinic_id,
-          date: {
-            gt: moment().format('YYYY-MM-DD'),
-          },
+          date: MoreThan(moment().format('YYYY-MM-DD')),
         },
       });
 
-      const totalAppointmentCount = await this.prisma.appointments.count({
+      const totalAppointmentCount = await this.appoitnementRepo.count({
         where: {
-          clinic_id: user.clinic_id,
+          clinic_id: user.clinic_id
         },
       });
 
@@ -179,15 +192,12 @@ export class DashboardService {
     const startYear = moment().startOf('year').toDate();
     const endYear = moment().endOf('year').toDate();
 
-    const visits = await this.prisma.visits.findMany({
-      where: {
-        clinic_id: user.clinic_id,
-        created_at: {
-          gte: startYear,
-          lte: endYear,
-        },
-      },
-    });
+    const visits = await this.visitRepo
+      .createQueryBuilder('visit')
+      .where('visit.clinic_id = :clinicId', { clinicId: user.clinic_id })
+      .andWhere('visit.created_at > :startYear', { startYear })
+      .andWhere('visit.created_at < :endYear', { endYear })
+      .getMany();
 
     const today = visits.filter((v) => {
       const created = moment(v.created_at);
@@ -216,7 +226,7 @@ export class DashboardService {
     let filters = `t.status = 1 AND t.created_at BETWEEN '${yearStart}' AND '${yearEnd}'`;
 
     if (serviceId) {
-      filters += ` AND a.service_id = ${serviceId}`;
+      filters += ` AND s.type = ${serviceId}`;
     }
 
     if (clinicId) {
@@ -224,17 +234,16 @@ export class DashboardService {
     }
 
     const query = `
-            SELECT 
-            MONTH(t.created_at) as month, 
-            SUM(t.amount) as total
-            FROM transactions t
-            LEFT JOIN appointments a ON t.appointment_id = a.id
-            LEFT JOIN services s ON a.service_id = s.id
-            WHERE ${filters}
-            GROUP BY MONTH(t.created_at)
-        `;
+      SELECT 
+      MONTH(t.created_at) as month, 
+      SUM(t.total) as total
+      FROM transaction_invoices t
+      LEFT JOIN transaction_invoice_services s ON s.transaction_invoice_id = t.id
+      WHERE ${filters}
+      GROUP BY MONTH(t.created_at)
+    `;
 
-    const results = await this.prisma.$queryRawUnsafe<any[]>(query);
+    const results = await this.transactionRepo.query(query);
 
     const months = {
       1: await this.i18n.translate('main.messages.months.jan'),
@@ -260,4 +269,6 @@ export class DashboardService {
 
     return revenue;
   }
+
+  ayn
 }

@@ -53,7 +53,7 @@ export class UsersService {
       alias: 'user',
       query: {
         type: 1,
-        clinic_id: { where: { not: 1 } },
+        clinic_id: { not: 1 },
         ...query,
       },
       searchFields: ['first_name', 'last_name', 'email', 'contact'],

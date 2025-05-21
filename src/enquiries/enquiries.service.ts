@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateEnquiryDto } from './dto/create-enquiry.dto';
-import { UpdateEnquiryDto } from './dto/update-enquiry.dto';
 import { Enquiry } from '../entites/enquiry.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,7 +7,6 @@ import { DatabaseService } from '../shared/database/database.service';
 
 @Injectable()
 export class EnquiriesService {
-
   constructor(
     @InjectRepository(Enquiry)
     private readonly enquiryRepo: Repository<Enquiry>,
@@ -20,19 +18,45 @@ export class EnquiriesService {
     return this.enquiryRepo.save(enquiry);
   }
 
-  findAll() {
-    return `This action returns all enquiries`;
+  async findAll(query) {
+    return await this.database.paginateAndSearch<Enquiry>({
+      repository: this.enquiryRepo,
+      alias: 'enquiry',
+      query: {
+        ...query
+      },
+      searchFields: ['name', 'message'],
+      filterFields: ['clinic_id', 'status'],
+      allowedOrderFields: ['name', 'message', 'created_at'],
+      defaultOrderField: 'created_at',
+      defaultOrderDirection: 'DESC',
+      selectFields : [],
+      relations: [],
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} enquiry`;
+  async findOne(id: number) {
+    const enquiry = await this.enquiryRepo.findOneBy({ id });
+    if (!enquiry) {
+      throw new NotFoundException('Enquiry not found');
+    }
+
+    if (!enquiry.view) {
+      enquiry.view = true;
+      this.enquiryRepo.save(enquiry);
+    }
+
+    return {
+      data : enquiry
+    };
   }
 
-  update(id: number, updateEnquiryDto: UpdateEnquiryDto) {
-    return `This action updates a #${id} enquiry`;
-  }
+  async remove(id: number) {
+    const enquiry = await this.enquiryRepo.findOneBy({ id });
+    if (!enquiry) {
+      throw new NotFoundException('Enquiry not found');
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} enquiry`;
+    this.enquiryRepo.remove(enquiry);
   }
 }

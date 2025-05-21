@@ -18,10 +18,10 @@ export class Permission {
   @Column({ name: 'name', length: 191 })
   name: string;
 
-  @Column({ name: 'display_name', length: 191 })
+  @Column({ name: 'display_name', length: 255 })
   display_name: string;
 
-  @Column({ name: 'guard_name' })
+  @Column({ name: 'guard_name', length: 191 })
   guard_name: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp', nullable: true })

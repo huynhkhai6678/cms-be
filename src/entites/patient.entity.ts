@@ -11,6 +11,8 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Appointment } from './appointment.entitty';
+import { Visit } from './visit.entity';
+import { TransactionInvoice } from './tranasction-invoice.entity';
 
 @Entity('patients')
 @Index('patients_template_id_foreign', ['template_id'])
@@ -62,4 +64,10 @@ export class Patient {
 
   @OneToMany(() => Appointment, (appointment) => appointment.patient)
   appointments: Appointment[];
+
+  @OneToMany(() => Visit, (visit) => visit.patient)
+  visits: Visit[];
+
+  @OneToMany(() => TransactionInvoice, (tran) => tran.patient)
+  transactions: TransactionInvoice[];
 }

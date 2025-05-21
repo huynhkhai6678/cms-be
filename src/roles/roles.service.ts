@@ -4,7 +4,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { DatabaseService } from '../shared/database/database.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from '../entites/role.entity';
-import { In, Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { Permission } from '../entites/permission.entity';
 
 @Injectable()
@@ -44,9 +44,12 @@ export class RolesService {
     return await this.database.paginateAndSearch<Role>({
       repository: this.roleRepository,
       alias: 'role',
-      query: query,
+      query: {
+        is_default: { not : 2 },
+        ...query
+      },
       searchFields: ['name', 'display_name'],
-      filterFields: ['clinic_id', 'is_default'],
+      filterFields: ['is_default'],
       allowedOrderFields: ['name', 'created_at'],
       defaultOrderField: 'created_at',
       defaultOrderDirection: 'DESC',
@@ -56,6 +59,18 @@ export class RolesService {
   }
 
   async findOne(id: number) {
+    const excludeLists = [
+      'manage_clinics', 
+      'manage_clinic_brands', 
+      'manage_users',
+      'manage_countries', 
+      'manage_cities', 
+      'manage_states', 
+      'manage_currencies', 
+      'manage_roles',
+      'manage_services'
+    ];
+
     const leftList = [
       'manage_front_cms',
       'manage_settings',
@@ -85,7 +100,11 @@ export class RolesService {
         permissions: true,
       },
     });
-    const permissions = await this.permissionRepository.find();
+    const permissions = await this.permissionRepository.find({
+      where : {
+        display_name : Not(In(excludeLists)),
+      }
+    });
 
     return {
       data: role,

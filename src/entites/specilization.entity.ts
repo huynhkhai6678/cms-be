@@ -4,7 +4,7 @@ import { DoctorSpecialization } from './doctor-specilization.entity';
 @Entity({ name: 'specializations' })
 export class Specialization {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-  id: string;
+  id: number;
 
   @Column({ type: 'varchar', length: 255 })
   name: string;

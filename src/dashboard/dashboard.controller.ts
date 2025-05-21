@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma/prisma.service';
 import { Request } from 'express';
 import { DashboardService } from './dashboard.service';
@@ -13,17 +13,8 @@ export class DashboardController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async index(@Req() request: Request) {
-    const user = await this.prisma.users.findUnique({
-      where: {
-        id: 90,
-      },
-      include: {
-        doctor: true,
-        patient: true,
-      },
-    });
-
+  async index(@Req() request) {
+    const user = request.user;
     const user_card = await this.dashboardService.getUserCardData(user);
     const appointment_card =
       await this.dashboardService.getUpcommingAppointmentData(user);

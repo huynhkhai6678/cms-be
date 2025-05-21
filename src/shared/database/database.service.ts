@@ -29,11 +29,6 @@ export class DatabaseService {
 
     const qb: SelectQueryBuilder<T> = repository.createQueryBuilder(alias);
 
-    // // Apply selected fields if specified
-    // if (selectFields && selectFields.length > 0) {
-    //   qb.select(selectFields.map((field) => `${alias}.${field}`));
-    // }
-
     // Apply selected fields if specified
     if (selectFields && selectFields.length > 0) {
       qb.select([]);
@@ -56,57 +51,8 @@ export class DatabaseService {
       qb.leftJoinAndSelect(`${alias}.${relation}`, relation);
     }
 
-    // Search
-    if (query.search && searchFields.length) {
-      qb.andWhere(
-        searchFields
-          .map((field) => `${alias}.${field} LIKE :search`)
-          .join(' OR '),
-        { search: `%${query.search}%` },
-      );
-    }
-
-    for (const field of filterFields) {
-      const value = query[field];
-
-      if (value === undefined || value === '') continue;
-
-      if (typeof value === 'object' && value.where) {
-        const condition = value.where;
-        if ('not' in condition) {
-          qb.andWhere(`${alias}.${field} != :${field}`, {
-            [field]: condition.not,
-          });
-        } else if ('in' in condition) {
-          qb.andWhere(`${alias}.${field} IN (:...${field})`, {
-            [field]: condition.in,
-          });
-        } else if ('lt' in condition) {
-          qb.andWhere(`${alias}.${field} < :${field}`, {
-            [field]: condition.lt,
-          });
-        } else if ('lte' in condition) {
-          qb.andWhere(`${alias}.${field} <= :${field}`, {
-            [field]: condition.lte,
-          });
-        } else if ('gt' in condition) {
-          qb.andWhere(`${alias}.${field} > :${field}`, {
-            [field]: condition.gt,
-          });
-        } else if ('gte' in condition) {
-          qb.andWhere(`${alias}.${field} >= :${field}`, {
-            [field]: condition.gte,
-          });
-        } else if ('like' in condition) {
-          qb.andWhere(`${alias}.${field} LIKE :${field}`, {
-            [field]: `%${condition.like}%`,
-          });
-        }
-      } else {
-        // simple value
-        qb.andWhere(`${alias}.${field} = :${field}`, { [field]: value });
-      }
-    }
+    const { finalQuery, params } = this.buildFinalQuery(query, searchFields, filterFields, alias);
+    qb.andWhere(finalQuery, params);
 
     // Order
     const safeOrderBy = allowedOrderFields.includes(query.orderBy)
@@ -126,8 +72,9 @@ export class DatabaseService {
     let total : number = 0;
     [data, total] = await qb.getManyAndCount();
 
-    console.log(returnQueryRaw);
     if (returnQueryRaw) {
+      // Monitor me for other case
+      qb.groupBy(`${alias}_id`);
       data = await qb.getRawMany();
       total = await qb.getCount();
     } else {
@@ -144,6 +91,100 @@ export class DatabaseService {
       },
     };
   }
+
+  buildSearchQuery(query: any, searchFields: string[], alias: string): { searchQuery: string, searchParams: SearchParams } {
+    let searchQuery = '';
+    let searchParams: SearchParams = {};
+
+    if (query.search && searchFields.length) {
+      searchQuery = searchFields
+        .map((field) => `${alias}.${field} LIKE :search`)
+        .join(' OR ');
+      searchParams.search = `%${query.search}%`;
+    }
+
+    return { searchQuery, searchParams };
+  }
+
+  buildFilterQuery(query: any, filterFields: string[], alias: string, searchQuery: string): { filterQuery: string, filterParams: FilterParams } {
+    let filterQuery = '';
+    let filterParams: FilterParams = {};
+
+    // Only start appending 'AND' if searchQuery exists
+    let firstCondition = true;
+
+    for (const field of filterFields) {
+      const value = query[field];
+      if (value === undefined || value === '') continue;
+
+      // If searchQuery exists, we don't need to prepend 'AND' before the first filter condition.
+      if (firstCondition) {
+        firstCondition = false;  // After the first condition, subsequent ones should prepend 'AND'
+      } else {
+        filterQuery += ' AND ';
+      }
+
+      if (typeof value === 'object') {
+        const { queryPart, params } = this.buildConditionQuery(alias, field, value);
+        filterQuery += queryPart;
+        filterParams = { ...filterParams, ...params };
+      } else {
+        filterQuery += `${alias}.${field} = :${field}`;
+        filterParams[field] = value;
+      }
+    }
+    return { filterQuery, filterParams };
+  }
+
+  buildFinalQuery(query: any, searchFields: string[], filterFields: string[], alias: string): { finalQuery: string, params: { [key: string]: any } } {
+    const { searchQuery, searchParams } = this.buildSearchQuery(query, searchFields, alias);
+    const { filterQuery, filterParams } = this.buildFilterQuery(query, filterFields, alias, searchQuery);
+
+    let finalQuery = '';
+    // Add the search query if it exists
+    if (searchQuery) {
+      finalQuery += `(${searchQuery})`;
+    }
+
+    // Add the filter query if it exists
+    if (filterQuery) {
+      if (searchQuery) {
+        finalQuery += ` AND ${filterQuery.trim()}`;
+      } else {
+        finalQuery += filterQuery.trim();
+      }
+    }
+    return { finalQuery, params: { ...searchParams, ...filterParams } };
+  }
+
+  buildConditionQuery(alias, field, condition) {
+    let queryPart = '';
+    let params = {};
+    if ('not' in condition) {
+      queryPart = `AND ${alias}.${field} != :${field}`;
+      params[field] = condition.not;
+    } else if ('in' in condition) {
+      queryPart = `AND ${alias}.${field} IN (:...${field})`;
+      params[field] = condition.in;
+    } else if ('lt' in condition) {
+      queryPart = `AND ${alias}.${field} < :${field}`;
+      params[field] = condition.lt;
+    } else if ('lte' in condition) {
+      queryPart = `AND ${alias}.${field} <= :${field}`;
+      params[field] = condition.lte;
+    } else if ('gt' in condition) {
+      queryPart = `AND ${alias}.${field} > :${field}`;
+      params[field] = condition.gt;
+    } else if ('gte' in condition) {
+      queryPart = `AND ${alias}.${field} >= :${field}`;
+      params[field] = condition.gte;
+    } else if ('like' in condition) {
+      queryPart = `AND ${alias}.${field} LIKE :${field}`;
+      params[field] = `%${condition.like}%`;
+    }
+
+    return { queryPart, params };
+  }
 }
 
 interface PaginateAndSearchOptions<T extends ObjectLiteral> {
@@ -157,4 +198,13 @@ interface PaginateAndSearchOptions<T extends ObjectLiteral> {
   defaultOrderDirection?: 'ASC' | 'DESC';
   selectFields: (keyof T | [string, string])[];
   relations?: string[];
+}
+
+interface SearchParams {
+  search?: string;
+  [key: string]: any;
+}
+
+interface FilterParams {
+  [key: string]: any;
 }

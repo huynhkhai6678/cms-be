@@ -1,47 +1,24 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  CreateDateColumn,
-  UpdateDateColumn,
-  JoinColumn,
-} from 'typeorm';
-import { Clinic } from './clinic.entity'; // Adjust path as needed
+import { Entity, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from './user.entity';
+import { Clinic } from './clinic.entity';
 
 @Entity('user_clinics')
 export class UserClinic {
-  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-  id: number;
-
-  @Column({ name: 'user_id', type: 'bigint', unsigned: true })
+  @PrimaryColumn({ name: 'user_id', type: 'bigint', unsigned: true })
   user_id: number;
 
-  @Column({ name: 'clinic_id', type: 'bigint', unsigned: true })
+  @PrimaryColumn({ name: 'clinic_id', type: 'bigint', unsigned: true })
   clinic_id: number;
 
-  @CreateDateColumn({
-    name: 'created_at',
-    type: 'timestamp',
-    precision: 0,
-    nullable: true,
+  @ManyToOne(() => User, (user) => user.clinics, {
+    createForeignKeyConstraints: false,
   })
-  created_at?: Date;
-
-  @UpdateDateColumn({
-    name: 'updated_at',
-    type: 'timestamp',
-    precision: 0,
-    nullable: true,
-  })
-  updated_at?: Date;
-
-  @ManyToOne(() => User, (user) => user.clinics)
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: User;
 
-  @ManyToOne(() => Clinic, (clinic) => clinic.users)
-  @JoinColumn({ name: 'clinic_id' })
+  @ManyToOne(() => Clinic, (clinic) => clinic.users, {
+    createForeignKeyConstraints: false,
+  })
+  @JoinColumn({ name: 'clinic_id', referencedColumnName: 'id' })
   clinic: Clinic;
 }

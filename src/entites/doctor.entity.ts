@@ -8,12 +8,17 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  Transaction,
 } from 'typeorm';
 
 import { ServiceDoctor } from './service-doctor.entity';
 import { DoctorSpecialization } from './doctor-specilization.entity';
 import { Appointment } from './appointment.entitty';
 import { User } from './user.entity';
+import { Visit } from './visit.entity';
+import { TransactionInvoice } from './tranasction-invoice.entity';
+import { SessionWeekDay } from './session-week-days.entity';
+import { DoctorSession } from './doctor-session.entity';
 
 @Entity('doctors')
 @Index('doctors_user_id_foreign', ['user_id'])
@@ -75,4 +80,16 @@ export class Doctor {
 
   @OneToMany(() => Appointment, (appoiment) => appoiment.doctor)
   appointments: Appointment[];
+
+  @OneToMany(() => Visit, (visit) => visit.doctor)
+  visits: Visit[];
+
+  @OneToMany(() => TransactionInvoice, (tran) => tran.doctor)
+  transactions: TransactionInvoice[];
+
+  @OneToMany(() => SessionWeekDay, (sessionWeekDay) => sessionWeekDay.doctor)
+  sessionWeekDays: SessionWeekDay[];
+
+  @OneToMany(() => DoctorSession, (doctorSession) => doctorSession.doctor)
+  doctorSessions: DoctorSession[];
 }

@@ -20,5 +20,5 @@ export class CreateEnquiryDto {
 
     @IsDefined()
     @IsNumberString()
-    clinic_id: string;
+    clinic_id: number;
 }

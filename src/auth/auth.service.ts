@@ -16,8 +16,6 @@ export class AuthService {
 
   async signIn(email: string, password: string): Promise<any> {
     const currentUser = await this.userRepository.findOneBy({ email });
-
-    console.log(currentUser);
     if (!currentUser) {
       throw new BadRequestException('Invalid credentials');
     }
@@ -67,5 +65,18 @@ export class AuthService {
         },
       },
     });
+  }
+
+  async getClinics(id: number) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+      relations: ['clinics']
+    });
+
+    return {
+      data : user?.clinics || []
+    }
   }
 }

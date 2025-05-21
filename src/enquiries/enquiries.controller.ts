@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, NotFoundException, Query, Req, UseGuards } from '@nestjs/common';
 import { EnquiriesService } from './enquiries.service';
 import { CreateEnquiryDto } from './dto/create-enquiry.dto';
-import { UpdateEnquiryDto } from './dto/update-enquiry.dto';
 import { I18nService } from 'nestjs-i18n';
+import { AuthGuard } from '../guards/auth.guard';
+import { RoleGuardFactory } from '../guards/role.guard.factory';
 
+@UseGuards(AuthGuard, RoleGuardFactory('manage_front_cms'))
 @Controller('enquiries')
 export class EnquiriesController {
   constructor(private readonly enquiriesService: EnquiriesService, private i18n: I18nService ) {}
@@ -21,22 +23,24 @@ export class EnquiriesController {
   }
 
   @Get()
-  findAll() {
-    return this.enquiriesService.findAll();
+  findAll(@Req() request, @Query() query) {
+    const user = request.user;
+    if (!query.clinic_id) {
+      query.clinic_id = user.clinic_id;
+    }
+    return this.enquiriesService.findAll(query);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.enquiriesService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEnquiryDto: UpdateEnquiryDto) {
-    return this.enquiriesService.update(+id, updateEnquiryDto);
-  }
-
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.enquiriesService.remove(+id);
+  async remove(@Param('id') id: string) {
+    this.enquiriesService.remove(+id);
+    return {
+      message: await this.i18n.t('main.messages.flash.enquiry_delete'),
+    };
   }
 }
