@@ -28,12 +28,10 @@ export class CurrenciesController {
   ) {}
 
   @Post()
-  async create(
-    @Body(new ValidationPipe()) createCurrencyDto: CreateCurrencyDto,
-  ) {
+  create(@Body(new ValidationPipe()) createCurrencyDto: CreateCurrencyDto) {
     this.currenciesService.create(createCurrencyDto);
     return {
-      message: await this.i18n.t('main.messages.flash.currency_create'),
+      message: this.i18n.translate('main.messages.flash.currency_create'),
     };
   }
 
@@ -55,7 +53,7 @@ export class CurrenciesController {
     const result = await this.currenciesService.update(+id, updateCurrencyDto);
     if (result) {
       return {
-        message: await this.i18n.t('main.messages.flash.currency_update'),
+        message: this.i18n.translate('main.messages.flash.currency_update'),
       };
     }
   }
@@ -65,7 +63,7 @@ export class CurrenciesController {
     const result = await this.currenciesService.remove(id);
     if (result.affected === 1) {
       return {
-        message: await this.i18n.t('main.messages.flash.currency_delete'),
+        message: this.i18n.translate('main.messages.flash.currency_delete'),
       };
     }
   }

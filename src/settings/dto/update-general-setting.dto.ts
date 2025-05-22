@@ -1,23 +1,29 @@
-import { IsArray, IsDefined, IsNumberString, IsString } from "class-validator";
+import { IsArray, IsDefined, IsNumberString, IsString } from 'class-validator';
 
 export class UpdateGenralDto {
-    @IsDefined()
-    @IsString()
-    clinic_name: string;
+  @IsDefined()
+  @IsString()
+  clinic_name: string;
 
-    @IsDefined()
-    @IsString()
-    email: string;
+  @IsDefined()
+  @IsString()
+  email: string;
 
-    @IsDefined()
-    @IsArray()
-    specialities: [];
+  @IsDefined()
+  phone: {
+    e164Number: string;
+    dialCode: string;
+  };
 
-    @IsDefined()
-    @IsString()
-    front_color: number;
+  @IsDefined()
+  @IsArray()
+  specialities: [];
 
-    @IsDefined()
-    @IsArray()
-    payment_gateways: [];
+  @IsDefined()
+  @IsString()
+  front_color: number;
+
+  @IsDefined()
+  @IsArray()
+  payment_gateways: [];
 }

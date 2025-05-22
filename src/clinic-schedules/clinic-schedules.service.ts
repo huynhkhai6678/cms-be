@@ -15,21 +15,24 @@ export class ClinicSchedulesService {
   ) {}
 
   async findOne(clinic_id: number) {
-    const schedules = await this.clinicScheduleRepo.findBy( { clinic_id });
+    const schedules = await this.clinicScheduleRepo.findBy({ clinic_id });
     return {
-      data : schedules
+      data: schedules,
     };
   }
 
-  async update(clinic_id: number, updateClinicScheduleDto: UpdateClinicScheduleDto) {
+  async update(
+    clinic_id: number,
+    updateClinicScheduleDto: UpdateClinicScheduleDto,
+  ) {
     const schedules = updateClinicScheduleDto.schedule;
-    for (const scheduleDto of schedules) {      
+    for (const scheduleDto of schedules) {
       if (scheduleDto.checked) {
         const schedule = await this.clinicScheduleRepo.findOne({
           where: {
             clinic_id,
-            day_of_week: scheduleDto.day_of_week
-          }
+            day_of_week: scheduleDto.day_of_week,
+          },
         });
 
         if (schedule) {
@@ -47,18 +50,18 @@ export class ClinicSchedulesService {
         const schedule = await this.clinicScheduleRepo.findOne({
           where: {
             clinic_id,
-            day_of_week: scheduleDto.day_of_week
-          }
+            day_of_week: scheduleDto.day_of_week,
+          },
         });
-        
+
         if (schedule) {
-          // Delete 
+          // Delete
           const sessions = await this.weekDayRepo.find({
             where: {
               clinic_id,
-              day_of_week : schedule.day_of_week
-            }
-          })
+              day_of_week: schedule.day_of_week,
+            },
+          });
 
           await this.weekDayRepo.remove(sessions);
           await this.clinicScheduleRepo.remove(schedule);
@@ -68,16 +71,19 @@ export class ClinicSchedulesService {
     return true;
   }
 
-  async checkRecord(clinic_id: number, updateClinicScheduleDto: UpdateClinicScheduleDto) {
+  async checkRecord(
+    clinic_id: number,
+    updateClinicScheduleDto: UpdateClinicScheduleDto,
+  ) {
     const schedules = updateClinicScheduleDto.schedule;
     for (const scheduleDto of schedules) {
       if (!scheduleDto.checked) {
         const sessions = await this.weekDayRepo.find({
           where: {
             clinic_id,
-            day_of_week : scheduleDto.day_of_week
-          }
-        })
+            day_of_week: scheduleDto.day_of_week,
+          },
+        });
 
         if (sessions.length > 0) {
           throw new BadRequestException(`Confirm remove`);
@@ -85,7 +91,7 @@ export class ClinicSchedulesService {
       }
     }
     return {
-      success : true
-    }
+      success: true,
+    };
   }
 }

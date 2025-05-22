@@ -4,7 +4,10 @@ import { In, Repository } from 'typeorm';
 import { Setting } from '../entites/setting.entity';
 import { Specialization } from '../entites/specilization.entity';
 import { Currency } from '../entites/currency.entity';
-import { PAYMENT_TYPE_LIST, PAYMENT_TYPE_VALUE } from '../constants/payment.constant';
+import {
+  PAYMENT_TYPE_LIST,
+  PAYMENT_TYPE_VALUE,
+} from '../constants/payment.constant';
 import { State } from '../entites/state.entity';
 import { Country } from '../entites/country.entity';
 import { City } from '../entites/city.entity';
@@ -37,15 +40,15 @@ export class SettingsService {
     private readonly paymentRepo: Repository<PaymentGateway>,
   ) {}
 
-  async findGeneralSetting(clinic_id : number) {
-    const settings = await this.settingRepo.findBy({clinic_id});
-    const specializations = await this.specializationRepo.findBy({clinic_id});
+  async findGeneralSetting(clinic_id: number) {
+    const settings = await this.settingRepo.findBy({ clinic_id });
+    const specializations = await this.specializationRepo.findBy({ clinic_id });
     const currencies = await this.currencyRepo.find();
 
-    const paymentGateways = await this.paymentRepo.find({ 
-      where : {
-        clinic_id
-      }
+    const paymentGateways = await this.paymentRepo.find({
+      where: {
+        clinic_id,
+      },
     });
     const payments = PAYMENT_TYPE_LIST;
 
@@ -57,54 +60,60 @@ export class SettingsService {
       return acc;
     }, {});
 
-
     return {
-      data : {
-        payment_gateways : paymentGateways.map(payment => { return payment.payment_gateway_id}),
-        ...result
+      data: {
+        payment_gateways: paymentGateways.map((payment) => {
+          return payment.payment_gateway_id;
+        }),
+        ...result,
       },
-      specializations : specializations.map(specialization => { return { label: specialization.name, value: specialization.id }}),
-      currencies : currencies.map(currency => { return { label: currency.currency_name, value: currency.id }}),
-      payments
-    }
+      specializations: specializations.map((specialization) => {
+        return { label: specialization.name, value: specialization.id };
+      }),
+      currencies: currencies.map((currency) => {
+        return { label: currency.currency_name, value: currency.id };
+      }),
+      payments,
+    };
   }
 
-  async findContactInformation(clinic_id : number) {
-    const settings = await this.settingRepo.findBy({clinic_id});
+  async findContactInformation(clinic_id: number) {
+    const settings = await this.settingRepo.findBy({ clinic_id });
     const result = settings.reduce((acc, { key, value }) => {
-        acc[key] = value;
-        return acc;
+      acc[key] = value;
+      return acc;
     }, {});
 
     const countries = await this.countryRepo.find();
-    let states : State[] = [];
-    let cities : City[] = [];
+    let states: State[] = [];
+    let cities: City[] = [];
     if (result['country_id']) {
-      states = await this.stateRepo.findBy({ country_id: result['country_id']});
+      states = await this.stateRepo.findBy({
+        country_id: result['country_id'],
+      });
     }
 
     if (result['state_id']) {
-      cities = await this.cityRepo.findBy({ state_id: result['state_id']});
+      cities = await this.cityRepo.findBy({ state_id: result['state_id'] });
     }
 
     return {
-      data : result,
+      data: result,
       countries,
       states,
-      cities
-    }
+      cities,
+    };
   }
 
   async updateGeneralSetting(id: number, updateContactDto: UpdateGenralDto) {
-    const clinic = this.clinicRepo.findOneBy({ id });
+    const clinic = await this.clinicRepo.findOneBy({ id });
     if (!clinic) {
       throw new NotFoundException('Clinic not found');
     }
 
-    for (let [key, value] of Object.entries(updateContactDto)) {
+    for (const [key, value] of Object.entries(updateContactDto)) {
       if (key === 'specialities') {
-        value = JSON.stringify(value);
-        await this.updateSetting(id, key, value);
+        await this.updateSetting(id, key, JSON.stringify(value));
         continue;
       }
 
@@ -127,7 +136,10 @@ export class SettingsService {
     return true;
   }
 
-  async updateContactInformation(id: number, updateContactDto: UpdateContactInformationDto) {
+  async updateContactInformation(
+    id: number,
+    updateContactDto: UpdateContactInformationDto,
+  ) {
     const clinic = await this.clinicRepo.findOneBy({ id });
     if (!clinic) {
       throw new NotFoundException('Clinic not found');
@@ -146,7 +158,7 @@ export class SettingsService {
       },
     });
     if (addrress) {
-      this.addressRepo.update(
+      await this.addressRepo.update(
         { id: addrress.id },
         {
           address1: updateContactDto.address_one,
@@ -162,19 +174,19 @@ export class SettingsService {
     return true;
   }
 
-  private async updatePhone(clinic_id, value) {
+  updatePhone(clinic_id, value) {
     const contact = value.e164Number.split(value.dialCode)[1];
     const region_code = value.dialCode.substring(1);
     this.updateSetting(clinic_id, 'contact_no', contact);
     this.updateSetting(clinic_id, 'region_code', region_code);
   }
 
-  private async updateSetting(clinic_id, key, value) {
+  async updateSetting(clinic_id, key, value) {
     const setting = await this.settingRepo.findOne({
-      where : {
+      where: {
         key,
-        clinic_id
-      }
+        clinic_id,
+      },
     });
     if (setting) {
       setting.value = value;
@@ -182,28 +194,37 @@ export class SettingsService {
     }
   }
 
-  private async updateGateway(clinic_id, gateways) {
-    const paymentGateways = await this.paymentRepo.find({ 
-      where : {
-        clinic_id
-      }
+  async updateGateway(clinic_id, gateways) {
+    const paymentGateways = await this.paymentRepo.find({
+      where: {
+        clinic_id,
+      },
     });
 
-    const currentGatewayIds = paymentGateways.map(gateway => gateway.payment_gateway_id);
-    const gatewaysToRemove = currentGatewayIds.filter(id => !gateways.includes(id));
-    const gatewaysToAdd = gateways.filter(id => !currentGatewayIds.includes(id));
+    const currentGatewayIds = paymentGateways.map(
+      (gateway) => gateway.payment_gateway_id,
+    );
+    const gatewaysToRemove = currentGatewayIds.filter(
+      (id) => !gateways.includes(id),
+    );
+    const gatewaysToAdd = gateways.filter(
+      (id) => !currentGatewayIds.includes(id),
+    );
 
     if (gatewaysToRemove.length > 0) {
-      await this.paymentRepo.delete({ clinic_id, payment_gateway_id: In(gatewaysToRemove) });
+      await this.paymentRepo.delete({
+        clinic_id,
+        payment_gateway_id: In(gatewaysToRemove),
+      });
     }
 
     if (gatewaysToAdd.length > 0) {
-        const newGateways = gatewaysToAdd.map(id => ({
-          clinic_id,
-          payment_gateway_id : id,
-          payment_gateway: PAYMENT_TYPE_VALUE[id]
-        }));
-        await this.paymentRepo.save(newGateways);
+      const newGateways = gatewaysToAdd.map((id) => ({
+        clinic_id,
+        payment_gateway_id: id,
+        payment_gateway: PAYMENT_TYPE_VALUE[id],
+      }));
+      await this.paymentRepo.save(newGateways);
     }
   }
 }

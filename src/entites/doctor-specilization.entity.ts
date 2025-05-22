@@ -36,9 +36,13 @@ export class DoctorSpecialization {
   @JoinColumn({ name: 'doctor_id' })
   doctor: Doctor;
 
-  @ManyToOne(() => Specialization, (specialization) => specialization.doctorSpecializations, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(
+    () => Specialization,
+    (specialization) => specialization.doctorSpecializations,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
   @JoinColumn({ name: 'specialization_id' })
   specialization: Specialization;
 }

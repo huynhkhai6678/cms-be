@@ -28,7 +28,7 @@ export class RolesService {
       return false;
     }
 
-    let roleDto = new Role();
+    const roleDto = new Role();
     roleDto.name = createRoleDto.display_name;
     roleDto.display_name = createRoleDto.display_name;
 
@@ -45,30 +45,30 @@ export class RolesService {
       repository: this.roleRepository,
       alias: 'role',
       query: {
-        is_default: { not : 2 },
-        ...query
+        is_default: { not: 2 },
+        ...query,
       },
       searchFields: ['name', 'display_name'],
       filterFields: ['is_default'],
       allowedOrderFields: ['name', 'created_at'],
       defaultOrderField: 'created_at',
       defaultOrderDirection: 'DESC',
-      selectFields : [],
+      selectFields: [],
       relations: ['permissions'],
     });
   }
 
   async findOne(id: number) {
     const excludeLists = [
-      'manage_clinics', 
-      'manage_clinic_brands', 
+      'manage_clinics',
+      'manage_clinic_brands',
       'manage_users',
-      'manage_countries', 
-      'manage_cities', 
-      'manage_states', 
-      'manage_currencies', 
+      'manage_countries',
+      'manage_cities',
+      'manage_states',
+      'manage_currencies',
       'manage_roles',
-      'manage_services'
+      'manage_services',
     ];
 
     const leftList = [
@@ -101,9 +101,9 @@ export class RolesService {
       },
     });
     const permissions = await this.permissionRepository.find({
-      where : {
-        display_name : Not(In(excludeLists)),
-      }
+      where: {
+        display_name: Not(In(excludeLists)),
+      },
     });
 
     return {

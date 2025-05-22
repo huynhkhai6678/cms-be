@@ -9,9 +9,7 @@ import { State } from '../entites/state.entity';
 import { Country } from '../entites/country.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User, Address, City, State, Country]),
-  ],
+  imports: [TypeOrmModule.forFeature([User, Address, City, State, Country])],
   controllers: [ProfileController],
   providers: [ProfileService],
 })

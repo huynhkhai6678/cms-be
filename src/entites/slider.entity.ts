@@ -11,7 +11,7 @@ export class Slider {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
-  @Column({ type: 'varchar', length: 255})
+  @Column({ type: 'varchar', length: 255 })
   title: string;
 
   @Column({ type: 'text' })
@@ -27,5 +27,8 @@ export class Slider {
   updated_at?: Date;
 
   @Column({ type: 'bigint', unsigned: true, default: 1 })
-  clinic_id: string;
+  clinic_id: number;
+
+  @Column({ type: 'varchar', length: 255 })
+  image_url: string;
 }

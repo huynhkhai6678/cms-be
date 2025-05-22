@@ -1,7 +1,7 @@
-import { IsDefined, IsString } from "class-validator";
+import { IsDefined, IsString } from 'class-validator';
 
 export class CreateSpecilizationDto {
-    @IsDefined()
-    @IsString()
-    name: string;
+  @IsDefined()
+  @IsString()
+  name: string;
 }

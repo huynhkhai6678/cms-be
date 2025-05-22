@@ -8,7 +8,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
-  Index
+  Index,
 } from 'typeorm';
 import { Doctor } from './doctor.entity';
 import { Patient } from './patient.entity';
@@ -38,7 +38,9 @@ export class Visit {
   @JoinColumn({ name: 'doctor_id' })
   doctor: Doctor;
 
-  @ManyToOne(() => Patient, (patient) => patient.visits, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Patient, (patient) => patient.visits, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'patient_id' })
   patient: Patient;
 
@@ -97,16 +99,16 @@ export class Visit {
   @OneToMany(() => TransactionInvoice, (tran) => tran.visit)
   transactions: TransactionInvoice[];
 
-//   // Relations
-//   @OneToMany(() => VisitNote, (visitNote) => visitNote.visit)
-//   visit_notes: VisitNote[];
+  //   // Relations
+  //   @OneToMany(() => VisitNote, (visitNote) => visitNote.visit)
+  //   visit_notes: VisitNote[];
 
-//   @OneToMany(() => VisitObservation, (visitObservation) => visitObservation.visit)
-//   visit_observations: VisitObservation[];
+  //   @OneToMany(() => VisitObservation, (visitObservation) => visitObservation.visit)
+  //   visit_observations: VisitObservation[];
 
-//   @OneToMany(() => VisitPrescription, (visitPrescription) => visitPrescription.visit)
-//   visit_prescriptions: VisitPrescription[];
+  //   @OneToMany(() => VisitPrescription, (visitPrescription) => visitPrescription.visit)
+  //   visit_prescriptions: VisitPrescription[];
 
-//   @OneToMany(() => VisitProblem, (visitProblem) => visitProblem.visit)
-//   visit_problems: VisitProblem[];
+  //   @OneToMany(() => VisitProblem, (visitProblem) => visitProblem.visit)
+  //   visit_problems: VisitProblem[];
 }

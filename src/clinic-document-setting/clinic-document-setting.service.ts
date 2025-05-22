@@ -13,20 +13,26 @@ export class ClinicDocumentSettingService {
 
   async findOne(id: number) {
     return {
-      data : await this.documentRepo.findOneBy({ clinic_id : id})
-    }
+      data: await this.documentRepo.findOneBy({ clinic_id: id }),
+    };
   }
 
-  async update(id: number, updateClinicDocumentSettingDto: UpdateClinicDocumentSettingDto) {
-    const document = await this.documentRepo.findOneBy({ clinic_id : id});
+  async update(
+    id: number,
+    updateClinicDocumentSettingDto: UpdateClinicDocumentSettingDto,
+  ) {
+    const document = await this.documentRepo.findOneBy({ clinic_id: id });
     if (!document) {
       throw new NotFoundException('Invalid document');
     }
 
     document.header = updateClinicDocumentSettingDto.header;
-    document.transaction_invoice_template = updateClinicDocumentSettingDto.transaction_invoice_template;
-    document.transaction_receipt_template = updateClinicDocumentSettingDto.transaction_receipt_template;
-    document.medical_certificate_template = updateClinicDocumentSettingDto.medical_certificate_template;
+    document.transaction_invoice_template =
+      updateClinicDocumentSettingDto.transaction_invoice_template;
+    document.transaction_receipt_template =
+      updateClinicDocumentSettingDto.transaction_receipt_template;
+    document.medical_certificate_template =
+      updateClinicDocumentSettingDto.medical_certificate_template;
     return await this.documentRepo.save(document);
   }
 

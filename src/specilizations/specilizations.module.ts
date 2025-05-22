@@ -10,7 +10,7 @@ import { DatabaseServiceModule } from '../shared/database/database.module';
   imports: [
     TypeOrmModule.forFeature([Specialization]),
     AuthModule,
-    DatabaseServiceModule
+    DatabaseServiceModule,
   ],
   controllers: [SpecilizationsController],
   providers: [SpecilizationsService],

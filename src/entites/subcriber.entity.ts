@@ -11,7 +11,7 @@ export class Subscribe {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
-  @Column({ type: 'varchar', length: 191})
+  @Column({ type: 'varchar', length: 191 })
   email: string;
 
   @Column({ type: 'boolean', default: false })

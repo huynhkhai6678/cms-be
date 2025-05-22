@@ -72,11 +72,11 @@ export class AuthService {
       where: {
         id,
       },
-      relations: ['clinics']
+      relations: ['clinics'],
     });
 
     return {
-      data : user?.clinics || []
-    }
+      data: user?.clinics || [],
+    };
   }
 }

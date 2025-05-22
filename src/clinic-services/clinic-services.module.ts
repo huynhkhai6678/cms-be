@@ -10,7 +10,7 @@ import { AuthModule } from '../auth/auth.module';
   imports: [
     TypeOrmModule.forFeature([ClinicService]),
     DatabaseServiceModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [ClinicServicesController],
   providers: [ClinicServicesService],

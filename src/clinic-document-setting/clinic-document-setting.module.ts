@@ -5,9 +5,7 @@ import { ClinicDocumentSetting } from '../entites/clinic-document-setting.entity
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([ClinicDocumentSetting]),
-  ],
+  imports: [TypeOrmModule.forFeature([ClinicDocumentSetting])],
   controllers: [ClinicDocumentSettingController],
   providers: [ClinicDocumentSettingService],
 })

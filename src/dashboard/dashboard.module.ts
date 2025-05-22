@@ -12,8 +12,15 @@ import { Visit } from '../entites/visit.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserClinic, Clinic, Appointment, TransactionInvoice, Visit]),
-    PrismaServiceModule
+    TypeOrmModule.forFeature([
+      User,
+      UserClinic,
+      Clinic,
+      Appointment,
+      TransactionInvoice,
+      Visit,
+    ]),
+    PrismaServiceModule,
   ],
   controllers: [DashboardController],
   providers: [DashboardService],

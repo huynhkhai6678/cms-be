@@ -11,7 +11,9 @@ describe('ClinicDocumentSettingController', () => {
       providers: [ClinicDocumentSettingService],
     }).compile();
 
-    controller = module.get<ClinicDocumentSettingController>(ClinicDocumentSettingController);
+    controller = module.get<ClinicDocumentSettingController>(
+      ClinicDocumentSettingController,
+    );
   });
 
   it('should be defined', () => {

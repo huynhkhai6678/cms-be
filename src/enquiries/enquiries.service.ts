@@ -23,14 +23,14 @@ export class EnquiriesService {
       repository: this.enquiryRepo,
       alias: 'enquiry',
       query: {
-        ...query
+        ...query,
       },
       searchFields: ['name', 'message'],
       filterFields: ['clinic_id', 'status'],
       allowedOrderFields: ['name', 'message', 'created_at'],
       defaultOrderField: 'created_at',
       defaultOrderDirection: 'DESC',
-      selectFields : [],
+      selectFields: [],
       relations: [],
     });
   }
@@ -47,7 +47,7 @@ export class EnquiriesService {
     }
 
     return {
-      data : enquiry
+      data: enquiry,
     };
   }
 

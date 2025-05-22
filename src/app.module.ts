@@ -58,10 +58,27 @@ import { SessionWeekDay } from './entites/session-week-days.entity';
 import { ClinicSchedulesModule } from './clinic-schedules/clinic-schedules.module';
 import { SettingsModule } from './settings/settings.module';
 import { PaymentGateway } from './entites/payment-gateways.entity';
+import { MulterModule } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { ServiceCategoriesModule } from './service-categories/service-categories.module';
+import { FaqsModule } from './faqs/faqs.module';
+import { SlidersModule } from './sliders/sliders.module';
+import { TestimonialsModule } from './testimonials/testimonials.module';
+import { FileServiceModule } from './shared/file/file.module';
+import { CmsModule } from './cms/cms.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    MulterModule.register({
+      storage: diskStorage({
+        destination: './uploads', // Directory where you want to store the images
+        filename: (req, file, callback) => {
+          const fileName = `${Date.now()}_${file.originalname}`;
+          callback(null, fileName);
+        },
+      }),
+    }),
     I18nModule.forRoot({
       fallbackLanguage: 'en',
       loaderOptions: {
@@ -114,10 +131,11 @@ import { PaymentGateway } from './entites/payment-gateways.entity';
         DoctorSession,
         ClinicDocumentSetting,
         PaymentGateway,
-        TransactionInvoice
+        TransactionInvoice,
       ],
       synchronize: true,
     }),
+    FileServiceModule,
     DashboardModule,
     AuthModule,
     CurrenciesModule,
@@ -136,7 +154,12 @@ import { PaymentGateway } from './entites/payment-gateways.entity';
     ClinicServicesModule,
     ClinicDocumentSettingModule,
     ClinicSchedulesModule,
-    SettingsModule
+    SettingsModule,
+    ServiceCategoriesModule,
+    FaqsModule,
+    SlidersModule,
+    TestimonialsModule,
+    CmsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -10,7 +10,7 @@ import { AuthModule } from 'src/auth/auth.module';
   imports: [
     TypeOrmModule.forFeature([Enquiry]),
     AuthModule,
-    DatabaseServiceModule
+    DatabaseServiceModule,
   ],
   controllers: [EnquiriesController],
   providers: [EnquiriesService],

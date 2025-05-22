@@ -30,7 +30,7 @@ export class CurrenciesService {
       allowedOrderFields: ['currency_name', 'currency_icon', 'currency_code'],
       defaultOrderField: 'created_at',
       defaultOrderDirection: 'ASC',
-      selectFields : [],
+      selectFields: [],
       relations: [],
     });
   }

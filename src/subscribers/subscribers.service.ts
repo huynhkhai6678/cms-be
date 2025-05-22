@@ -7,7 +7,6 @@ import { DatabaseService } from '../shared/database/database.service';
 
 @Injectable()
 export class SubscribersService {
-
   constructor(
     @InjectRepository(Subscribe)
     private readonly subscribeRepo: Repository<Subscribe>,
@@ -15,7 +14,7 @@ export class SubscribersService {
   ) {}
 
   create(createSubscriberDto: CreateSubscriberDto) {
-    const subscriber = this.subscribeRepo.create(createSubscriberDto)
+    const subscriber = this.subscribeRepo.create(createSubscriberDto);
     return this.subscribeRepo.save(subscriber);
   }
 
@@ -24,14 +23,14 @@ export class SubscribersService {
       repository: this.subscribeRepo,
       alias: 'subscribe',
       query: {
-        ...query
+        ...query,
       },
       searchFields: ['email'],
       filterFields: ['clinic_id'],
       allowedOrderFields: ['email', 'created_at'],
       defaultOrderField: 'created_at',
       defaultOrderDirection: 'DESC',
-      selectFields : [],
+      selectFields: [],
       relations: [],
     });
   }

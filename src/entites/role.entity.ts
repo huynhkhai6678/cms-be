@@ -27,7 +27,7 @@ export class Role {
   @Column({ name: 'is_default', type: 'tinyint', default: 0 })
   is_default: number;
 
-  @Column({ name: 'guard_name', type: 'varchar', length : 191 })
+  @Column({ name: 'guard_name', type: 'varchar', length: 191 })
   guard_name: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp', nullable: true })

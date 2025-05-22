@@ -13,7 +13,19 @@ import { Slider } from '../entites/slider.entity';
 import { Clinic } from '../entites/clinic.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Setting, Clinic, Specialization, User, Service, Doctor, Appointment, FrontPatientTestimonial, Slider])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Setting,
+      Clinic,
+      Specialization,
+      User,
+      Service,
+      Doctor,
+      Appointment,
+      FrontPatientTestimonial,
+      Slider,
+    ]),
+  ],
   controllers: [FrontController],
   providers: [FrontService],
 })

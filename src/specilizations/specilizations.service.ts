@@ -15,7 +15,9 @@ export class SpecilizationsService {
   ) {}
 
   create(createSpecilizationDto: CreateSpecilizationDto) {
-    const spicialization = this.spicializationRepo.create(createSpecilizationDto);
+    const spicialization = this.spicializationRepo.create(
+      createSpecilizationDto,
+    );
     return this.spicializationRepo.save(spicialization);
   }
 
@@ -24,28 +26,28 @@ export class SpecilizationsService {
       repository: this.spicializationRepo,
       alias: 'specialization',
       query: {
-        ...query
+        ...query,
       },
       searchFields: ['name'],
       filterFields: ['clinic_id'],
       allowedOrderFields: ['name'],
       defaultOrderField: 'created_at',
       defaultOrderDirection: 'DESC',
-      selectFields : [],
+      selectFields: [],
       relations: [],
     });
   }
 
   async findOne(id: number) {
     return {
-      data : await this.spicializationRepo.findOneBy({ id })
-    } 
+      data: await this.spicializationRepo.findOneBy({ id }),
+    };
   }
 
   async update(id: number, updateSpecilizationDto: UpdateSpecilizationDto) {
     const specialization = await this.spicializationRepo.findOneBy({ id });
     if (!specialization) {
-      throw new NotFoundException('Specilization not found')
+      throw new NotFoundException('Specilization not found');
     }
 
     specialization.name = updateSpecilizationDto.name || '';
@@ -53,9 +55,9 @@ export class SpecilizationsService {
   }
 
   async remove(id: number) {
-    const specialization = await this.spicializationRepo.findOneBy({ id })
+    const specialization = await this.spicializationRepo.findOneBy({ id });
     if (!specialization) {
-      throw new NotFoundException('specilization not found')
+      throw new NotFoundException('specilization not found');
     }
     return this.spicializationRepo.remove(specialization);
   }

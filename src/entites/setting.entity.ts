@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity({ name: 'settings' })
 export class Setting {
@@ -11,10 +17,20 @@ export class Setting {
   @Column({ type: 'text' })
   value: string;
 
-  @CreateDateColumn({ type: 'timestamp', precision: 0, nullable: true, name: 'created_at' })
+  @CreateDateColumn({
+    type: 'timestamp',
+    precision: 0,
+    nullable: true,
+    name: 'created_at',
+  })
   created_at?: Date;
 
-  @UpdateDateColumn({ type: 'timestamp', precision: 0, nullable: true, name: 'updated_at' })
+  @UpdateDateColumn({
+    type: 'timestamp',
+    precision: 0,
+    nullable: true,
+    name: 'updated_at',
+  })
   updated_at?: Date;
 
   @Column({ type: 'bigint', unsigned: true, default: 1 })

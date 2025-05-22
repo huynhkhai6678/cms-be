@@ -1,8 +1,8 @@
-import { IsArray, IsDefined } from "class-validator";
-import { ClinicSchedule } from "../../entites/clinic-schedule.entity";
+import { IsArray, IsDefined } from 'class-validator';
+import { ClinicSchedule } from '../../entites/clinic-schedule.entity';
 
 export class UpdateClinicScheduleDto {
-    @IsArray()
-    @IsDefined()
-    schedule : ClinicSchedule[]
+  @IsArray()
+  @IsDefined()
+  schedule: ClinicSchedule[];
 }

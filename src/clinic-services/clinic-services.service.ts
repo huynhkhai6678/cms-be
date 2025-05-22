@@ -8,7 +8,6 @@ import { DatabaseService } from '../shared/database/database.service';
 
 @Injectable()
 export class ClinicServicesService {
-
   constructor(
     @InjectRepository(ClinicService)
     private readonly clinicServiceRepo: Repository<ClinicService>,
@@ -16,7 +15,7 @@ export class ClinicServicesService {
   ) {}
 
   create(createClinicServiceDto: CreateClinicServiceDto) {
-    const subscriber = this.clinicServiceRepo.create(createClinicServiceDto)
+    const subscriber = this.clinicServiceRepo.create(createClinicServiceDto);
     return this.clinicServiceRepo.save(subscriber);
   }
 
@@ -25,22 +24,22 @@ export class ClinicServicesService {
       repository: this.clinicServiceRepo,
       alias: 'clinic_service',
       query: {
-        ...query
+        ...query,
       },
       searchFields: ['name', 'description', 'price', 'cost'],
       filterFields: ['clinic_id', 'active'],
       allowedOrderFields: ['name', 'description', 'price', 'cost'],
       defaultOrderField: 'created_at',
       defaultOrderDirection: 'DESC',
-      selectFields : [],
+      selectFields: [],
       relations: [],
     });
   }
 
   async findOne(id: number) {
     return {
-      data: await this.clinicServiceRepo.findOneBy({ id })
-    }
+      data: await this.clinicServiceRepo.findOneBy({ id }),
+    };
   }
 
   async update(id: number, updateClinicServiceDto: UpdateClinicServiceDto) {
@@ -48,29 +47,26 @@ export class ClinicServicesService {
     if (!subscriber) {
       throw new NotFoundException('Clinic service not found');
     }
-    
-    return this.clinicServiceRepo.update(
-      { id },
-      updateClinicServiceDto
-    );
+
+    return this.clinicServiceRepo.update({ id }, updateClinicServiceDto);
   }
 
   async remove(id: number) {
-    const enquiry = await this.clinicServiceRepo.findOneBy({ id });
-    if (!enquiry) {
+    const clinicService = await this.clinicServiceRepo.findOneBy({ id });
+    if (!clinicService) {
       throw new NotFoundException('Enquiry not found');
     }
 
-    this.clinicServiceRepo.remove(enquiry);
+    this.clinicServiceRepo.remove(clinicService);
   }
 
   async updateActive(id: number, active: boolean) {
-    const enquiry = await this.clinicServiceRepo.findOneBy({ id });
-    if (!enquiry) {
+    const clinicService = await this.clinicServiceRepo.findOneBy({ id });
+    if (!clinicService) {
       throw new NotFoundException('Enquiry not found');
     }
 
-    enquiry.active = active ? 1 : 0;
-    this.clinicServiceRepo.save(enquiry);
+    clinicService.active = active ? 1 : 0;
+    this.clinicServiceRepo.save(clinicService);
   }
 }

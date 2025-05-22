@@ -11,7 +11,7 @@ import { Service } from './service.entity';
 @Entity({ name: 'service_categories' })
 export class ServiceCategory {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-  id: string;
+  id: number;
 
   @Column({ type: 'varchar', length: 255 })
   name: string;
@@ -23,9 +23,9 @@ export class ServiceCategory {
   updated_at?: Date;
 
   @Column({ type: 'bigint', unsigned: true, default: 1 })
-  clinic_id: string;
+  clinic_id: number;
 
   // Relations
-  @OneToMany(() => Service, (service) => service.service_categories)
+  @OneToMany(() => Service, (service) => service.category)
   services: Service[];
 }

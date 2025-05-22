@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ValidationPipe, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ValidationPipe,
+  BadRequestException,
+} from '@nestjs/common';
 import { SpecilizationsService } from './specilizations.service';
 import { CreateSpecilizationDto } from './dto/create-specilization.dto';
 import { UpdateSpecilizationDto } from './dto/update-specilization.dto';
@@ -6,17 +17,24 @@ import { I18nService } from 'nestjs-i18n';
 
 @Controller('specializations')
 export class SpecilizationsController {
-  constructor(private readonly specilizationsService: SpecilizationsService, private i18n: I18nService) {}
+  constructor(
+    private readonly specilizationsService: SpecilizationsService,
+    private i18n: I18nService,
+  ) {}
 
   @Post()
-  async create(@Body(new ValidationPipe()) createSpecilizationDto: CreateSpecilizationDto) {
-    let result = await this.specilizationsService.create(createSpecilizationDto);
+  async create(
+    @Body(new ValidationPipe()) createSpecilizationDto: CreateSpecilizationDto,
+  ) {
+    const result = await this.specilizationsService.create(
+      createSpecilizationDto,
+    );
     if (!result) {
       throw new BadRequestException('Error');
     }
 
     return {
-      message: await this.i18n.t('main.messages.flash.specialization_create'),
+      message: this.i18n.t('main.messages.flash.specialization_create'),
     };
   }
 
@@ -31,7 +49,10 @@ export class SpecilizationsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSpecilizationDto: UpdateSpecilizationDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateSpecilizationDto: UpdateSpecilizationDto,
+  ) {
     return this.specilizationsService.update(+id, updateSpecilizationDto);
   }
 
@@ -39,7 +60,7 @@ export class SpecilizationsController {
   async remove(@Param('id') id: string) {
     this.specilizationsService.remove(+id);
     return {
-      message: await this.i18n.t('main.messages.flash.specialization_delete'),
+      message: this.i18n.t('main.messages.flash.specialization_delete'),
     };
   }
 }

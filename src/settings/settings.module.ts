@@ -15,10 +15,21 @@ import { PaymentGateway } from '../entites/payment-gateways.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Setting, Specialization, Currency, City, Country, State, Clinic, Address, PaymentGateway]),
-    AuthModule
+    TypeOrmModule.forFeature([
+      Setting,
+      Specialization,
+      Currency,
+      City,
+      Country,
+      State,
+      Clinic,
+      Address,
+      PaymentGateway,
+    ]),
+    AuthModule,
   ],
   controllers: [SettingsController],
   providers: [SettingsService],
+  exports: [SettingsService],
 })
 export class SettingsModule {}

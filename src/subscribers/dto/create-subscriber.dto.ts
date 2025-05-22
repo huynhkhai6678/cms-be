@@ -1,8 +1,8 @@
-import { IsDefined, IsEmail, IsString } from "class-validator";
+import { IsDefined, IsEmail, IsString } from 'class-validator';
 
 export class CreateSubscriberDto {
-    @IsDefined()
-    @IsString()
-    @IsEmail()
-    email
+  @IsDefined()
+  @IsString()
+  @IsEmail()
+  email;
 }

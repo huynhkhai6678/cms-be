@@ -38,8 +38,20 @@ export class DatabaseService {
           // If raw query then need return raw query
           returnQueryRaw = true;
           qb.addSelect(field[0], field[1]);
-        } else {
-          qb.addSelect(`${alias}.${String(field)}`);
+        } else if (typeof field === 'string') {
+          const match = field.match(/^([\w.]+)\s+as\s+(\w+)$/i);
+          if (match) {
+            // Pattern: "table.column as alias"
+            const [, expression, aliasName] = match;
+            returnQueryRaw = true;
+            qb.addSelect(expression, aliasName);
+          } else if (field.includes('.')) {
+            // e.g., "category.id"
+            qb.addSelect(field);
+          } else {
+            // e.g., "name" (from base alias)
+            qb.addSelect(`${alias}.${field}`);
+          }
         }
       }
     } else {
@@ -51,25 +63,32 @@ export class DatabaseService {
       qb.leftJoinAndSelect(`${alias}.${relation}`, relation);
     }
 
-    const { finalQuery, params } = this.buildFinalQuery(query, searchFields, filterFields, alias);
+    const { finalQuery, params } = this.buildFinalQuery(
+      query,
+      searchFields,
+      filterFields,
+      alias,
+    );
     qb.andWhere(finalQuery, params);
 
     // Order
-    const safeOrderBy = allowedOrderFields.includes(query.orderBy)
-      ? query.orderBy
-      : defaultOrderField;
+    const { field: orderByField, direction: orderDirection } =
+      this.buildOrderBy({
+        queryOrderBy: query.orderBy,
+        queryOrder: query.order,
+        alias,
+        allowedOrderFields,
+        defaultOrderField,
+        defaultOrderDirection: defaultOrderDirection,
+      });
 
-    const safeOrder = ['asc', 'desc'].includes(
-      (query.order || '').toLowerCase(),
-    )
-      ? (query.order || '').toUpperCase()
-      : defaultOrderDirection;
+    qb.orderBy(orderByField, orderDirection);
 
-    qb.orderBy(`${alias}.${safeOrderBy}`, safeOrder as 'ASC' | 'DESC');
+    // Pagination
     qb.skip(skip).take(take);
-    
-    let data : T[] = [];
-    let total : number = 0;
+
+    let data: T[] = [];
+    let total: number = 0;
     [data, total] = await qb.getManyAndCount();
 
     if (returnQueryRaw) {
@@ -92,9 +111,13 @@ export class DatabaseService {
     };
   }
 
-  buildSearchQuery(query: any, searchFields: string[], alias: string): { searchQuery: string, searchParams: SearchParams } {
+  buildSearchQuery(
+    query: any,
+    searchFields: string[],
+    alias: string,
+  ): { searchQuery: string; searchParams: SearchParams } {
     let searchQuery = '';
-    let searchParams: SearchParams = {};
+    const searchParams: SearchParams = {};
 
     if (query.search && searchFields.length) {
       searchQuery = searchFields
@@ -106,7 +129,12 @@ export class DatabaseService {
     return { searchQuery, searchParams };
   }
 
-  buildFilterQuery(query: any, filterFields: string[], alias: string, searchQuery: string): { filterQuery: string, filterParams: FilterParams } {
+  buildFilterQuery(
+    query: any,
+    filterFields: string[],
+    alias: string,
+    searchQuery: string,
+  ): { filterQuery: string; filterParams: FilterParams } {
     let filterQuery = '';
     let filterParams: FilterParams = {};
 
@@ -119,13 +147,17 @@ export class DatabaseService {
 
       // If searchQuery exists, we don't need to prepend 'AND' before the first filter condition.
       if (firstCondition) {
-        firstCondition = false;  // After the first condition, subsequent ones should prepend 'AND'
+        firstCondition = false; // After the first condition, subsequent ones should prepend 'AND'
       } else {
         filterQuery += ' AND ';
       }
 
       if (typeof value === 'object') {
-        const { queryPart, params } = this.buildConditionQuery(alias, field, value);
+        const { queryPart, params } = this.buildConditionQuery(
+          alias,
+          field,
+          value,
+        );
         filterQuery += queryPart;
         filterParams = { ...filterParams, ...params };
       } else {
@@ -136,9 +168,23 @@ export class DatabaseService {
     return { filterQuery, filterParams };
   }
 
-  buildFinalQuery(query: any, searchFields: string[], filterFields: string[], alias: string): { finalQuery: string, params: { [key: string]: any } } {
-    const { searchQuery, searchParams } = this.buildSearchQuery(query, searchFields, alias);
-    const { filterQuery, filterParams } = this.buildFilterQuery(query, filterFields, alias, searchQuery);
+  buildFinalQuery(
+    query: any,
+    searchFields: string[],
+    filterFields: string[],
+    alias: string,
+  ): { finalQuery: string; params: { [key: string]: any } } {
+    const { searchQuery, searchParams } = this.buildSearchQuery(
+      query,
+      searchFields,
+      alias,
+    );
+    const { filterQuery, filterParams } = this.buildFilterQuery(
+      query,
+      filterFields,
+      alias,
+      searchQuery,
+    );
 
     let finalQuery = '';
     // Add the search query if it exists
@@ -159,7 +205,7 @@ export class DatabaseService {
 
   buildConditionQuery(alias, field, condition) {
     let queryPart = '';
-    let params = {};
+    const params = {};
     if ('not' in condition) {
       queryPart = `AND ${alias}.${field} != :${field}`;
       params[field] = condition.not;
@@ -185,6 +231,39 @@ export class DatabaseService {
 
     return { queryPart, params };
   }
+
+  buildOrderBy({
+    queryOrderBy,
+    queryOrder,
+    alias,
+    allowedOrderFields,
+    defaultOrderField,
+    defaultOrderDirection,
+  }: {
+    queryOrderBy?: string;
+    queryOrder?: string;
+    alias: string;
+    allowedOrderFields: string[];
+    defaultOrderField: string;
+    defaultOrderDirection: 'ASC' | 'DESC';
+  }): { field: string; direction: 'ASC' | 'DESC' } {
+    const rawOrderBy = String(queryOrderBy || '');
+    const safeOrder = ['asc', 'desc'].includes((queryOrder || '').toLowerCase())
+      ? ((queryOrder || '').toUpperCase() as 'ASC' | 'DESC')
+      : defaultOrderDirection;
+
+    if (allowedOrderFields.includes(rawOrderBy)) {
+      if (rawOrderBy.includes('.')) {
+        return { field: rawOrderBy, direction: safeOrder };
+      }
+      return { field: `${alias}.${rawOrderBy}`, direction: safeOrder };
+    }
+
+    return {
+      field: `${alias}.${defaultOrderField}`,
+      direction: defaultOrderDirection,
+    };
+  }
 }
 
 interface PaginateAndSearchOptions<T extends ObjectLiteral> {
@@ -196,7 +275,7 @@ interface PaginateAndSearchOptions<T extends ObjectLiteral> {
   allowedOrderFields?: string[];
   defaultOrderField?: string;
   defaultOrderDirection?: 'ASC' | 'DESC';
-  selectFields: (keyof T | [string, string])[];
+  selectFields: (keyof T | string | [string, string])[];
   relations?: string[];
 }
 

@@ -27,12 +27,10 @@ export class DashboardService {
   ) {}
 
   async getUserCardData(user) {
-
-
-   const doctorCount = await this.userRepo
+    const doctorCount = await this.userRepo
       .createQueryBuilder('user')
-      .innerJoin('user.user_clinics', 'user_clinic')  // Join the UserClinic table (relation alias 'user_clinic')
-      .innerJoin('user_clinic.clinic', 'clinic')     // Join Clinic through the UserClinic relation
+      .innerJoin('user.user_clinics', 'user_clinic') // Join the UserClinic table (relation alias 'user_clinic')
+      .innerJoin('user_clinic.clinic', 'clinic') // Join Clinic through the UserClinic relation
       .where('user.type = :type', { type: UserRole.DOCTOR })
       .andWhere('user.status = :status', { status: true })
       .andWhere('clinic.id = :clinicId', { clinicId: user.clinic_id }) // Filter by clinic ID
@@ -40,23 +38,27 @@ export class DashboardService {
 
     const patientCount = await this.userRepo
       .createQueryBuilder('user')
-      .innerJoin('user.user_clinics', 'user_clinic')  // Join the UserClinic table (relation alias 'user_clinic')
-      .innerJoin('user_clinic.clinic', 'clinic')     // Join Clinic through the UserClinic relation
+      .innerJoin('user.user_clinics', 'user_clinic') // Join the UserClinic table (relation alias 'user_clinic')
+      .innerJoin('user_clinic.clinic', 'clinic') // Join Clinic through the UserClinic relation
       .where('user.type = :type', { type: UserRole.PATIENT })
       .andWhere('clinic.id = :clinicId', { clinicId: user.clinic_id }) // Filter by clinic ID
       .getCount();
 
     const appointmentCount = await this.appoitnementRepo
       .createQueryBuilder('appointment')
-      .where('appointment.date = :date', { date: moment().format('YYYY-MM-DD') })
-      .andWhere('appointment.status = :status', { status: AppointmentStatus.BOOKED })
+      .where('appointment.date = :date', {
+        date: moment().format('YYYY-MM-DD'),
+      })
+      .andWhere('appointment.status = :status', {
+        status: AppointmentStatus.BOOKED,
+      })
       .andWhere('appointment.date = :clinicId', { clinicId: user.clinic_id }) // Filter by clinic ID
       .getCount();
 
     const registerCount = await this.userRepo
       .createQueryBuilder('user')
-      .innerJoin('user.user_clinics', 'user_clinic')  // Join the UserClinic table (relation alias 'user_clinic')
-      .innerJoin('user_clinic.clinic', 'clinic')     // Join Clinic through the UserClinic relation
+      .innerJoin('user.user_clinics', 'user_clinic') // Join the UserClinic table (relation alias 'user_clinic')
+      .innerJoin('user_clinic.clinic', 'clinic') // Join Clinic through the UserClinic relation
       .where('user.type = :type', { type: UserRole.PATIENT })
       .where('user.created_at = :date', { date: moment().format('YYYY-MM-DD') })
       .andWhere('user.status = :status', { status: true })
@@ -76,10 +78,10 @@ export class DashboardService {
 
     if (user.type === UserRole.DOCTOR) {
       const doctorUser = await this.userRepo.findOne({
-        where : {
-          id: user.id
+        where: {
+          id: user.id,
         },
-        relations : ['doctor']
+        relations: ['doctor'],
       });
 
       if (!doctorUser) {
@@ -119,10 +121,10 @@ export class DashboardService {
       };
     } else if (user.type === UserRole.PATIENT) {
       const patientUser = await this.userRepo.findOne({
-        where : {
-          id: user.id
+        where: {
+          id: user.id,
         },
-        relations : ['patient']
+        relations: ['patient'],
       });
 
       if (!patientUser) {
@@ -132,24 +134,24 @@ export class DashboardService {
       const todayAppointmentCount = await this.appoitnementRepo.count({
         where: {
           clinic_id: patientUser.clinic_id,
-          patient_id : patientUser.patient.id,
-          date : Equal(moment().format('YYYY-MM-DD'))
+          patient_id: patientUser.patient.id,
+          date: Equal(moment().format('YYYY-MM-DD')),
         },
       });
 
       const upcomingAppointmentCount = await this.appoitnementRepo.count({
         where: {
           clinic_id: patientUser.clinic_id,
-          patient_id : patientUser.patient.id,
-          date : MoreThan(moment().format('YYYY-MM-DD'))
+          patient_id: patientUser.patient.id,
+          date: MoreThan(moment().format('YYYY-MM-DD')),
         },
       });
 
       const completedAppointment = await this.appoitnementRepo.count({
         where: {
           clinic_id: patientUser.clinic_id,
-          patient_id : patientUser.patient.id,
-          status : Not(Equal(AppointmentStatus.CHECK_OUT))
+          patient_id: patientUser.patient.id,
+          status: Not(Equal(AppointmentStatus.CHECK_OUT)),
         },
       });
 
@@ -168,7 +170,7 @@ export class DashboardService {
 
       const totalAppointmentCount = await this.appoitnementRepo.count({
         where: {
-          clinic_id: user.clinic_id
+          clinic_id: user.clinic_id,
         },
       });
 
@@ -246,18 +248,18 @@ export class DashboardService {
     const results = await this.transactionRepo.query(query);
 
     const months = {
-      1: await this.i18n.translate('main.messages.months.jan'),
-      2: await this.i18n.translate('main.messages.months.feb'),
-      3: await this.i18n.translate('main.messages.months.mar'),
-      4: await this.i18n.translate('main.messages.months.apr'),
-      5: await this.i18n.translate('main.messages.months.may'),
-      6: await this.i18n.translate('main.messages.months.jun'),
-      7: await this.i18n.translate('main.messages.months.jul'),
-      8: await this.i18n.translate('main.messages.months.aug'),
-      9: await this.i18n.translate('main.messages.months.sep'),
-      10: await this.i18n.translate('main.messages.months.oct'),
-      11: await this.i18n.translate('main.messages.months.nov'),
-      12: await this.i18n.translate('main.messages.months.dec'),
+      1: this.i18n.translate('main.messages.months.jan'),
+      2: this.i18n.translate('main.messages.months.feb'),
+      3: this.i18n.translate('main.messages.months.mar'),
+      4: this.i18n.translate('main.messages.months.apr'),
+      5: this.i18n.translate('main.messages.months.may'),
+      6: this.i18n.translate('main.messages.months.jun'),
+      7: this.i18n.translate('main.messages.months.jul'),
+      8: this.i18n.translate('main.messages.months.aug'),
+      9: this.i18n.translate('main.messages.months.sep'),
+      10: this.i18n.translate('main.messages.months.oct'),
+      11: this.i18n.translate('main.messages.months.nov'),
+      12: this.i18n.translate('main.messages.months.dec'),
     };
 
     const revenue = {};
@@ -270,5 +272,5 @@ export class DashboardService {
     return revenue;
   }
 
-  ayn
+  ayn;
 }

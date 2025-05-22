@@ -8,7 +8,10 @@ import { Clinic } from '../entites/clinic.entity';
 import { ClinicChain } from '../entites/clinic-chain.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Clinic, ClinicChain]), DatabaseServiceModule],
+  imports: [
+    TypeOrmModule.forFeature([User, Clinic, ClinicChain]),
+    DatabaseServiceModule,
+  ],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],

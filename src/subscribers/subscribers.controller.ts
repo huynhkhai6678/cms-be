@@ -1,11 +1,24 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ValidationPipe,
+  Query,
+} from '@nestjs/common';
 import { SubscribersService } from './subscribers.service';
 import { CreateSubscriberDto } from './dto/create-subscriber.dto';
 import { I18nService } from 'nestjs-i18n';
 
 @Controller('subscribers')
 export class SubscribersController {
-  constructor(private readonly subscribersService: SubscribersService, private i18n: I18nService) {}
+  constructor(
+    private readonly subscribersService: SubscribersService,
+    private i18n: I18nService,
+  ) {}
 
   @Post()
   create(@Body(new ValidationPipe()) createSubscriberDto: CreateSubscriberDto) {

@@ -6,10 +6,7 @@ import { Subscribe } from '../entites/subcriber.entity';
 import { DatabaseServiceModule } from 'src/shared/database/database.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Subscribe]),
-    DatabaseServiceModule
-  ],
+  imports: [TypeOrmModule.forFeature([Subscribe]), DatabaseServiceModule],
   controllers: [SubscribersController],
   providers: [SubscribersService],
 })

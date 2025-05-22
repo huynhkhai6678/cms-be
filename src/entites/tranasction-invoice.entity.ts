@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Doctor } from './doctor.entity';
 import { User } from './user.entity';
 import { Visit } from './visit.entity';
@@ -48,7 +56,11 @@ export class TransactionInvoice {
   @Column({ type: 'varchar', length: 255, nullable: true })
   payment_note: string;
 
-  @CreateDateColumn({ name: 'bill_date', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn({
+    name: 'bill_date',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   bill_date: Date;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp', nullable: true })

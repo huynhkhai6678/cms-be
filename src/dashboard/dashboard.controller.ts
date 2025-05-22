@@ -1,4 +1,10 @@
-import { Controller, Get, Req, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Req,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { PrismaService } from '../shared/prisma/prisma.service';
 import { Request } from 'express';
 import { DashboardService } from './dashboard.service';

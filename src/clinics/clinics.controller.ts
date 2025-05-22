@@ -27,14 +27,14 @@ export class ClinicsController {
   ) {}
 
   @Post()
-  async create(@Body(new ValidationPipe()) createClinicDto: CreateClinicDto) {
+  create(@Body(new ValidationPipe()) createClinicDto: CreateClinicDto) {
     const result = this.clinicsService.create(createClinicDto);
     if (!result) {
       throw new BadRequestException('Error');
     }
 
     return {
-      message: await this.i18n.t('main.messages.flash.clinic_create'),
+      message: this.i18n.t('main.messages.flash.clinic_create'),
     };
   }
 
@@ -49,7 +49,7 @@ export class ClinicsController {
   }
 
   @Patch(':id')
-  async update(
+  update(
     @Param('id') id: string,
     @Body(new ValidationPipe()) updateClinicDto: UpdateClinicDto,
   ) {
@@ -59,15 +59,15 @@ export class ClinicsController {
     }
 
     return {
-      message: await this.i18n.t('main.messages.flash.clinic_create'),
+      message: this.i18n.t('main.messages.flash.clinic_create'),
     };
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  remove(@Param('id') id: string) {
     this.clinicsService.remove(+id);
     return {
-      message: await this.i18n.t('main.messages.flash.role_delete'),
+      message: this.i18n.t('main.messages.flash.role_delete'),
     };
   }
 }

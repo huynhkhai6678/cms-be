@@ -1,4 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn, Index } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+  Index,
+} from 'typeorm';
 import { Doctor } from './doctor.entity'; // Adjust the import path as needed
 import { SessionWeekDay } from './session-week-days.entity';
 
@@ -24,12 +34,19 @@ export class DoctorSession {
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @UpdateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updated_at: Date;
 
   @Column({ type: 'bigint', unsigned: true, default: 1 })
   clinic_id: number;
 
-  @OneToMany(() => SessionWeekDay, (sessionWeekDay) => sessionWeekDay.doctorSession)
+  @OneToMany(
+    () => SessionWeekDay,
+    (sessionWeekDay) => sessionWeekDay.doctorSession,
+  )
   sessionWeekDays: SessionWeekDay[];
 }

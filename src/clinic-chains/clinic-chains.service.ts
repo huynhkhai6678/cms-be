@@ -18,7 +18,7 @@ export class ClinicChainsService {
   ) {}
 
   async create(createClinicChainDto: CreateClinicChainDto) {
-    let roleDto = new ClinicChain();
+    const roleDto = new ClinicChain();
     roleDto.name = createClinicChainDto.name;
 
     const clinics = await this.clinicRepo.findBy({
@@ -38,7 +38,7 @@ export class ClinicChainsService {
       allowedOrderFields: ['name'],
       defaultOrderField: 'created_at',
       defaultOrderDirection: 'DESC',
-      selectFields : [],
+      selectFields: [],
       relations: ['clinics'],
     });
   }

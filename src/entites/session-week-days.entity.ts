@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  Index,
+} from 'typeorm';
 import { Doctor } from './doctor.entity'; // Adjust the import path as needed
 import { DoctorSession } from './doctor-session.entity';
 
@@ -12,14 +21,20 @@ export class SessionWeekDay {
   @Column({ type: 'bigint', unsigned: true })
   doctor_id: string;
 
-  @ManyToOne(() => Doctor, (doctor) => doctor.sessionWeekDays, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Doctor, (doctor) => doctor.sessionWeekDays, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'doctor_id' })
   doctor: Doctor;
 
   @Column({ type: 'bigint', unsigned: true })
   doctor_session_id: string;
 
-  @ManyToOne(() => DoctorSession, (doctorSession) => doctorSession.sessionWeekDays, { onDelete: 'CASCADE' })
+  @ManyToOne(
+    () => DoctorSession,
+    (doctorSession) => doctorSession.sessionWeekDays,
+    { onDelete: 'CASCADE' },
+  )
   @JoinColumn({ name: 'doctor_session_id' })
   doctorSession: DoctorSession;
 
@@ -41,7 +56,11 @@ export class SessionWeekDay {
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @UpdateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updated_at: Date;
 
   @Column({ type: 'bigint', unsigned: true, default: 1 })

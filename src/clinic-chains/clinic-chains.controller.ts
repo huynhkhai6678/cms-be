@@ -18,7 +18,9 @@ export class ClinicChainsController {
   constructor(private readonly clinicChainsService: ClinicChainsService) {}
 
   @Post()
-  create(@Body(new ValidationPipe()) createClinicChainDto: CreateClinicChainDto) {
+  create(
+    @Body(new ValidationPipe()) createClinicChainDto: CreateClinicChainDto,
+  ) {
     return this.clinicChainsService.create(createClinicChainDto);
   }
 

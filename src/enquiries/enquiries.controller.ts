@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, NotFoundException, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ValidationPipe,
+  NotFoundException,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { EnquiriesService } from './enquiries.service';
 import { CreateEnquiryDto } from './dto/create-enquiry.dto';
 import { I18nService } from 'nestjs-i18n';
@@ -8,11 +21,14 @@ import { RoleGuardFactory } from '../guards/role.guard.factory';
 @UseGuards(AuthGuard, RoleGuardFactory('manage_front_cms'))
 @Controller('enquiries')
 export class EnquiriesController {
-  constructor(private readonly enquiriesService: EnquiriesService, private i18n: I18nService ) {}
+  constructor(
+    private readonly enquiriesService: EnquiriesService,
+    private i18n: I18nService,
+  ) {}
 
   @Post()
   async create(@Body(new ValidationPipe()) createEnquiryDto: CreateEnquiryDto) {
-    let result = await this.enquiriesService.create(createEnquiryDto);
+    const result = await this.enquiriesService.create(createEnquiryDto);
     if (!result) {
       throw new NotFoundException('Error');
     }

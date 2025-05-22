@@ -12,7 +12,6 @@ import { hashPassword } from 'src/utils/hash.util';
 
 @Injectable()
 export class ProfileService {
-
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
@@ -26,7 +25,7 @@ export class ProfileService {
     private readonly cityRepo: Repository<City>,
   ) {}
 
-  async getProfile(userId : number) {
+  async getProfile(userId: number) {
     const qb = this.userRepo.createQueryBuilder('user');
     qb.leftJoinAndMapOne(
       'user.address',
@@ -36,7 +35,7 @@ export class ProfileService {
       { ownerType: 'App\\Models\\User' },
     );
 
-    qb.where('user.id = :id', { id : userId });
+    qb.where('user.id = :id', { id: userId });
     const user = await qb.getOne();
 
     if (!user) {
@@ -45,38 +44,29 @@ export class ProfileService {
 
     const countries = await this.countryRepo
       .createQueryBuilder('country')
-      .select([
-        'country.id AS value',
-        'country.name AS label'
-      ])
+      .select(['country.id AS value', 'country.name AS label'])
       .getRawMany();
 
-    let states : State[] = [];
+    let states: State[] = [];
     if (user.address?.country_id) {
       states = await this.stateRepo
-      .createQueryBuilder('state')
-      .select([
-        'state.id AS value',
-        'state.name AS label'
-      ])
-      .where('state.country_id = :id', { id : user.address.country_id })
-      .getRawMany();
+        .createQueryBuilder('state')
+        .select(['state.id AS value', 'state.name AS label'])
+        .where('state.country_id = :id', { id: user.address.country_id })
+        .getRawMany();
     }
 
-    let cities : City[] = [];
+    let cities: City[] = [];
     if (user.address?.state_id) {
       cities = await this.cityRepo
-      .createQueryBuilder('city')
-      .select([
-        'city.id AS value',
-        'city.name AS label'
-      ])
-      .where('city.state_id = :id', { id : user.address.state_id })
-      .getRawMany();
+        .createQueryBuilder('city')
+        .select(['city.id AS value', 'city.name AS label'])
+        .where('city.state_id = :id', { id: user.address.state_id })
+        .getRawMany();
     }
 
     return {
-      data : {
+      data: {
         contact: `${user.contact}`,
         region_code: `${user.region_code}`,
         dob: user.dob,
@@ -95,15 +85,15 @@ export class ProfileService {
       },
       countries,
       states,
-      cities
-    }
+      cities,
+    };
   }
 
-  updateProfile(id : number, updateProfileDto: UpdateProfileDto) {
+  updateProfile(id: number, updateProfileDto: UpdateProfileDto) {
     return `This action returns all profile`;
   }
 
-  async changePassword(id : number, changePasswordDto: ChangePasswordDto) {
+  async changePassword(id: number, changePasswordDto: ChangePasswordDto) {
     const user = await this.userRepo.findOneBy({ id });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -114,7 +104,7 @@ export class ProfileService {
     return this.userRepo.save(user);
   }
 
-  async updateLanguage(id : number, language: string) {
+  async updateLanguage(id: number, language: string) {
     const user = await this.userRepo.findOneBy({ id });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -124,7 +114,7 @@ export class ProfileService {
     return this.userRepo.save(user);
   }
 
-  async updateTheme(id : number, isDark: boolean) {
+  async updateTheme(id: number, isDark: boolean) {
     const user = await this.userRepo.findOneBy({ id });
     if (!user) {
       throw new NotFoundException('User not found');

@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
   OneToMany,
   Transaction,
+  ManyToMany,
 } from 'typeorm';
 
 import { ServiceDoctor } from './service-doctor.entity';
@@ -19,6 +20,7 @@ import { Visit } from './visit.entity';
 import { TransactionInvoice } from './tranasction-invoice.entity';
 import { SessionWeekDay } from './session-week-days.entity';
 import { DoctorSession } from './doctor-session.entity';
+import { Service } from './service.entity';
 
 @Entity('doctors')
 @Index('doctors_user_id_foreign', ['user_id'])
@@ -92,4 +94,7 @@ export class Doctor {
 
   @OneToMany(() => DoctorSession, (doctorSession) => doctorSession.doctor)
   doctorSessions: DoctorSession[];
+
+  @ManyToMany(() => Service, (service) => service.doctors)
+  services: Service[];
 }

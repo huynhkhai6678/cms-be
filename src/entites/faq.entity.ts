@@ -27,5 +27,5 @@ export class Faq {
   updated_at?: Date;
 
   @Column({ type: 'bigint', unsigned: true, default: 1 })
-  clinic_id: string;
+  clinic_id: number;
 }

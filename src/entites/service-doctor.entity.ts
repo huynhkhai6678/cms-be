@@ -5,22 +5,18 @@ import {
   ManyToOne,
   Index,
   JoinColumn,
+  PrimaryColumn,
 } from 'typeorm';
 import { Service } from './service.entity';
 import { Doctor } from './doctor.entity';
 
 @Entity({ name: 'service_doctor' })
 export class ServiceDoctor {
-  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-  id: string;
+  @PrimaryColumn({ type: 'bigint', unsigned: true })
+  service_id: number;
 
-  @Index('service_doctor_service_id_foreign')
-  @Column({ type: 'bigint', unsigned: true })
-  service_id: string;
-
-  @Index('service_doctor_doctor_id_foreign')
-  @Column({ type: 'bigint', unsigned: true })
-  doctor_id: string;
+  @PrimaryColumn({ type: 'bigint', unsigned: true })
+  doctor_id: number;
 
   @ManyToOne(() => Doctor, (doctor) => doctor.serviceDoctors, {
     onDelete: 'CASCADE',
@@ -28,7 +24,7 @@ export class ServiceDoctor {
   @JoinColumn({ name: 'doctor_id' })
   doctors: Doctor;
 
-  @ManyToOne(() => Service, (service) => service.service_doctor, {
+  @ManyToOne(() => Service, (service) => service.service_doctors, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'service_id' })
