@@ -22,7 +22,7 @@ export class Appointment {
   doctor_id: number;
 
   @Index('appointments_patient_id_foreign')
-  @Column({ type: 'int', unsigned: true, nullable: true })
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
   patient_id: number;
 
   @Column({ type: 'varchar', length: 255 })

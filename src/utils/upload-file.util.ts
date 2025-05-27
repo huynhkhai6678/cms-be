@@ -10,7 +10,7 @@ export function createFileUploadStorage(entity: string) {
       file: Express.Multer.File,
       callback: Function,
     ) => {
-      const clinicId = req.body.clinic_id || req['user'].clinic_id;
+      const clinicId = req.body?.clinic_id || req['user']?.clinic_id;
       const uploadPath = `./public/uploads/${clinicId}/${entity}`;
 
       // Ensure the directory exists

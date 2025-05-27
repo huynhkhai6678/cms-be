@@ -51,8 +51,6 @@ export class CmsService {
       ) {
         await this.settingService.updateSetting(id, key, value);
       } else {
-        console.log(value);
-        console.log(key);
         if (value != '') {
           await this.settingService.updateSetting(id, key, value);
         }

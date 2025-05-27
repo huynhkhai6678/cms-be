@@ -74,7 +74,7 @@ export class CmsController {
 
     this.cmsService.update(+id, updateCmDto);
     return {
-      message: await this.i18n.t('main.messages.flash.cms_update'),
+      message: this.i18n.t('main.messages.flash.cms_update'),
     };
   }
 }

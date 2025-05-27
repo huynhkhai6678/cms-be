@@ -5,8 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 import { DoctorSpecialization } from './doctor-specilization.entity';
+import { Doctor } from './doctor.entity';
 
 @Entity({ name: 'specializations' })
 export class Specialization {
@@ -37,4 +39,7 @@ export class Specialization {
 
   @OneToMany(() => DoctorSpecialization, (ds) => ds.doctor)
   doctorSpecializations: DoctorSpecialization[];
+
+  @ManyToMany(() => Doctor, (doctor) => doctor.specializations)
+  doctors: Doctor[];
 }

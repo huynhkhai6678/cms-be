@@ -31,16 +31,4 @@ export class StatesService {
   remove(id: number) {
     return `This action removes a #${id} state`;
   }
-
-  async findStateByCountry(id: number) {
-    const data = await this.stateRepository.find({
-      where: {
-        country_id: id,
-      },
-    });
-
-    return {
-      data,
-    };
-  }
 }

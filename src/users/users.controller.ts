@@ -40,6 +40,16 @@ export class UsersController {
     return this.usersService.update(+id, updateUserDto);
   }
 
+  @Get('verify/:id')
+  verify(@Param('id') id: string) {
+    return this.usersService.verify(+id);
+  }
+
+  @Post('update-status/:id')
+  updateStatus(@Param('id') id: string, @Body() value: boolean) {
+    return this.usersService.updateStatus(+id, value);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);

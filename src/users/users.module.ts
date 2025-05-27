@@ -6,10 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseServiceModule } from '../shared/database/database.module';
 import { Clinic } from '../entites/clinic.entity';
 import { ClinicChain } from '../entites/clinic-chain.entity';
+import { Address } from '../entites/address.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Clinic, ClinicChain]),
+    TypeOrmModule.forFeature([User, Clinic, ClinicChain, Address]),
     DatabaseServiceModule,
   ],
   controllers: [UsersController],

@@ -66,6 +66,14 @@ import { SlidersModule } from './sliders/sliders.module';
 import { TestimonialsModule } from './testimonials/testimonials.module';
 import { FileServiceModule } from './shared/file/file.module';
 import { CmsModule } from './cms/cms.module';
+import { DoctorsModule } from './doctors/doctors.module';
+import { PatientsModule } from './patients/patients.module';
+import { StaffsModule } from './staffs/staffs.module';
+import { Review } from './entites/review.entity';
+import { DoctorHolidaysModule } from './doctor-holidays/doctor-holidays.module';
+import { DoctorHoliday } from './entites/doctor-holiday.entity';
+import { HelperModule } from './helper/helper.module';
+import { PatientMedicalRecord } from './entites/patient-medical-record.entity';
 
 @Module({
   imports: [
@@ -131,6 +139,9 @@ import { CmsModule } from './cms/cms.module';
         DoctorSession,
         ClinicDocumentSetting,
         PaymentGateway,
+        DoctorHoliday,
+        PatientMedicalRecord,
+        Review,
         TransactionInvoice,
       ],
       synchronize: true,
@@ -160,6 +171,11 @@ import { CmsModule } from './cms/cms.module';
     SlidersModule,
     TestimonialsModule,
     CmsModule,
+    DoctorsModule,
+    PatientsModule,
+    StaffsModule,
+    DoctorHolidaysModule,
+    HelperModule,
   ],
   controllers: [AppController],
   providers: [AppService],

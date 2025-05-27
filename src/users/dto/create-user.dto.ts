@@ -4,6 +4,7 @@ import {
   IsEmail,
   IsNumberString,
   IsString,
+  Matches,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -32,6 +33,7 @@ export class CreateUserDto {
 
   @IsDefined()
   @IsString()
+  @Matches('password')
   confirm_password: string;
 
   @IsDefined()

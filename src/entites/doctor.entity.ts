@@ -10,6 +10,7 @@ import {
   OneToMany,
   Transaction,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 
 import { ServiceDoctor } from './service-doctor.entity';
@@ -21,6 +22,9 @@ import { TransactionInvoice } from './tranasction-invoice.entity';
 import { SessionWeekDay } from './session-week-days.entity';
 import { DoctorSession } from './doctor-session.entity';
 import { Service } from './service.entity';
+import { Review } from './review.entity';
+import { Specialization } from './specilization.entity';
+import { DoctorHoliday } from './doctor-holiday.entity';
 
 @Entity('doctors')
 @Index('doctors_user_id_foreign', ['user_id'])
@@ -97,4 +101,18 @@ export class Doctor {
 
   @ManyToMany(() => Service, (service) => service.doctors)
   services: Service[];
+
+  @OneToMany(() => Review, review => review.doctor)
+  reviews: Review[];
+
+  @OneToMany(() => DoctorHoliday, holiday => holiday.doctor)
+  holidays: DoctorHoliday[];
+
+  @ManyToMany(() => Specialization, (specialization) => specialization.doctors)
+  @JoinTable({
+    name: 'doctor_specialization',
+    joinColumn: { name: 'doctor_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'specialization_id', referencedColumnName: 'id' },
+  })
+  specializations: Specialization[];
 }

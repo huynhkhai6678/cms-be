@@ -207,25 +207,25 @@ export class DatabaseService {
     let queryPart = '';
     const params = {};
     if ('not' in condition) {
-      queryPart = `AND ${alias}.${field} != :${field}`;
+      queryPart = `${alias}.${field} != :${field}`;
       params[field] = condition.not;
     } else if ('in' in condition) {
-      queryPart = `AND ${alias}.${field} IN (:...${field})`;
+      queryPart = `${alias}.${field} IN (:...${field})`;
       params[field] = condition.in;
     } else if ('lt' in condition) {
-      queryPart = `AND ${alias}.${field} < :${field}`;
+      queryPart = `${alias}.${field} < :${field}`;
       params[field] = condition.lt;
     } else if ('lte' in condition) {
-      queryPart = `AND ${alias}.${field} <= :${field}`;
+      queryPart = `${alias}.${field} <= :${field}`;
       params[field] = condition.lte;
     } else if ('gt' in condition) {
-      queryPart = `AND ${alias}.${field} > :${field}`;
+      queryPart = `${alias}.${field} > :${field}`;
       params[field] = condition.gt;
     } else if ('gte' in condition) {
-      queryPart = `AND ${alias}.${field} >= :${field}`;
+      queryPart = `${alias}.${field} >= :${field}`;
       params[field] = condition.gte;
     } else if ('like' in condition) {
-      queryPart = `AND ${alias}.${field} LIKE :${field}`;
+      queryPart = `${alias}.${field} LIKE :${field}`;
       params[field] = `%${condition.like}%`;
     }
 

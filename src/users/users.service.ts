@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -149,6 +149,35 @@ export class UsersService {
     user.clinics = clinics;
 
     return this.userRepository.save(user);
+  }
+
+  async verify(id: number) {
+    const user = await this.userRepository.findOne({
+      where : {
+        id
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('User link to this doctor not found');
+    }
+
+    user.email_verified_at = moment().toDate();
+    await this.userRepository.save(user);
+    return true;
+  }
+
+  async updateStatus(id: number, value: boolean) {
+    const user = await this.userRepository.findOne({
+      where : {
+        id
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('User link to this doctor not found');
+    }
+
+    user.status = value ? 1 : 0;
+    await this.userRepository.save(user);
   }
 
   remove(id: number) {

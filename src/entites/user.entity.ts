@@ -43,7 +43,7 @@ export class User {
   gender?: number;
 
   @Column({ type: 'boolean', default: true })
-  status: boolean;
+  status: number;
 
   @Column({ type: 'varchar', length: 255, default: 'en', nullable: true })
   language?: string;
@@ -186,5 +186,8 @@ export class User {
   @OneToMany(() => UserClinic, (userClinic) => userClinic.user)
   user_clinics: UserClinic[];
 
-  address: Address;
+  @Column({ type: 'varchar', length: 255 })
+  image_url: string;
+
+  address?: Address;
 }

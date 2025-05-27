@@ -39,9 +39,4 @@ export class StatesController {
   remove(@Param('id') id: string) {
     return this.statesService.remove(+id);
   }
-
-  @Get('states-by-country/:id')
-  async findCityByState(@Param('id') id: number) {
-    return this.statesService.findStateByCountry(id);
-  }
 }

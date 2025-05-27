@@ -13,15 +13,17 @@ import { User } from './user.entity';
 import { Appointment } from './appointment.entitty';
 import { Visit } from './visit.entity';
 import { TransactionInvoice } from './tranasction-invoice.entity';
+import { Review } from './review.entity';
+import { PatientMedicalRecord } from './patient-medical-record.entity';
 
 @Entity('patients')
 @Index('patients_template_id_foreign', ['template_id'])
 @Index('patients_user_id_foreign', ['user_id'])
 export class Patient {
-  @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
+  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
 
-  @Column({ name: 'patient_unique_id' })
+  @Column({ name: 'patient_unique_id', type: 'varchar', length: 191 })
   patient_unique_id: string;
 
   @Column({ name: 'patient_mrn', type: 'varchar', length: 255 })
@@ -70,4 +72,10 @@ export class Patient {
 
   @OneToMany(() => TransactionInvoice, (tran) => tran.patient)
   transactions: TransactionInvoice[];
+
+  @OneToMany(() => Review, review => review.patient)
+  reviews: Review[];
+
+  @OneToMany(() => PatientMedicalRecord, (record) => record.patient)
+  medicalRecords: PatientMedicalRecord[];
 }

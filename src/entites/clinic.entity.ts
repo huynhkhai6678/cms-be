@@ -12,6 +12,7 @@ import { User } from '../entites/user.entity';
 import { ClinicChain } from './clinic-chain.entity';
 import { Visit } from './visit.entity';
 import { TransactionInvoice } from './tranasction-invoice.entity';
+import { PatientMedicalRecord } from './patient-medical-record.entity';
 
 @Entity('clinics')
 export class Clinic {
@@ -67,4 +68,7 @@ export class Clinic {
 
   @OneToMany(() => TransactionInvoice, (tran) => tran.clinic)
   transactions: TransactionInvoice[];
+
+  @OneToMany(() => PatientMedicalRecord, (record) => record.clinic)
+  medicalRecords: PatientMedicalRecord[];
 }
