@@ -74,6 +74,7 @@ import { DoctorHolidaysModule } from './doctor-holidays/doctor-holidays.module';
 import { DoctorHoliday } from './entites/doctor-holiday.entity';
 import { HelperModule } from './helper/helper.module';
 import { PatientMedicalRecord } from './entites/patient-medical-record.entity';
+import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
   imports: [
@@ -144,7 +145,7 @@ import { PatientMedicalRecord } from './entites/patient-medical-record.entity';
         Review,
         TransactionInvoice,
       ],
-      synchronize: true,
+      synchronize: false,
     }),
     FileServiceModule,
     DashboardModule,
@@ -176,6 +177,7 @@ import { PatientMedicalRecord } from './entites/patient-medical-record.entity';
     StaffsModule,
     DoctorHolidaysModule,
     HelperModule,
+    AppointmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

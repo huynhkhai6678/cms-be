@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -39,8 +39,6 @@ export class StaffsService {
     userDto.type = createStaffDto.type;
     userDto.password = hashed;
 
-    console.log(userDto);
-
     if (imageUrl) {
       userDto.image_url = imageUrl;
     }
@@ -80,7 +78,7 @@ export class StaffsService {
         clinic_id: user?.clinic_id,
         first_name: user?.first_name,
         last_name: user?.last_name,
-        email: user?.last_name,
+        email: user?.email,
         contact: user?.contact,
         gender: user?.gender,
         type: user?.type,
@@ -232,5 +230,31 @@ export class StaffsService {
         totalPages: Math.ceil(total / take),
       },
     };
+  }
+
+  async findDetail(id) {
+    const user = await this.userRepository.findOne({
+      where : {
+        id,
+      },
+      relations : ['role', 'role.permissions']
+    });
+
+    if (!user) {
+      throw new NotFoundException(`Staff with ID ${id} not found`);
+    }
+    
+    return {
+      data : {
+        name : `${user.first_name} ${user.last_name}`,
+        email : user.email,
+        contact : `+${user.region_code} ${user.contact}`,
+        image_url : user.image_url,
+        gender : user.gender,
+        register_on : user.created_at,
+        last_update : user.updated_at,
+        role : user.role,
+      }
+    }
   }
 }

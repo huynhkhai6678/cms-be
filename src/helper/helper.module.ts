@@ -9,9 +9,12 @@ import { AuthModule } from '../auth/auth.module';
 import { Country } from '../entites/country.entity';
 import { State } from '../entites/state.entity';
 import { City } from '../entites/city.entity';
+import { Service } from '../entites/service.entity';
+import { PaymentGateway } from '../entites/payment-gateways.entity';
+import { PatientMedicalRecord } from '../entites/patient-medical-record.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Doctor, Patient, User, Country, State, City]), AuthModule],
+  imports: [TypeOrmModule.forFeature([Doctor, Patient, User, Country, State, City, Service, PaymentGateway, PatientMedicalRecord]), AuthModule],
   controllers: [HelperController],
   providers: [HelperService],
   exports: [HelperService]

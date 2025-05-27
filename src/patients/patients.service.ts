@@ -192,6 +192,13 @@ export class PatientsService {
       throw new NotFoundException(`Patient with ID ${id} not found`);
     }
 
+    const patientMedical = await this.patientMedicalRepository.findOneBy({patient_id: patient.id});
+    if (patientMedical) {
+      await this.patientMedicalRepository.remove(patientMedical);
+    }
+
+    await this.patientRepository.remove(patient);
+
     const user = await this.userRepository.findOneBy({id : patient.user_id});
     if (user) {
       const address = await this.addressRepository.findOne({
@@ -206,13 +213,6 @@ export class PatientsService {
       }
       await this.userRepository.remove(user);
     }
-
-    const patientMedical = await this.patientMedicalRepository.findOneBy({patient_id: patient.id});
-    if (patientMedical) {
-      await this.patientMedicalRepository.remove(patientMedical);
-    }
-
-    await this.patientRepository.remove(patient);
   }
 
   async findAppointment(id, query) {

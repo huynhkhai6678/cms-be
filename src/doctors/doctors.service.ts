@@ -9,12 +9,14 @@ import { Specialization } from '../entites/specilization.entity';
 import { Address } from '../entites/address.entity';
 import { UserClinic } from '../entites/user-clinic.entity';
 import { Review } from '../entites/review.entity';
-import { hashPassword } from 'src/utils/hash.util';
+import { hashPassword } from '../utils/hash.util';
 import { Clinic } from '../entites/clinic.entity';
+import { Appointment } from '../entites/appointment.entitty';
+import { Patient } from '../entites/patient.entity';
 
 @Injectable()
 export class DoctorsService {
-   constructor(
+  constructor(
     @InjectRepository(Doctor)
     private readonly doctorRepository: Repository<Doctor>,
     @InjectRepository(Clinic)
@@ -25,6 +27,8 @@ export class DoctorsService {
     private readonly specialRepository: Repository<Specialization>,
     @InjectRepository(Address)
     private readonly addressRepository: Repository<Address>,
+    @InjectRepository(Appointment)
+    private readonly apptRepository: Repository<Appointment>,
   ) {}
 
   async create(createDoctorDto: CreateDoctorDto, imageUrl : string) {
@@ -274,6 +278,123 @@ export class DoctorsService {
     qb.orderBy(orderByField, orderDirection as 'ASC' | 'DESC');
 
     // Apply pagination
+    qb.skip(skip).take(take);
+
+    // Fetch the results and total count
+    const data = await qb.getRawMany();
+    const total = await qb.getCount();
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit: take,
+        total,
+        totalPages: Math.ceil(total / take),
+      },
+    };
+  }
+
+  async findDetail(id) {
+    const doctor = await this.doctorRepository.findOne({
+      where : {
+        id,
+      },
+      relations : ['user', 'appointments', 'specializations']
+    });
+
+    if (!doctor) {
+      throw new NotFoundException(`Doctor with ID ${id} not found`);
+    }
+    
+    return {
+      data : {
+        name : `${doctor.user?.first_name} ${doctor.user?.last_name}`,
+        email : doctor.user?.email,
+        contact : `+${doctor.user?.region_code} ${doctor?.user?.contact}`,
+        image_url : doctor.user?.image_url,
+        experience : doctor.experience,
+        gender : doctor.user?.gender,
+        dob : doctor.user?.dob,
+        address : doctor.user?.address?.address1,
+        register_on : doctor.user?.created_at,
+        last_update : doctor.user?.updated_at,
+        appointments : doctor.appointments,
+        specializations : doctor.specializations
+      }
+    }
+  }
+
+  async findAppointment(id, query) {
+    return await this.getPaginatedPatientAppointment(id, query);
+  }
+
+  async getPaginatedPatientAppointment(id : number, query: any) {
+    const take = !isNaN(Number(query.limit)) && Number(query.limit) > 0 ? Number(query.limit) : 10;
+    const page = !isNaN(Number(query.page)) && Number(query.page) > 0 ? Number(query.page) : 1;
+    const skip = (page - 1) * take;
+
+    const qb = this.apptRepository.createQueryBuilder('appointment');
+    // Join doctor with user
+    qb.leftJoinAndMapOne(
+      'appointment.patient',
+      Patient,
+      'patient',
+      'appointment.patient_id = patient.id',
+    );
+
+    qb.leftJoinAndMapOne(
+      'patient.user',
+      User,
+      'user',
+      'patient.user_id = user.id',
+    );
+
+    qb.select([
+      'appointment.id AS appontment_id',
+      'patient.id AS patient_id',
+      'user.id AS user_id',
+      'user.email AS user_email',
+      'user.image_url AS user_image_url',
+      'appointment.date AS appointment_at',
+      'appointment.from_time AS from_time',
+      'appointment.from_time_type AS from_time_type',
+      'appointment.to_time AS to_time',
+      'appointment.to_time_type AS to_time_type',
+      'appointment.status AS appointment_status',
+      `CONCAT(user.first_name, ' ', user.last_name) as full_name`,
+    ]);
+
+    // Search functionality
+    if (query.search) {
+      qb.andWhere(
+        `CONCAT(user.first_name, ' ', user.last_name) LIKE :search`,
+        { search: `%${query.search}%` },
+      );
+    }
+
+    qb.andWhere('appointment.doctor_id = :id', { id });
+    if (query.clinic_id) {
+      qb.andWhere('appointment.clinic_id = :clinic_id', { clinic_id: query.clinic_id });
+    }
+
+    // Order by logic (can also order by concatenated full_name)
+    const orderableFieldsMap = {
+      full_name: "CONCAT(user.first_name, ' ', user.last_name)",
+      appointment_at: "user.date",
+    };
+
+    const orderByField =
+      query.orderBy && orderableFieldsMap[query.orderBy]
+        ? orderableFieldsMap[query.orderBy]
+        : 'appointment.id';
+
+    const orderDirection =
+      query.order && ['ASC', 'DESC'].includes(query.order.toUpperCase())
+        ? query.order.toUpperCase()
+        : 'DESC';
+
+    qb.orderBy(orderByField, orderDirection as 'ASC' | 'DESC');
     qb.skip(skip).take(take);
 
     // Fetch the results and total count

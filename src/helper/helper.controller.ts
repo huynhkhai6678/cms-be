@@ -20,6 +20,13 @@ export class HelperController {
     };
   }
 
+  @Get('doctor-services/:id/:clinicId')
+  async doctorService(@Param('id') id: string, @Param('clinicId') clinicId: string) {
+    return { 
+      data: await this.helperService.doctorService(+id, +clinicId) 
+    };
+  }
+
   @Get('countries')
   async getAllCountries() {
     return { 

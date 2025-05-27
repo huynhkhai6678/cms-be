@@ -39,6 +39,16 @@ export class DoctorsController {
     return this.doctorsService.findAll(query);
   }
 
+  @Get('detail/:id')
+  findDetail(@Param('id') id: Number) {
+    return this.doctorsService.findDetail(+id);
+  }
+
+  @Get('appointments/:id')
+  findAppointment(@Param('id') id: Number, @Query() query) {
+    return this.doctorsService.findAppointment(+id, query);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req) {
     const user = req['user'];

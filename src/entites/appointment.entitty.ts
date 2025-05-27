@@ -15,7 +15,7 @@ import { Patient } from './patient.entity';
 @Entity('appointments')
 export class Appointment {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-  id: string;
+  id: number;
 
   @Index('appointments_doctor_id_foreign')
   @Column({ type: 'bigint', unsigned: true })
@@ -48,7 +48,7 @@ export class Appointment {
 
   @Index('appointments_service_id_foreign')
   @Column({ type: 'bigint', unsigned: true })
-  service_id: string;
+  service_id: number;
 
   @Column({ type: 'varchar', length: 255 })
   region_code: string;

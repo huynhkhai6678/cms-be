@@ -8,11 +8,12 @@ import { DatabaseServiceModule } from '../shared/database/database.module';
 import { Address } from '../entites/address.entity';
 import { Specialization } from '../entites/specilization.entity';
 import { User } from '../entites/user.entity';
-import { Review } from 'src/entites/review.entity';
-import { Clinic } from 'src/entites/clinic.entity';
+import { Review } from '../entites/review.entity';
+import { Clinic } from '../entites/clinic.entity';
+import { Appointment } from '../entites/appointment.entitty';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Doctor, User, Address, Specialization, Review, Clinic]), AuthModule, DatabaseServiceModule],
+  imports: [TypeOrmModule.forFeature([Doctor, User, Address, Specialization, Review, Clinic, Appointment]), AuthModule, DatabaseServiceModule],
   controllers: [DoctorsController],
   providers: [DoctorsService],
 })

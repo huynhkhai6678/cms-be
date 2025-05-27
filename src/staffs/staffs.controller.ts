@@ -39,6 +39,11 @@ export class StaffsController {
     return this.staffsService.findAll(query);
   }
 
+  @Get('detail/:id')
+  findDetail(@Param('id') id: Number) {
+    return this.staffsService.findDetail(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.staffsService.findOne(+id);
