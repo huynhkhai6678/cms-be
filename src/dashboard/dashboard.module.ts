@@ -7,7 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserClinic } from '../entites/user-clinic.entity';
 import { Clinic } from '../entites/clinic.entity';
 import { Appointment } from '../entites/appointment.entitty';
-import { TransactionInvoice } from '../entites/tranasction-invoice.entity';
+import { TransactionInvoice } from '../entites/transaction-invoice.entity';
 import { Visit } from '../entites/visit.entity';
 
 @Module({

@@ -8,7 +8,6 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Doctor } from './doctor.entity';
-import { User } from './user.entity';
 import { Visit } from './visit.entity';
 import { Clinic } from './clinic.entity';
 import { Patient } from './patient.entity';

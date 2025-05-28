@@ -49,7 +49,7 @@ import { SubscribersModule } from './subscribers/subscribers.module';
 import { ClinicServicesModule } from './clinic-services/clinic-services.module';
 import { UserClinic } from './entites/user-clinic.entity';
 import { Visit } from './entites/visit.entity';
-import { TransactionInvoice } from './entites/tranasction-invoice.entity';
+import { TransactionInvoice } from './entites/transaction-invoice.entity';
 import { ClinicDocumentSettingModule } from './clinic-document-setting/clinic-document-setting.module';
 import { ClinicDocumentSetting } from './entites/clinic-document-setting.entity';
 import { DoctorSession } from './entites/doctor-session.entity';
@@ -75,6 +75,8 @@ import { DoctorHoliday } from './entites/doctor-holiday.entity';
 import { HelperModule } from './helper/helper.module';
 import { PatientMedicalRecord } from './entites/patient-medical-record.entity';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { VisitsModule } from './visits/visits.module';
+import { SmartPatientCard } from './entites/smart-patient-card.entity';
 
 @Module({
   imports: [
@@ -142,6 +144,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
         PaymentGateway,
         DoctorHoliday,
         PatientMedicalRecord,
+        SmartPatientCard,
         Review,
         TransactionInvoice,
       ],
@@ -178,6 +181,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
     DoctorHolidaysModule,
     HelperModule,
     AppointmentsModule,
+    VisitsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

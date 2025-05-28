@@ -1198,6 +1198,7 @@
       "unread": "Unread"
     },
     "flash": {
+      "update_status" : "Update status successfully",
       "patients_retrieve": "Patients retrieved successfully.",
       "data_retrieve": "Data Retrieved Successfully.",
       "schedule_crete": "Schedule created successfully.",

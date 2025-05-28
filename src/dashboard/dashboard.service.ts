@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entites/user.entity';
 import { Equal, LessThan, MoreThan, Not, Repository } from 'typeorm';
 import { Appointment } from 'src/entites/appointment.entitty';
-import { TransactionInvoice } from 'src/entites/tranasction-invoice.entity';
+import { TransactionInvoice } from 'src/entites/transaction-invoice.entity';
 import { Visit } from 'src/entites/visit.entity';
 
 @Injectable()

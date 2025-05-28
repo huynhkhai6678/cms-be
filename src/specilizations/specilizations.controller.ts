@@ -58,7 +58,7 @@ export class SpecilizationsController {
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    this.specilizationsService.remove(+id);
+    await this.specilizationsService.remove(+id);
     return {
       message: this.i18n.t('main.messages.flash.specialization_delete'),
     };

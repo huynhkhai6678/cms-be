@@ -1,15 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, UseGuards } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { AuthGuard } from '../guards/auth.guard';
+import { RoleGuardFactory } from '../guards/role.guard.factory';
+import { I18nService } from 'nestjs-i18n';
 
+@UseGuards(AuthGuard, RoleGuardFactory('manage_appointments'))
 @Controller('appointments')
 export class AppointmentsController {
-  constructor(private readonly appointmentsService: AppointmentsService) {}
+  constructor(private readonly appointmentsService: AppointmentsService, private i18n: I18nService) {}
 
   @Post()
-  create(@Body(new ValidationPipe()) createAppointmentDto: CreateAppointmentDto) {
-    return this.appointmentsService.create(createAppointmentDto);
+  async create(@Body(new ValidationPipe()) createAppointmentDto: CreateAppointmentDto) {
+    await this.appointmentsService.create(createAppointmentDto);
+    return {
+      message: this.i18n.t('main.messages.flash.appointment_create'),
+    };
   }
 
   @Get()
@@ -31,12 +38,18 @@ export class AppointmentsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body(new ValidationPipe()) updateAppointmentDto: UpdateAppointmentDto) {
-    return this.appointmentsService.update(+id, updateAppointmentDto);
+  async update(@Param('id') id: string, @Body(new ValidationPipe()) updateAppointmentDto: UpdateAppointmentDto) {
+    await this.appointmentsService.update(+id, updateAppointmentDto);
+    return {
+      message: this.i18n.t('main.messages.flash.appointment_update'),
+    };
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.appointmentsService.remove(+id);
+  async remove(@Param('id') id: string) {
+    await this.appointmentsService.remove(+id);
+    return {
+      message: this.i18n.t('main.messages.flash.appointment_delete'),
+    };
   }
 }

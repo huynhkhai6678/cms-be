@@ -343,9 +343,16 @@ export class PatientsService {
       );
     }
 
-    // Filter by clinic_id (user_clinics.clinic_id)
     if (query.clinic_id) {
-      qb.andWhere('user.clinic_id = :clinic_id', { clinic_id: query.clinic_id });
+      qb.andWhere('user.clinic_id = :clinicId', { clinicId: query.clinic_id });
+    }
+
+    if (query.start_date) {
+      qb.andWhere('patient.created_at >= :startDate', { startDate: query.start_date });
+    }
+
+    if (query.end_date) {
+      qb.andWhere('patient.created_at <= :endDate', { endDate: query.end_date });
     }
 
     // Order by logic (can also order by concatenated full_name)

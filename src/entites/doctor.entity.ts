@@ -18,7 +18,7 @@ import { DoctorSpecialization } from './doctor-specilization.entity';
 import { Appointment } from './appointment.entitty';
 import { User } from './user.entity';
 import { Visit } from './visit.entity';
-import { TransactionInvoice } from './tranasction-invoice.entity';
+import { TransactionInvoice } from './transaction-invoice.entity';
 import { SessionWeekDay } from './session-week-days.entity';
 import { DoctorSession } from './doctor-session.entity';
 import { Service } from './service.entity';

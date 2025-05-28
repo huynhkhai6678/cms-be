@@ -13,7 +13,7 @@ import {
 import { Doctor } from './doctor.entity';
 import { Patient } from './patient.entity';
 import { Clinic } from './clinic.entity';
-import { TransactionInvoice } from './tranasction-invoice.entity';
+import { TransactionInvoice } from './transaction-invoice.entity';
 
 @Entity('visits')
 @Index('visits_doctor_id_foreign', ['doctor_id']) // Index on doctor_id

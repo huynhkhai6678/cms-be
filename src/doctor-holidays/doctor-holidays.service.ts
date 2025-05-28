@@ -21,7 +21,6 @@ export class DoctorHolidaysService {
   
   async create(createDoctorHolidayDto: CreateDoctorHolidayDto) {
     const holiday = this.doctorHolidayRepository.create(createDoctorHolidayDto);
-    console.log(holiday.date);
     holiday.date = moment(holiday.date, 'DD/MM/YYYY').format('YYYY-MM-DD');
     return await this.doctorHolidayRepository.save(holiday);
   }

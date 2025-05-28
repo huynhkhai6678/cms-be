@@ -11,7 +11,7 @@ import { Address } from './address.entity';
 import { User } from '../entites/user.entity';
 import { ClinicChain } from './clinic-chain.entity';
 import { Visit } from './visit.entity';
-import { TransactionInvoice } from './tranasction-invoice.entity';
+import { TransactionInvoice } from './transaction-invoice.entity';
 import { PatientMedicalRecord } from './patient-medical-record.entity';
 
 @Entity('clinics')

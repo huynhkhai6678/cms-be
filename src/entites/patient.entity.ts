@@ -8,13 +8,15 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Appointment } from './appointment.entitty';
 import { Visit } from './visit.entity';
-import { TransactionInvoice } from './tranasction-invoice.entity';
+import { TransactionInvoice } from './transaction-invoice.entity';
 import { Review } from './review.entity';
 import { PatientMedicalRecord } from './patient-medical-record.entity';
+import { SmartPatientCard } from './smart-patient-card.entity';
 
 @Entity('patients')
 @Index('patients_template_id_foreign', ['template_id'])
@@ -78,4 +80,7 @@ export class Patient {
 
   @OneToMany(() => PatientMedicalRecord, (record) => record.patient)
   medicalRecords: PatientMedicalRecord[];
+
+  @ManyToOne(() => SmartPatientCard, smartCard => smartCard.patients)
+  smart_patient_card: SmartPatientCard;
 }
