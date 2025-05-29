@@ -82,5 +82,6 @@ export class Patient {
   medicalRecords: PatientMedicalRecord[];
 
   @ManyToOne(() => SmartPatientCard, smartCard => smartCard.patients)
+  @JoinColumn({ name: 'template_id', referencedColumnName: 'id' })
   smart_patient_card: SmartPatientCard;
 }

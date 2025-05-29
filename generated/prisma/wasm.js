@@ -783,6 +783,11 @@ exports.Prisma.ReviewsScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.Role_has_permissionsScalarFieldEnum = {
+  permission_id: 'permission_id',
+  role_id: 'role_id'
+};
+
 exports.Prisma.RolesScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1715,6 +1720,7 @@ exports.Prisma.ModelName = {
   purchased_medicines: 'purchased_medicines',
   qualifications: 'qualifications',
   reviews: 'reviews',
+  role_has_permissions: 'role_has_permissions',
   roles: 'roles',
   sale_medicines: 'sale_medicines',
   service_categories: 'service_categories',

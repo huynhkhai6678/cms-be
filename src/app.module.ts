@@ -77,6 +77,7 @@ import { PatientMedicalRecord } from './entites/patient-medical-record.entity';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { VisitsModule } from './visits/visits.module';
 import { SmartPatientCard } from './entites/smart-patient-card.entity';
+import { SmartPatientCardsModule } from './smart-patient-cards/smart-patient-cards.module';
 
 @Module({
   imports: [
@@ -148,7 +149,7 @@ import { SmartPatientCard } from './entites/smart-patient-card.entity';
         Review,
         TransactionInvoice,
       ],
-      synchronize: false,
+      synchronize: true,
     }),
     FileServiceModule,
     DashboardModule,
@@ -182,6 +183,7 @@ import { SmartPatientCard } from './entites/smart-patient-card.entity';
     HelperModule,
     AppointmentsModule,
     VisitsModule,
+    SmartPatientCardsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

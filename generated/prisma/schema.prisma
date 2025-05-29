@@ -669,7 +669,8 @@ model permissions {
   created_at            DateTime?               @db.Timestamp(0)
   updated_at            DateTime?               @db.Timestamp(0)
   model_has_permissions model_has_permissions[]
-  role                  roles[]                 @relation("role_has_permissions")
+  role_has_permissions  role_has_permissions[]
+  role                  roles[]
 
   @@unique([name, guard_name], map: "permissions_name_guard_name_unique")
 }
@@ -793,17 +794,29 @@ model reviews {
   @@index([patient_id], map: "reviews_patient_id_foreign")
 }
 
+model role_has_permissions {
+  permission_id BigInt      @db.UnsignedBigInt
+  role_id       BigInt      @db.UnsignedBigInt
+  permission    permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "role_has_permissions_permission_id_foreign")
+  role          roles       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "role_has_permissions_role_id_foreign")
+
+  @@id([permission_id, role_id])
+  @@index([role_id], map: "role_has_permissions_role_id_foreign")
+  @@map("role_has_permissions")
+}
+
 model roles {
-  id              BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
-  name            String
-  display_name    String            @db.VarChar(255)
-  is_default      Int               @default(0)
-  guard_name      String
-  created_at      DateTime?         @db.Timestamp(0)
-  updated_at      DateTime?         @db.Timestamp(0)
-  clinic_id       BigInt            @default(1) @db.UnsignedBigInt
-  model_has_roles model_has_roles[]
-  permissions     permissions[]     @relation("role_has_permissions")
+  id                   BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  name                 String
+  display_name         String                 @db.VarChar(255)
+  is_default           Int                    @default(0)
+  guard_name           String
+  created_at           DateTime?              @db.Timestamp(0)
+  updated_at           DateTime?              @db.Timestamp(0)
+  clinic_id            BigInt                 @default(1) @db.UnsignedBigInt
+  model_has_roles      model_has_roles[]
+  role_has_permissions role_has_permissions[]
+  permissions          permissions[]
 
   @@unique([name, guard_name], map: "roles_name_guard_name_unique")
 }
