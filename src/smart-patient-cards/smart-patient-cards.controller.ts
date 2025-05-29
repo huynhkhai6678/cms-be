@@ -1,18 +1,23 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ValidationPipe, Res } from '@nestjs/common';
 import { SmartPatientCardsService } from './smart-patient-cards.service';
 import { CreateSmartPatientCardDto } from './dto/create-smart-patient-card.dto';
 import { UpdateSmartPatientCardDto } from './dto/update-smart-patient-card.dto';
 import { AuthGuard } from '../guards/auth.guard';
 import { RoleGuardFactory } from '../guards/role.guard.factory';
+import { I18nService } from 'nestjs-i18n';
+import { CreatePatientSmartPatientCardDto } from './dto/create-patient-smart-patient-card.dto';
 
 @UseGuards(AuthGuard, RoleGuardFactory('manage_patients'))
 @Controller('smart-patient-cards')
 export class SmartPatientCardsController {
-  constructor(private readonly smartPatientCardsService: SmartPatientCardsService) {}
+  constructor(private readonly smartPatientCardsService: SmartPatientCardsService, private i18n: I18nService) {}
 
   @Post()
-  create(@Body() createSmartPatientCardDto: CreateSmartPatientCardDto) {
-    return this.smartPatientCardsService.create(createSmartPatientCardDto);
+  async create(@Body(new ValidationPipe()) createSmartPatientCardDto: CreateSmartPatientCardDto) {
+    await this.smartPatientCardsService.create(createSmartPatientCardDto);
+    return {
+      message: this.i18n.translate('messages.smart_patient_card.template_create'),
+    };
   }
 
   @Get()
@@ -20,18 +25,83 @@ export class SmartPatientCardsController {
     return this.smartPatientCardsService.findAll(query);
   }
 
+  @Get('patient-card')
+  findPatientCard(@Query() query) {
+    return this.smartPatientCardsService.findPatientCard(query);
+  }
+
+  @Get('template-by-clinic/:clinicId')
+  async templateByClinic(@Param('clinicId') clinicId: string) {
+    const data = await this.smartPatientCardsService.templateByClinic(+clinicId);
+    return { data };
+  }
+
+  @Get('generate/:clinicId')
+  generatePatientCard(@Param('clinicId') clinicId: string) {
+    return this.smartPatientCardsService.generatePatientCard(+clinicId);
+  }
+
+  @Get('show/:id')
+  showPatientCard(@Param('id') id: string) {
+    return this.smartPatientCardsService.showPatientCard(+id);
+  }
+
+  @Get('export/:id')
+  async export(@Param('id') id: string, @Res() res) {
+    const pdfBuffer = await this.smartPatientCardsService.export(+id);
+
+    if (!pdfBuffer) {
+      res.status(404).send('PDF not generated');
+      return;
+    }
+    
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="invoice.pdf"',
+      'Content-Length': pdfBuffer.length,
+    });
+    res.end(pdfBuffer);
+  }
+
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.smartPatientCardsService.findOne(+id);
+  findOne(@Param('id') id: string, @Query('clinic_id') clinicId : number) {
+    return this.smartPatientCardsService.findOne(+id, clinicId);
+  }
+
+  @Post('generate')
+  createPatientCard(@Body(new ValidationPipe()) createPatientSmartPatientCardDto: CreatePatientSmartPatientCardDto) {
+    return this.smartPatientCardsService.createPatientCard(createPatientSmartPatientCardDto);
+  }
+
+  @Post('update-entity/:id')
+  async updateEntity(@Param('id') id: string, @Body() body) {
+    await this.smartPatientCardsService.updateEntity(+id, body);
+    return {
+      message: this.i18n.t('messages.smart_patient_card.template_update'),
+    };
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSmartPatientCardDto: UpdateSmartPatientCardDto) {
-    return this.smartPatientCardsService.update(+id, updateSmartPatientCardDto);
+  async update(@Param('id') id: string, @Body() updateSmartPatientCardDto: UpdateSmartPatientCardDto) {
+    await this.smartPatientCardsService.update(+id, updateSmartPatientCardDto);
+    return {
+      message: this.i18n.t('messages.smart_patient_card.template_update'),
+    };
+  }
+
+  @Delete('patient-card/:id')
+  async removePatientCard(@Param('id') id: string) {
+    await this.smartPatientCardsService.removePatientCard(+id);
+    return {
+      message: this.i18n.t('messages.smart_patient_card.template_delete'),
+    };
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.smartPatientCardsService.remove(+id);
+  async remove(@Param('id') id: string) {
+    await this.smartPatientCardsService.remove(+id);
+    return {
+      message: this.i18n.t('messages.smart_patient_card.template_delete'),
+    };
   }
 }

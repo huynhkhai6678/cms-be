@@ -17,6 +17,7 @@ import { TransactionInvoice } from './transaction-invoice.entity';
 import { Review } from './review.entity';
 import { PatientMedicalRecord } from './patient-medical-record.entity';
 import { SmartPatientCard } from './smart-patient-card.entity';
+import { Address } from './address.entity';
 
 @Entity('patients')
 @Index('patients_template_id_foreign', ['template_id'])
@@ -40,7 +41,7 @@ export class Patient {
     unsigned: true,
     nullable: true,
   })
-  template_id?: number;
+  template_id?: number | null;
 
   @Column({ name: 'qr_code', type: 'varchar', length: 255, nullable: true })
   qr_code?: string;
@@ -84,4 +85,6 @@ export class Patient {
   @ManyToOne(() => SmartPatientCard, smartCard => smartCard.patients)
   @JoinColumn({ name: 'template_id', referencedColumnName: 'id' })
   smart_patient_card: SmartPatientCard;
+
+  address : Address | null;
 }

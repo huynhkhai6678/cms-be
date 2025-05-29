@@ -14,7 +14,7 @@ export class SmartPatientCard {
   id: number;
 
   @Column({type: 'varchar', length: 255 })
-  template_name: number;
+  template_name: string;
 
   @Column({ type: 'varchar', length: 255 })
   address: string;
@@ -47,7 +47,7 @@ export class SmartPatientCard {
   updated_at?: Date;
 
   @Column({ name: 'clinic_id', type: 'bigint', unsigned: true, default: 1 })
-  clinic_id: string;
+  clinic_id: number;
 
   // Relations
   @OneToMany(() => Patient, patient => patient.smart_patient_card)

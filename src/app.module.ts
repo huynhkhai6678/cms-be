@@ -78,6 +78,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { VisitsModule } from './visits/visits.module';
 import { SmartPatientCard } from './entites/smart-patient-card.entity';
 import { SmartPatientCardsModule } from './smart-patient-cards/smart-patient-cards.module';
+import { PdfService } from './pdf/pdf.service';
 
 @Module({
   imports: [
@@ -186,6 +187,6 @@ import { SmartPatientCardsModule } from './smart-patient-cards/smart-patient-car
     SmartPatientCardsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PdfService],
 })
 export class AppModule {}

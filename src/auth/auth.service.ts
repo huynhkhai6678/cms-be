@@ -46,6 +46,8 @@ export class AuthService {
       language: currentUser.language,
     };
 
+    console.log(process.env.JWT_SECRET);
+
     const token = await this.jwtService.signAsync(data);
     return {
       token,

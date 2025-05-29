@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title><%= __('transaction.invoice') %></title>
+    <link href="pdf.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="ck-content logo-header">
+      <%- header %>
+    </div>
+    <div class="pdf-header">
+        <div class="header-left" style="display:inline-block;">
+            <div class="main-heading">
+              <%= __('transaction.invoice') %>
+            </div>
+        </div>
+    </div>
+    <div class="ck-content clear mt-32">
+      <%- body %>
+    </div>
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th><%= __('transaction.name') %></th>
+                <th class="number-align"><%= __('transaction.description') %></th>
+                <th class="number-align"><%= __('transaction.qty') %></th>
+                <th class="number-align"><%= __('transaction.price') %></th>
+                <th class="number-align"><%= __('transaction.amount') %></th>
+            </tr>
+        </thead>
+        <tbody>
+          <% services.forEach((service, index) => { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><%= service.name %></td>
+                <td class="number-align">
+                  <%= service.description%> 
+                </td>
+                <td class="number-align" style="min-width:30px">
+                  <%= service.quantity %>
+                </td>
+                <td class="number-align" style="min-width:90px">
+                  <%= currencyCode  %>  <%= service.price.toFixed(2)  %>
+                </td>
+                <td class="number-align" style="min-width:90px">
+                  <%= currencyCode %> <%= service.sub_total.toFixed(2)  %>
+                </td>
+            </tr>
+          <% }); %>
+        </tbody>
+    </table>
+
+    <div class="transaction-total">
+        <div>
+            <span class="font-weight-bold"><%= __('purchase_medicine.total') %> :</span>
+            <span class="text-gray-900 text-end pe-0">
+              <%= currencyCode %> <%= tranaction.total.toFixed(2)  %>
+            </span>
+        </div>
+        <div>
+            <span class="font-weight-bold"><%= __('purchase_medicine.tax') %> :</span>
+            <span class="text-gray-900 text-end pe-0">
+              <%= currencyCode %> <%= tranaction.tax.toFixed(2)  %>
+            </span>
+        </div>
+        <div>
+            <span class="font-weight-bold"><%= __('purchase_medicine.discount') %> :</span>
+            <span class="text-gray-900 text-end pe-0">
+              <%= currencyCode %> <%= tranaction.discount.toFixed(2)  %>
+            </span>
+        </div>
+        <div>
+            <span class="font-weight-bold"><%= __('purchase_medicine.net_amount') %> :</span>
+            <span class="text-gray-900 text-end pe-0">
+              <%= currencyCode %> <%= tranaction.net_amount.toFixed(2)  %>
+            </span>
+        </div>
+    </div>
+
+    <div class="transaction-note">
+        <span><%= __('purchase_medicine.note') %> :</span>
+        <span><%= tranaction.note %></span>
+    </div>
+  </body>
+</html>
