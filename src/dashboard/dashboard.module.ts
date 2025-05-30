@@ -9,6 +9,7 @@ import { Clinic } from '../entites/clinic.entity';
 import { Appointment } from '../entites/appointment.entitty';
 import { TransactionInvoice } from '../entites/transaction-invoice.entity';
 import { Visit } from '../entites/visit.entity';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { Visit } from '../entites/visit.entity';
       TransactionInvoice,
       Visit,
     ]),
+    AuthModule,
     PrismaServiceModule,
   ],
   controllers: [DashboardController],

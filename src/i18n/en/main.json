@@ -1383,7 +1383,10 @@
       "temperature_update": "Temperature updated successfully.",
       "document_create": "Document created successfully.",
       "document_retrieved": "Document retrieved successfully.",
-      "document_update": "Document updated successfully."
+      "document_update": "Document updated successfully.",
+      "supplier_create": "Supplier created successfully.",
+      "supplier_update": "Supplier updated successfully.",
+      "supplier_delete": "Supplier updated successfully."
     },
     "payment_method": {
       "stripe": "Stripe",

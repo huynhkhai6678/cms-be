@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as path from 'path';
 import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { DashboardModule } from './dashboard/dashboard.module';
@@ -79,13 +79,24 @@ import { VisitsModule } from './visits/visits.module';
 import { SmartPatientCard } from './entites/smart-patient-card.entity';
 import { SmartPatientCardsModule } from './smart-patient-cards/smart-patient-cards.module';
 import { PdfService } from './pdf/pdf.service';
+import { Label } from './entites/label.entity';
+import { Brand } from './entites/brand.entity';
+import { Medicine } from './entites/medicines.entity';
+import { Category } from './entites/category.entity';
+import { LabelsModule } from './labels/labels.module';
+import { JwtModule } from '@nestjs/jwt';
+import { BrandsModule } from './brands/brands.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true
+    }),
+    AuthModule,
     MulterModule.register({
       storage: diskStorage({
-        destination: './uploads', // Directory where you want to store the images
+        destination: './uploads',
         filename: (req, file, callback) => {
           const fileName = `${Date.now()}_${file.originalname}`;
           callback(null, fileName);
@@ -148,6 +159,10 @@ import { PdfService } from './pdf/pdf.service';
         PatientMedicalRecord,
         SmartPatientCard,
         Review,
+        Label,
+        Brand,
+        Medicine,
+        Category,
         TransactionInvoice,
       ],
       synchronize: true,
@@ -185,6 +200,9 @@ import { PdfService } from './pdf/pdf.service';
     AppointmentsModule,
     VisitsModule,
     SmartPatientCardsModule,
+    LabelsModule,
+    BrandsModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],
