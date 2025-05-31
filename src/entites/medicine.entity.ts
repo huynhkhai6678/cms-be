@@ -4,31 +4,18 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  Index,
-  ManyToOne,
-  JoinColumn,
+  ManyToMany,
+  JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { Brand } from './brand.entity';
 import { Category } from './category.entity';
+import { MedicineInventory } from './medicine-inventory.entity';
 
 @Entity('medicines')
-@Index('medicines_brand_id_foreign', ['brand_id'])
-@Index('medicines_category_id_foreign', ['category_id'])
 export class Medicine {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
-
-  @Column({ type: 'bigint', unsigned: true, nullable: true })
-  category_id?: number;
-
-  @Column({ type: 'longtext', nullable: true })
-  category_ids?: string;
-
-  @Column({ type: 'bigint', unsigned: true, nullable: true })
-  brand_id?: number;
-
-  @Column({ type: 'longtext', nullable: true })
-  brand_ids?: string;
 
   @Column({ type: 'varchar', length: 255 })
   name: string;
@@ -106,7 +93,7 @@ export class Medicine {
   expiration_warning?: number;
 
   @Column({ type: 'timestamp', precision: 0, nullable: true })
-  first_expiration_date?: Date;
+  first_expiration_date?: Date | null;
 
   @Column({ type: 'boolean', default: true })
   active: boolean;
@@ -114,13 +101,28 @@ export class Medicine {
   @Column({ type: 'bigint', unsigned: true, default: () => '1' })
   clinic_id: number;
 
-  @ManyToOne(() => Brand, (brand) => brand.medicines, { nullable: true })
-  @JoinColumn({ name: 'brand_id' })
-  brands?: Brand;
+  @ManyToMany(() => Category, (category) => category.medicines, {
+    createForeignKeyConstraints: false,
+  })
+  @JoinTable({
+    name: 'medicines_categories',
+    joinColumn: { name: 'medicine_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' }
+  })
+  categories: Category[];
 
-  @ManyToOne(() => Category, (category) => category.medicines, { nullable: true })
-  @JoinColumn({ name: 'category_id' })
-  categories?: Category;
+  @ManyToMany(() => Brand, (brand) => brand.medicines, {
+    createForeignKeyConstraints: false,
+  })
+  @JoinTable({
+    name: 'medicines_brands',
+    joinColumn: { name: 'medicine_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'brand_id', referencedColumnName: 'id' },
+  })
+  brands: Brand[];
+
+  @OneToMany(() => MedicineInventory, inventory => inventory.medicine)
+  inventories: MedicineInventory[];
 
 //   @OneToMany(() => PrescriptionMedicine, (pm) => pm.medicine)
 //   prescriptions_medicines: PrescriptionMedicine[];

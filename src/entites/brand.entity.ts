@@ -4,9 +4,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany
+  ManyToMany
 } from 'typeorm';
-import { Medicine } from './medicines.entity';
+import { Medicine } from './medicine.entity';
 
 @Entity('brands')
 export class Brand {
@@ -46,6 +46,6 @@ export class Brand {
   @Column({ type: 'bigint', unsigned: true, default: () => '1' })
   clinic_id: number;
 
-  @OneToMany(() => Medicine, (medicine) => medicine.brands)
+  @ManyToMany(() => Medicine, (medicine) => medicine.brands)
   medicines: Medicine[];
 }

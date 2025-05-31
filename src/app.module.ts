@@ -81,12 +81,18 @@ import { SmartPatientCardsModule } from './smart-patient-cards/smart-patient-car
 import { PdfService } from './pdf/pdf.service';
 import { Label } from './entites/label.entity';
 import { Brand } from './entites/brand.entity';
-import { Medicine } from './entites/medicines.entity';
+import { Medicine } from './entites/medicine.entity';
 import { Category } from './entites/category.entity';
 import { LabelsModule } from './labels/labels.module';
-import { JwtModule } from '@nestjs/jwt';
 import { BrandsModule } from './brands/brands.module';
 import { CategoriesModule } from './categories/categories.module';
+import { MedicinesModule } from './medicines/medicines.module';
+import { MedicineCategory } from './entites/medicine-categories.entity';
+import { MedicineBrand } from './entites/medicine-brands.entity';
+import { MedicineInventoriesModule } from './medicine-inventories/medicine-inventories.module';
+import { MedicineInventory } from './entites/medicine-inventory.entity';
+import { MedicineInventoryUsage } from './entites/medicine-inventory-usage.entity';
+import { MedicineInventoryUsagesModule } from './medicine-inventory-usages/medicine-inventory-usages.module';
 
 @Module({
   imports: [
@@ -164,6 +170,10 @@ import { CategoriesModule } from './categories/categories.module';
         Medicine,
         Category,
         TransactionInvoice,
+        MedicineBrand,
+        MedicineCategory,
+        MedicineInventory,
+        MedicineInventoryUsage
       ],
       synchronize: true,
     }),
@@ -203,6 +213,9 @@ import { CategoriesModule } from './categories/categories.module';
     LabelsModule,
     BrandsModule,
     CategoriesModule,
+    MedicinesModule,
+    MedicineInventoriesModule,
+    MedicineInventoryUsagesModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

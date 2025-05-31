@@ -45,7 +45,7 @@ export class CategoriesService {
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto) {
     const brand = await this.categoryRepo.findOneBy({ id });
-    if (!brand) throw new NotFoundException('Supplier not found');
+    if (!brand) throw new NotFoundException('Category not found');
 
     Object.assign(brand, updateCategoryDto);
     return await this.categoryRepo.save(brand);
@@ -53,7 +53,15 @@ export class CategoriesService {
 
   async remove(id: number) {
     const brand = await this.categoryRepo.findOneBy({ id });
-    if (!brand) throw new NotFoundException('Supplier not found');
+    if (!brand) throw new NotFoundException('Category not found');
     return await this.categoryRepo.remove(brand);
+  }
+
+  async updateStatus(id: number, active : boolean) {
+    const category = await this.categoryRepo.findOneBy({ id });
+    if (!category) throw new NotFoundException('Category not found');
+
+    category.is_active = active;
+    return await this.categoryRepo.save(category);
   }
 }

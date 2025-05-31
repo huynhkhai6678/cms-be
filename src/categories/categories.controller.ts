@@ -2,14 +2,18 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { I18nService } from 'nestjs-i18n';
 
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) {}
+  constructor(private readonly categoriesService: CategoriesService, private i18n : I18nService) {}
 
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoriesService.create(createCategoryDto);
+  async create(@Body() createCategoryDto: CreateCategoryDto) {
+    await this.categoriesService.create(createCategoryDto);
+    return {
+      message: this.i18n.translate('main.messages.flash.cat_create'),
+    };
   }
 
   @Get()
@@ -22,13 +26,27 @@ export class CategoriesController {
     return this.categoriesService.findOne(+id);
   }
 
+  @Post('update-status/:id')
+  async updateStatus(@Param('id') id: string, @Body('active') active : boolean) {
+    await this.categoriesService.updateStatus(+id, active);
+    return {
+      message: this.i18n.translate('main.messages.flash.update_status'),
+    };
+  }
+
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+  async update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+    await this.categoriesService.update(+id, updateCategoryDto);
+    return {
+      message: this.i18n.translate('main.messages.flash.cat_update'),
+    };
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
+  async remove(@Param('id') id: string) {
+    await this.categoriesService.remove(+id);
+    return {
+      message: this.i18n.translate('main.messages.flash.cat_delete'),
+    };
   }
 }
