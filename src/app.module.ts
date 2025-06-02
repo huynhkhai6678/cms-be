@@ -78,7 +78,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { VisitsModule } from './visits/visits.module';
 import { SmartPatientCard } from './entites/smart-patient-card.entity';
 import { SmartPatientCardsModule } from './smart-patient-cards/smart-patient-cards.module';
-import { PdfService } from './pdf/pdf.service';
+import { PdfService } from './shared/pdf/pdf.service';
 import { Label } from './entites/label.entity';
 import { Brand } from './entites/brand.entity';
 import { Medicine } from './entites/medicine.entity';
@@ -93,6 +93,10 @@ import { MedicineInventoriesModule } from './medicine-inventories/medicine-inven
 import { MedicineInventory } from './entites/medicine-inventory.entity';
 import { MedicineInventoryUsage } from './entites/medicine-inventory-usage.entity';
 import { MedicineInventoryUsagesModule } from './medicine-inventory-usages/medicine-inventory-usages.module';
+import { PurchaseMedicine } from './entites/purchase-medicines.entity';
+import { PurchasedMedicine } from './entites/purchased-medicines.entity';
+import { MedicinePurchaseModule } from './medicine-purchase/medicine-purchase.module';
+import { ExcelService } from './shared/excel/excel.service';
 
 @Module({
   imports: [
@@ -173,7 +177,9 @@ import { MedicineInventoryUsagesModule } from './medicine-inventory-usages/medic
         MedicineBrand,
         MedicineCategory,
         MedicineInventory,
-        MedicineInventoryUsage
+        MedicineInventoryUsage,
+        PurchaseMedicine,
+        PurchasedMedicine
       ],
       synchronize: true,
     }),
@@ -216,8 +222,9 @@ import { MedicineInventoryUsagesModule } from './medicine-inventory-usages/medic
     MedicinesModule,
     MedicineInventoriesModule,
     MedicineInventoryUsagesModule,
+    MedicinePurchaseModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PdfService],
+  providers: [AppService, PdfService, ExcelService],
 })
 export class AppModule {}

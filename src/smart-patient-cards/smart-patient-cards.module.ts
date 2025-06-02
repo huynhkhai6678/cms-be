@@ -9,7 +9,7 @@ import { Setting } from '../entites/setting.entity';
 import { Patient } from '../entites/patient.entity';
 import { HelperModule } from '../helper/helper.module';
 import { Address } from '../entites/address.entity';
-import { PdfService } from '../pdf/pdf.service';
+import { PdfService } from '../shared/pdf/pdf.service';
 import { Clinic } from '../entites/clinic.entity';
 import { City } from '../entites/city.entity';
 import { Country } from '../entites/country.entity';

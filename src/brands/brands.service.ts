@@ -61,4 +61,16 @@ export class BrandsService {
     if (!brand) throw new NotFoundException('Supplier not found');
     return await this.brandRepo.remove(brand);
   }
+
+  async findSupplier(id: number) {
+    const brand = await this.brandRepo.findOne({
+      where: {
+        id
+      },
+      relations: ['medicines']
+    })
+    return {
+      data: brand,
+    };
+  }
 }

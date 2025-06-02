@@ -4,9 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToMany
+  ManyToMany,
+  OneToMany
 } from 'typeorm';
 import { Medicine } from './medicine.entity';
+import { PurchaseMedicine } from './purchase-medicines.entity';
 
 @Entity('brands')
 export class Brand {
@@ -48,4 +50,7 @@ export class Brand {
 
   @ManyToMany(() => Medicine, (medicine) => medicine.brands)
   medicines: Medicine[];
+
+  @OneToMany(() => PurchaseMedicine, (purchase) => purchase.clinic)
+  purchases: PurchaseMedicine[];
 }

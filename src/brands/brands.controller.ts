@@ -24,6 +24,11 @@ export class BrandsController {
     return this.brandsService.findAll(query);
   }
 
+  @Get('supplier/:id')
+  findSupplier(@Param('id') id: string) {
+    return this.brandsService.findSupplier(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.brandsService.findOne(+id);

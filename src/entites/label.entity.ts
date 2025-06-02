@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { PurchasedMedicine } from './purchased-medicines.entity';
 
 @Entity('labels')
 export class Label {
@@ -19,4 +20,7 @@ export class Label {
 
   @Column({ type: 'bigint', unsigned: true, default: () => '1' })
   clinic_id: number;
+
+  @OneToMany(() => PurchasedMedicine, (pm) => pm.label)
+  purchased_medicines: PurchasedMedicine[];
 }

@@ -11,7 +11,7 @@ import { User } from '../entites/user.entity';
 import { HelperService } from '../helper/helper.service';
 import { CreatePatientSmartPatientCardDto } from './dto/create-patient-smart-patient-card.dto';
 import { Address } from '../entites/address.entity';
-import { PdfService } from '../pdf/pdf.service';
+import { PdfService } from '../shared/pdf/pdf.service';
 import { join } from 'path';
 import * as ejs from 'ejs';
 import { Clinic } from 'src/entites/clinic.entity';

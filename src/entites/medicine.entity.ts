@@ -11,6 +11,7 @@ import {
 import { Brand } from './brand.entity';
 import { Category } from './category.entity';
 import { MedicineInventory } from './medicine-inventory.entity';
+import { PurchasedMedicine } from './purchased-medicines.entity';
 
 @Entity('medicines')
 export class Medicine {
@@ -124,11 +125,11 @@ export class Medicine {
   @OneToMany(() => MedicineInventory, inventory => inventory.medicine)
   inventories: MedicineInventory[];
 
+  @OneToMany(() => PurchasedMedicine, (pm) => pm.medicines)
+  purchased_medicines: PurchasedMedicine[];
+
 //   @OneToMany(() => PrescriptionMedicine, (pm) => pm.medicine)
 //   prescriptions_medicines: PrescriptionMedicine[];
-
-//   @OneToMany(() => PurchasedMedicine, (pm) => pm.medicine)
-//   purchased_medicines: PurchasedMedicine[];
 
 //   @OneToMany(() => UsedMedicine, (um) => um.medicine)
 //   used_medicines: UsedMedicine[];
