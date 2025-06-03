@@ -6,11 +6,15 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Doctor } from './doctor.entity';
 import { Visit } from './visit.entity';
 import { Clinic } from './clinic.entity';
 import { Patient } from './patient.entity';
+import { TransactionMedicalCertificate } from './transaction-medical-certificate.entity';
+import { TransactionInvoiceService } from './transaction-invoice-service.entity';
+import { TransactionInvoiceReceipt } from './transaction-invoice-receipt.entity';
 
 @Entity('transaction_invoices') // Name of the table
 export class TransactionInvoice {
@@ -75,4 +79,13 @@ export class TransactionInvoice {
   @ManyToOne(() => Clinic, (clinic) => clinic.transactions)
   @JoinColumn({ name: 'clinic_id' })
   clinic: Clinic;
+
+  @OneToMany(() => TransactionMedicalCertificate, (certificate) => certificate.transaction_invoice)
+  medical_certificates: TransactionMedicalCertificate[];
+
+  @OneToMany(() => TransactionInvoiceService, (service) => service.transaction_invoice)
+  services: TransactionInvoiceService[];
+
+  @OneToMany(() => TransactionInvoiceReceipt, (receipt) => receipt.transaction_invoice)
+  receipt: TransactionInvoiceReceipt[];
 }

@@ -97,6 +97,10 @@ import { PurchaseMedicine } from './entites/purchase-medicines.entity';
 import { PurchasedMedicine } from './entites/purchased-medicines.entity';
 import { MedicinePurchaseModule } from './medicine-purchase/medicine-purchase.module';
 import { ExcelService } from './shared/excel/excel.service';
+import { TransactionsModule } from './transactions/transactions.module';
+import { TransactionInvoiceReceipt } from './entites/transaction-invoice-receipt.entity';
+import { TransactionInvoiceService } from './entites/transaction-invoice-service.entity';
+import { TransactionMedicalCertificate } from './entites/transaction-medical-certificate.entity';
 
 @Module({
   imports: [
@@ -174,12 +178,15 @@ import { ExcelService } from './shared/excel/excel.service';
         Medicine,
         Category,
         TransactionInvoice,
+        TransactionInvoiceReceipt,
+        TransactionInvoiceService,
+        TransactionMedicalCertificate,
         MedicineBrand,
         MedicineCategory,
         MedicineInventory,
         MedicineInventoryUsage,
         PurchaseMedicine,
-        PurchasedMedicine
+        PurchasedMedicine,
       ],
       synchronize: true,
     }),
@@ -223,6 +230,7 @@ import { ExcelService } from './shared/excel/excel.service';
     MedicineInventoriesModule,
     MedicineInventoryUsagesModule,
     MedicinePurchaseModule,
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService, ExcelService],

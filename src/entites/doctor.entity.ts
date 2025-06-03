@@ -25,6 +25,7 @@ import { Service } from './service.entity';
 import { Review } from './review.entity';
 import { Specialization } from './specilization.entity';
 import { DoctorHoliday } from './doctor-holiday.entity';
+import { TransactionMedicalCertificate } from './transaction-medical-certificate.entity';
 
 @Entity('doctors')
 @Index('doctors_user_id_foreign', ['user_id'])
@@ -115,4 +116,7 @@ export class Doctor {
     inverseJoinColumn: { name: 'specialization_id', referencedColumnName: 'id' },
   })
   specializations: Specialization[];
+
+  @OneToMany(() => TransactionMedicalCertificate, (certificate) => certificate.doctor)
+  medical_certificates: TransactionMedicalCertificate[];
 }

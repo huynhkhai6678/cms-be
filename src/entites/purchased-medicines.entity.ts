@@ -17,7 +17,7 @@ import { PurchaseMedicine } from './purchase-medicines.entity';
 @Index('purchased_medicines_purchase_medicines_id_foreign', ['purchase_medicines_id'])
 export class PurchasedMedicine {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-  id: string;
+  id: number;
 
   @Column({ type: 'bigint', unsigned: true })
   purchase_medicines_id: number;
@@ -57,7 +57,7 @@ export class PurchasedMedicine {
 
   @ManyToOne(() => Medicine, (medicine) => medicine.purchased_medicines, { nullable: true })
   @JoinColumn({ name: 'medicine_id' })
-  medicines?: Medicine;
+  medicine?: Medicine;
 
   @ManyToOne(() => Label, (label) => label.purchased_medicines, { nullable: true })
   @JoinColumn({ name: 'label_id' })

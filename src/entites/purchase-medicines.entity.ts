@@ -18,7 +18,7 @@ export class PurchaseMedicine {
   id: number;
 
   @Column({ type: 'varchar', length: 255 })
-  purchase_no: string;
+  purchase_no: number;
 
   @Column({ type: 'float' })
   tax: number;
@@ -48,7 +48,7 @@ export class PurchaseMedicine {
   updated_at?: Date;
 
   @Column({ type: 'bigint', unsigned: true, nullable: true })
-  brand_id?: string;
+  brand_id?: number;
 
   @Column({ type: 'float' })
   shipping_fee: number;
@@ -57,7 +57,6 @@ export class PurchaseMedicine {
   clinic_id: number;
 
   // Relations
-
   @OneToMany(() => PurchasedMedicine, (pm) => pm.purchase)
   purchased_medicines: PurchasedMedicine[];
 

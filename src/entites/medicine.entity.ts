@@ -125,7 +125,7 @@ export class Medicine {
   @OneToMany(() => MedicineInventory, inventory => inventory.medicine)
   inventories: MedicineInventory[];
 
-  @OneToMany(() => PurchasedMedicine, (pm) => pm.medicines)
+  @OneToMany(() => PurchasedMedicine, (pm) => pm.medicine)
   purchased_medicines: PurchasedMedicine[];
 
 //   @OneToMany(() => PrescriptionMedicine, (pm) => pm.medicine)

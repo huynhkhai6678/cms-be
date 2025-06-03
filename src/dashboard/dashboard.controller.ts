@@ -3,7 +3,6 @@ import {
   Get,
   Req,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma/prisma.service';
 import { Request } from 'express';
