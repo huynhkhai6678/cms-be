@@ -75,7 +75,6 @@ export class MedicinePurchaseService {
 
   async remove(id: number) {
     await this.purchaseMedicineRepository.manager.transaction(async (transactionalEntityManager: EntityManager) => {
-      
       const purchaseMedicine = await transactionalEntityManager.findOne(PurchaseMedicine, {
         where: { id },
         relations: ['purchased_medicines'],

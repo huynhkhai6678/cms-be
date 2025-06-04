@@ -21,6 +21,12 @@ export class TransactionInvoice {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
 
+  @Column({ name: 'user_id', type: 'bigint', unsigned: true })
+  user_id: number;
+
+  @Column({ name: 'doctor_id', type: 'bigint', unsigned: true })
+  doctor_id: number;
+
   @ManyToOne(() => Doctor, (doctor) => doctor.transactions, { nullable: true })
   @JoinColumn({ name: 'doctor_id' })
   doctor: Doctor;
@@ -71,6 +77,12 @@ export class TransactionInvoice {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true })
   updated_at: Date;
+
+  @Column({ name: 'visit_id', type: 'bigint', unsigned: true, nullable: true })
+  visit_id: number;
+
+  @Column({ name: 'clinic_id', type: 'bigint', unsigned: true })
+  clinic_id: number;
 
   @ManyToOne(() => Visit, (visit) => visit.transactions, { nullable: true })
   @JoinColumn({ name: 'visit_id' })

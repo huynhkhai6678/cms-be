@@ -3,19 +3,22 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { TransactionInvoice } from '../entites/transaction-invoice.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Patient } from '../entites/patient.entity';
 import { User } from '../entites/user.entity';
 import { HelperService } from '../helper/helper.service';
 import { Label } from '../entites/label.entity';
 import { Medicine } from '../entites/medicine.entity';
 import { ClinicService } from '../entites/clinic-service.entity';
+import { TransactionInvoiceService } from '../entites/transaction-invoice-service.entity';
 
 @Injectable()
 export class TransactionsService {
   constructor(
     @InjectRepository(TransactionInvoice)
     private readonly transactionRepo: Repository<TransactionInvoice>,
+    @InjectRepository(TransactionInvoiceService)
+    private readonly transactionServiceRepo: Repository<TransactionInvoiceService>,
     @InjectRepository(Label)
     private readonly labelCateRepo: Repository<Label>,
     @InjectRepository(Medicine)
@@ -25,8 +28,26 @@ export class TransactionsService {
     private helpService: HelperService
   ) {}
 
-  create(createTransactionDto: CreateTransactionDto) {
-    return 'This action adds a new transaction';
+  async create(createTransactionDto: CreateTransactionDto) {
+    return await this.transactionRepo.manager.transaction(
+      async (transactionalEntityManager: EntityManager) => {
+        // 1. Create PurchaseMedicine record
+        const transaction = this.transactionRepo.create(createTransactionDto);
+        const savedTransaction = await transactionalEntityManager.save(transaction);
+
+        // 2. Create PurchasedMedicines records and associate with the created PurchaseMedicine
+        const transactionPromises = createTransactionDto.services.map((serviceDTO) => {
+          const transactionService = this.transactionServiceRepo.create({
+            ...serviceDTO,
+            transaction_invoice_id: savedTransaction.id,
+          });
+          return transactionalEntityManager.save(transactionService);
+        });
+
+        await Promise.all(transactionPromises);
+        return savedTransaction;
+      }
+    );
   }
 
   async findAll(query) {
@@ -83,11 +104,11 @@ export class TransactionsService {
     }
 
     if (query.start_date) {
-      qb.andWhere('transaction_invoice.created_at >= :startDate', { startDate: query.start_date });
+      qb.andWhere('transaction_invoice.created_at >= :startDate', { startDate: `${query.start_date} 00:00:00` });
     }
 
     if (query.end_date) {
-      qb.andWhere('transaction_invoice.created_at <= :endDate', { endDate: query.end_date });
+      qb.andWhere('transaction_invoice.created_at <= :endDate', { endDate: `${query.end_date} 23:59:59` });
     }
 
     // Order by logic (can also order by concatenated full_name)
@@ -128,16 +149,49 @@ export class TransactionsService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} transaction`;
+  async findOne(id: number) {
+    const data = await this.transactionRepo.findOne({
+      where : {
+        id
+      },
+      relations: ['services']
+    });
+
+    if (!data) {
+      return {
+        data : {
+          invoice_number : await this.generateInvoiceNumber()
+        }
+      }
+    }
+
+    return {
+      data
+    }
   }
 
   update(id: number, updateTransactionDto: UpdateTransactionDto) {
     return `This action updates a #${id} transaction`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} transaction`;
+  async remove(id: number) {
+    await this.transactionRepo.manager.transaction(async (transactionalEntityManager: EntityManager) => {
+        const transaction = await transactionalEntityManager.findOne(TransactionInvoice, {
+          where: { id },
+          relations: ['services'],
+        });
+  
+        if (!transaction) {
+          throw new Error('Transaction record not found');
+        }
+  
+        if (transaction.services.length > 0) {
+          await transactionalEntityManager.delete(TransactionInvoiceService, {
+            transaction_invoice_id: id,
+          });
+        }
+        await transactionalEntityManager.delete(TransactionInvoice, id);
+    });
   }
 
   async getAllSelect(clinicId : number) {
@@ -180,5 +234,23 @@ export class TransactionsService {
       medicines,
       clinic_services : clinicServices
     }
+  }
+
+  async generateInvoiceNumber() {
+    const lastPatient = await this.transactionRepo
+      .createQueryBuilder('transaction_invoice')
+      .orderBy('transaction_invoice.invoice_number', 'DESC')
+      .limit(1)
+      .getOne();
+
+    let nextNumber: string;
+    if (lastPatient) {
+      const lastMRN = parseInt(lastPatient.invoice_number, 10);
+      nextNumber = (lastMRN + 1).toString().padStart(6, '0');
+    } else {
+      nextNumber = '000001';
+    }
+
+    return nextNumber;
   }
 }

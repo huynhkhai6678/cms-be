@@ -77,7 +77,7 @@ export class SmartPatientCardsController {
   async updateEntity(@Param('id') id: string, @Body() body) {
     await this.smartPatientCardsService.updateEntity(+id, body);
     return {
-      message: this.i18n.t('messages.smart_patient_card.template_update'),
+      message: this.i18n.t('main.messages.smart_patient_card.template_update'),
     };
   }
 
@@ -85,7 +85,7 @@ export class SmartPatientCardsController {
   async update(@Param('id') id: string, @Body() updateSmartPatientCardDto: UpdateSmartPatientCardDto) {
     await this.smartPatientCardsService.update(+id, updateSmartPatientCardDto);
     return {
-      message: this.i18n.t('messages.smart_patient_card.template_update'),
+      message: this.i18n.t('main.messages.smart_patient_card.template_update'),
     };
   }
 
@@ -93,7 +93,7 @@ export class SmartPatientCardsController {
   async removePatientCard(@Param('id') id: string) {
     await this.smartPatientCardsService.removePatientCard(+id);
     return {
-      message: this.i18n.t('messages.smart_patient_card.template_delete'),
+      message: this.i18n.t('main.messages.smart_patient_card.template_delete'),
     };
   }
 
@@ -101,7 +101,7 @@ export class SmartPatientCardsController {
   async remove(@Param('id') id: string) {
     await this.smartPatientCardsService.remove(+id);
     return {
-      message: this.i18n.t('messages.smart_patient_card.template_delete'),
+      message: this.i18n.t('main.messages.smart_patient_card.template_delete'),
     };
   }
 }

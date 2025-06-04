@@ -1,24 +1,71 @@
-import { IsInt, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsArray, IsDateString, IsInt, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsString } from "class-validator";
+import { CreateClinicServiceDto } from "src/clinic-services/dto/create-clinic-service.dto";
 
 export class CreateTransactionDto {
-    @IsInt()
-    transaction_invoice_id: number;
+    @IsOptional()
+    @IsNumberString()
+    clinic_id?: number;
+
+    @IsNumberString()
+    @IsNotEmpty()
+    doctor_id: number;
+
+    @IsNumberString()
+    @IsNotEmpty()
+    user_id: number;
+
+    @IsNumberString()
+    @IsOptional()
+    visit_id: number;
+
+    @IsOptional()
+    @IsString()
+    service_id?: string;
+
+    @IsOptional()
+    @IsString()
+    important_notes?: string;
 
     @IsString()
-    receipt_number: string;
+    @IsNotEmpty()
+    invoice_number: string;
 
-    @IsNumber()
-    service_amount: number;
-
-    @IsNumber()
-    inventory_amount: number;
-
-    @IsNumber()
-    amount: number;
+    @IsDateString()
+    @IsNotEmpty()
+    bill_date: string;
 
     @IsOptional()
-    created_at?: Date;
+    @IsInt()
+    status?: number = 0;
+
+    @IsArray()
+    services: CreateClinicServiceDto[];
 
     @IsOptional()
-    updated_at?: Date;
+    @IsString()
+    note?: string;
+
+    @IsOptional()
+    @IsString()
+    payment_note?: string;
+
+    @IsOptional()
+    @IsNumber()
+    payment_type?: number;
+
+    @IsOptional()
+    @IsNumber()
+    tax?: number;
+
+    @IsOptional()
+    @IsNumber()
+    total?: number;
+
+    @IsOptional()
+    @IsNumber()
+    net_amount?: number;
+
+    @IsOptional()
+    @IsNumber()
+    discount?: number;
 }

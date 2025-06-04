@@ -8,11 +8,13 @@ import { HelperModule } from '../helper/helper.module';
 import { Label } from '../entites/label.entity';
 import { Medicine } from '../entites/medicine.entity';
 import { ClinicService } from '../entites/clinic-service.entity';
+import { TransactionInvoiceService } from '../entites/transaction-invoice-service.entity';
 
 @Module({
   imports : [
     TypeOrmModule.forFeature([
       TransactionInvoice,
+      TransactionInvoiceService,
       Label,
       Medicine,
       ClinicService
