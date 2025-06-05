@@ -14,7 +14,6 @@ import { Address } from '../entites/address.entity';
 import { PdfService } from '../shared/pdf/pdf.service';
 import { join } from 'path';
 import * as ejs from 'ejs';
-import { Clinic } from 'src/entites/clinic.entity';
 import { City } from 'src/entites/city.entity';
 import { State } from 'src/entites/state.entity';
 import { Country } from 'src/entites/country.entity';

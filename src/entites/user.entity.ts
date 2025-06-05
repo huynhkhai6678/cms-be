@@ -169,6 +169,13 @@ export class User {
   @OneToMany(() => Patient, (patient) => patient.user, { eager: false })
   patient: Patient;
 
+  @ManyToOne(() => Clinic, (clinic) => clinic.user, { 
+    createForeignKeyConstraints: false,
+    eager: false
+   })
+  @JoinColumn({ name: 'clinic_id' })
+  clinic: Clinic;
+
   @OneToOne(() => Role, (role) => role.users, {
     createForeignKeyConstraints: false,
   })

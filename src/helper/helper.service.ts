@@ -9,8 +9,10 @@ import { State } from '../entites/state.entity';
 import { UserClinic } from '../entites/user-clinic.entity';
 import { User } from '../entites/user.entity';
 import { Repository } from 'typeorm';
-import { PaymentGateway } from 'src/entites/payment-gateways.entity';
-import { PatientMedicalRecord } from 'src/entites/patient-medical-record.entity';
+import { PaymentGateway } from '../entites/payment-gateways.entity';
+import { PatientMedicalRecord } from '../entites/patient-medical-record.entity';
+import { Setting } from '../entites/setting.entity';
+import { Currency } from 'src/entites/currency.entity';
 
 @Injectable()
 export class HelperService {
@@ -21,6 +23,8 @@ export class HelperService {
     @InjectRepository(Country) private countryRepo: Repository<Country>,
     @InjectRepository(State) private stateRepo: Repository<State>,
     @InjectRepository(City) private cityRepo: Repository<City>,
+    @InjectRepository(Setting) private settingRepo: Repository<Setting>,
+    @InjectRepository(Currency) private currencyRepo: Repository<Currency>,
     @InjectRepository(PatientMedicalRecord) private patientMedicalRepository: Repository<PatientMedicalRecord>,
     @InjectRepository(PaymentGateway) private gatewayRepo: Repository<PaymentGateway>,
   ) {}
@@ -124,6 +128,27 @@ export class HelperService {
       break;
     }
     return patientUniqueId;
+  }
+
+  async getCurrencyCode(clinicId : number) {
+    const setting = await this.settingRepo.findOne({
+      where : {
+        key : 'currency',
+        clinic_id : clinicId
+      }
+    })
+
+    if (!setting) {
+      return '';
+    }
+
+    const country = await this.currencyRepo.findOneBy({id : parseInt(setting.value)});
+
+    if (!country) {
+      return '';
+    }
+
+    return country.currency_icon;
   }
 
   generateUniqueId(length: number = 8): string {

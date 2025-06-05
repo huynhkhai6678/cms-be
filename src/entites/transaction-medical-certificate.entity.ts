@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { TransactionInvoice } from './transaction-invoice.entity';
 import { Doctor } from './doctor.entity';
@@ -51,7 +52,7 @@ export class TransactionMedicalCertificate {
   @Column({ type: 'varchar', length: 255 })
   certificate_number: string;
 
-  @ManyToOne(() => TransactionInvoice, (invoice) => invoice.medical_certificates)
+  @OneToOne(() => TransactionInvoice, (invoice) => invoice.medical_certificate)
   @JoinColumn({ name: 'transaction_invoice_id' })
   transaction_invoice: TransactionInvoice;
 

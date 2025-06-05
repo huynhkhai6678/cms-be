@@ -67,6 +67,11 @@ export class Clinic {
   @OneToMany(() => Visit, (visit) => visit.clinic)
   visits: Visit[];
 
+  @OneToMany(() => User, (user) => user.clinic, {
+    createForeignKeyConstraints: false,
+  })
+  user: User;
+
   @OneToMany(() => TransactionInvoice, (tran) => tran.clinic)
   transactions: TransactionInvoice[];
 

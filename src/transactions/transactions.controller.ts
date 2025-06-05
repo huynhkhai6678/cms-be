@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ValidationPipe, Res } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -24,6 +24,27 @@ export class TransactionsController {
   @Get('get-selection/:id')
   getAllSelect(@Param('id') id: string) {
     return this.transactionsService.getAllSelect(+id);
+  }
+
+  @Get('get-services/:id')
+  getTransactionService(@Param('id') id: string) {
+    return this.transactionsService.getTransactionService(+id);
+  }
+
+  @Get('export-invoice/:id')
+  async exportInvoice(@Param('id') id: string, @Res() res) {
+    const pdfBuffer = await this.transactionsService.exportInvoice(+id);
+    if (!pdfBuffer) {
+      res.status(404).send('PDF not generated');
+      return;
+    }
+    
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="certificate.pdf"',
+      'Content-Length': pdfBuffer.length,
+    });
+    res.end(pdfBuffer);
   }
 
   @Get(':id')

@@ -7,6 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 import { Doctor } from './doctor.entity';
 import { Visit } from './visit.entity';
@@ -92,8 +93,8 @@ export class TransactionInvoice {
   @JoinColumn({ name: 'clinic_id' })
   clinic: Clinic;
 
-  @OneToMany(() => TransactionMedicalCertificate, (certificate) => certificate.transaction_invoice)
-  medical_certificates: TransactionMedicalCertificate[];
+  @OneToOne(() => TransactionMedicalCertificate, (certificate) => certificate.transaction_invoice)
+  medical_certificate: TransactionMedicalCertificate;
 
   @OneToMany(() => TransactionInvoiceService, (service) => service.transaction_invoice)
   services: TransactionInvoiceService[];

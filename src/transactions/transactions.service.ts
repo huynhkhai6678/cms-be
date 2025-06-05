@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { TransactionInvoice } from '../entites/transaction-invoice.entity';
@@ -11,6 +11,13 @@ import { Label } from '../entites/label.entity';
 import { Medicine } from '../entites/medicine.entity';
 import { ClinicService } from '../entites/clinic-service.entity';
 import { TransactionInvoiceService } from '../entites/transaction-invoice-service.entity';
+import { join } from 'path';
+import { ClinicDocumentSetting } from 'src/entites/clinic-document-setting.entity';
+import * as moment from 'moment';
+import * as ejs from 'ejs';
+import { parseTemplateContent } from '../utils/template.util';
+import { I18nService } from 'nestjs-i18n';
+import { PdfService } from '../shared/pdf/pdf.service';
 
 @Injectable()
 export class TransactionsService {
@@ -19,13 +26,17 @@ export class TransactionsService {
     private readonly transactionRepo: Repository<TransactionInvoice>,
     @InjectRepository(TransactionInvoiceService)
     private readonly transactionServiceRepo: Repository<TransactionInvoiceService>,
+    @InjectRepository(ClinicDocumentSetting)
+    private readonly clinicDocumentRepo: Repository<ClinicDocumentSetting>,
     @InjectRepository(Label)
     private readonly labelCateRepo: Repository<Label>,
     @InjectRepository(Medicine)
     private readonly medicineRepo: Repository<Medicine>,
     @InjectRepository(ClinicService)
     private readonly clinicServiceRepo: Repository<ClinicService>,
-    private helpService: HelperService
+    private helpService: HelperService,
+    private i18n : I18nService,
+    private pdfService: PdfService
   ) {}
 
   async create(createTransactionDto: CreateTransactionDto) {
@@ -154,7 +165,7 @@ export class TransactionsService {
       where : {
         id
       },
-      relations: ['services']
+      relations: ['services', 'medical_certificate']
     });
 
     if (!data) {
@@ -236,6 +247,19 @@ export class TransactionsService {
     }
   }
 
+  async getTransactionService(transactionInvoiceId : number) {
+    const transaction = await this.transactionRepo.findOne({
+      where : {
+        id : transactionInvoiceId,
+      },
+      relations : ['patient', 'patient.user', 'patient.user.clinic' ,'services']
+    })
+
+    return {
+      data : transaction
+    }
+  }
+
   async generateInvoiceNumber() {
     const lastPatient = await this.transactionRepo
       .createQueryBuilder('transaction_invoice')
@@ -253,4 +277,54 @@ export class TransactionsService {
 
     return nextNumber;
   }
+
+  async exportInvoice(id : number) {
+    const templatePath = join(__dirname, '..', 'templates', 'transaction-invoice.ejs');
+    const transactionInvoice = await this.transactionRepo.findOne({ 
+      where : {
+        id
+      },
+      relations : [
+        'services', 
+        'patient', 
+        'patient.user',
+        'doctor', 
+        'doctor.user'
+      ] 
+    });
+
+    if (!transactionInvoice) {
+      throw new NotFoundException('Certificate not found');
+    }
+
+    const clinicSetting = await this.clinicDocumentRepo.findOneBy({clinic_id : transactionInvoice.clinic_id});
+    if (!clinicSetting) {
+      throw new NotFoundException('Clinic Setting not found');
+    }
+
+    const templateData = {
+      'patient_name'      : `${transactionInvoice.patient.user.first_name} ${transactionInvoice.patient.user.last_name}`,
+      'invoice_number'    : transactionInvoice.invoice_number,
+      'invoice_date'      : moment(transactionInvoice.bill_date).format('DD/MM/YYYY'),
+      'id_number'         : transactionInvoice.patient.user.id_number ?? 'N/A',
+      'patient_dob'       : transactionInvoice.patient.user.dob,
+      'patient_address'   : 'Address',
+    }
+
+    let body = clinicSetting.transaction_invoice_template;
+    body = parseTemplateContent(body, templateData);
+
+    const htmlContent = await ejs.renderFile(templatePath, {
+      title: this.i18n.t('main.messages.transaction.invoice'),
+      header: clinicSetting.header,
+      countryCode : await this.helpService.getCurrencyCode(transactionInvoice.clinic_id),
+      transactionInvoice,
+      paymentType : transactionInvoice.payment_type,
+      __ : this.i18n.t.bind(this.i18n),
+      body
+    });
+
+    const pdfBuffer = await this.pdfService.createPdfFromHtml(htmlContent);
+    return pdfBuffer;
+  } 
 }

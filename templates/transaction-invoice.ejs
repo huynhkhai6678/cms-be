@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "//www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title><%= title %></title>
+    <style>
+        *{margin:0;padding:0}body{font-family:Lato,sans-serif;font-size:14px;padding:30px}.font-color-gray{color:#7a7a7a}.main-heading{font-size:34px;font-weight:700;text-transform:uppercase}.header-right{text-align:right;vertical-align:top;width:50%}.hospital-name,.logo{margin-bottom:8px}.font-weight-bold{font-weight:700}.address{margin-top:60px;width:100%}.address tr:first-child td{padding-bottom:10px}.items-table{border:0;border-collapse:collapse;margin-top:40px;width:100%}.items-table thead{background:#2f353a;color:#fff}.items-table td,.items-table th{border-bottom:1px solid #ccc;font-size:14px;padding:8px;text-align:left;vertical-align:top}.bill-footer{float:right;margin-right:8px;margin-top:15px;text-align:right;width:80%}.number-align{text-align:right!important}.patient-details{vertical-align:top}.patient-detail-one td,.patient-detail-two td{padding:5px}.patient-detail-heading{font-size:medium}.bill-summary{width:5%}.text-right{text-align:right!important}
+
+        * {
+            font-family: DejaVu Sans, Arial, "Helvetica", Arial, "Liberation Sans", sans-serif;
+        }
+
+        .pdf-header {
+            width: 100%;
+            display: inline-block;
+            clear:both;
+        }
+
+        .header-left {
+            width: 20%;
+        }
+
+        .header-right {
+            width: 79%;
+        }
+
+        .mt-32 {
+            margin-top: 32px;
+        }
+
+        .mt-16 {
+            margin-top: 32px;
+        }
+
+        .pdf-body-left {
+            width: 30%;
+            display: inline-block;
+        }
+
+        .pdf-body-right {
+            width: 69%;
+            text-align: right;
+            display: inline-block;
+        }
+
+        .transaction-total {
+            margin-top: 16px;
+            text-align: right;
+            margin-right: 8px;
+        }
+
+        .logo-header {
+            width: 100%;
+            display: inline-block;
+        }
+
+        .transaction-note {
+            margin-top: 16px;
+        }
+
+        .ck-content .image-style-side {
+            max-width: 50%;
+            float: right;
+        }
+
+        .ck-content .image.image_resized {
+            max-width: 100%;
+        }
+
+        .ck-content .image.image_resized {
+            display: block;
+            box-sizing: border-box;
+        }
+
+        .ck-content .image.image_resized img {
+            width: 100%;
+            height: auto;
+        }
+
+        .ck-content .image.image_resized > figcaption {
+            display: block;
+        }
+
+        .ck-content .table{
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .ck-table-resized {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="ck-content logo-header">
+        <%- header %>
+    </div>
+    <div class="pdf-header">
+        <div class="header-left" style="display:inline-block;">
+            <div class="main-heading"><%= title %></div>
+        </div>
+    </div>
+    <div class="ck-content clear mt-32">
+        <%- body %>
+    </div>
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th><%= __('main.messages.transaction.name') %></th>
+                <th class="number-align"><%= __('main.messages.transaction.description') %></th>
+                <th class="number-align"><%= __('main.messages.transaction.qty') %></th>
+                <th class="number-align"><%= __('main.messages.transaction.price') %></th>
+                <th class="number-align"><%= __('main.messages.transaction.amount') %></th>
+            </tr>
+        </thead>
+        <tbody>
+        <% if (transactionInvoice.services && transactionInvoice.services.length > 0) { %>
+            <% transactionInvoice.services.forEach(function(service, index) { %>
+                <tr>
+                    <td><%= index + 1 %></td>
+                    <td><%= service.name %></td>
+                    <td class="number-align"><%= service.description %></td>
+                    <td class="number-align" style="min-width: 30px"><%= service.quantity %></td>
+                    <td class="number-align" style="min-width: 90px"><%= countryCode + ' ' + service.price.toFixed(2) %></td>
+                    <td class="number-align" style="min-width: 90px"><%= countryCode + ' ' + service.sub_total.toFixed(2) %></td>
+                </tr>
+            <% }); %>
+        <% } %>
+        </tbody>
+    </table>
+
+    <div class="transaction-total">
+        <div>
+            <span class="font-weight-bold"><%= __('main.messages.purchase_medicine.total') + ':' %></span>
+            <span class="text-gray-900 text-end pe-0">
+                <%= countryCode + ' ' + transactionInvoice.total.toFixed(2) %>
+            </span>
+        </div>
+        <div>
+            <span class="font-weight-bold"><%= __('main.messages.purchase_medicine.tax') + ':' %></span>
+            <span class="text-gray-900 text-end pe-0">
+                <%= countryCode + ' ' + transactionInvoice.tax.toFixed(2) %>
+            </span>
+        </div>
+        <div>
+            <span class="font-weight-bold"><%= __('main.messages.purchase_medicine.discount') + ':' %></span>
+            <span class="text-gray-900 text-end pe-0">
+                <%= countryCode + ' ' + transactionInvoice.discount.toFixed(2) %>
+            </span>
+        </div>
+        <div>
+            <span class="font-weight-bold"><%= __('main.messages.purchase_medicine.net_amount') + ':' %></span>
+            <span class="text-gray-900 text-end pe-0">
+                <%= countryCode + ' ' + transactionInvoice.net_amount.toFixed(2) %>
+            </span>
+        </div>
+        <% if (transactionInvoice.status) { %>
+        <div>
+            <span class="font-weight-bold">Paid</span>
+            <span class="text-gray-900 text-end pe-0">
+                <% if (paymentType) { %>
+                    <b><%= paymentType %></b>
+                <% } %>
+                (<%= new Date(transactionInvoice.bill_date).toLocaleDateString('en-GB') %>) : <%= countryCode + ' ' + transactionInvoice.net_amount.toFixed(2) %>
+            </span>
+        </div>
+        <% } %>
+    </div>
+
+    <div class="transaction-note">
+        <span><%= __('main.messages.purchase_medicine.note') + ':' %></span>
+        <span><%= transactionInvoice.note %></span>
+    </div>
+</body>
+</html>
