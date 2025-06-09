@@ -4,11 +4,11 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
   Index,
+  OneToOne,
 } from 'typeorm';
 import { Doctor } from './doctor.entity';
 import { Patient } from './patient.entity';
@@ -96,8 +96,8 @@ export class Visit {
   @JoinColumn({ name: 'clinic_id' })
   clinic: Clinic;
 
-  @OneToMany(() => TransactionInvoice, (tran) => tran.visit)
-  transactions: TransactionInvoice[];
+  @OneToOne(() => TransactionInvoice, (tran) => tran.visit)
+  transaction: TransactionInvoice;
 
   //   // Relations
   //   @OneToMany(() => VisitNote, (visitNote) => visitNote.visit)

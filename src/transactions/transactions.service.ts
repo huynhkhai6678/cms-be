@@ -18,6 +18,8 @@ import * as ejs from 'ejs';
 import { parseTemplateContent } from '../utils/template.util';
 import { I18nService } from 'nestjs-i18n';
 import { PdfService } from '../shared/pdf/pdf.service';
+import { TransactionInvoiceReceipt } from 'src/entites/transaction-invoice-receipt.entity';
+import { PAYMENT_TYPE_VALUE } from 'src/constants/payment.constant';
 
 @Injectable()
 export class TransactionsService {
@@ -26,6 +28,8 @@ export class TransactionsService {
     private readonly transactionRepo: Repository<TransactionInvoice>,
     @InjectRepository(TransactionInvoiceService)
     private readonly transactionServiceRepo: Repository<TransactionInvoiceService>,
+    @InjectRepository(TransactionInvoiceReceipt)
+    private readonly transactionReceiptRepo: Repository<TransactionInvoiceReceipt>,
     @InjectRepository(ClinicDocumentSetting)
     private readonly clinicDocumentRepo: Repository<ClinicDocumentSetting>,
     @InjectRepository(Label)
@@ -40,13 +44,11 @@ export class TransactionsService {
   ) {}
 
   async create(createTransactionDto: CreateTransactionDto) {
-    return await this.transactionRepo.manager.transaction(
+    const savedTransaction = await this.transactionRepo.manager.transaction(
       async (transactionalEntityManager: EntityManager) => {
-        // 1. Create PurchaseMedicine record
         const transaction = this.transactionRepo.create(createTransactionDto);
         const savedTransaction = await transactionalEntityManager.save(transaction);
 
-        // 2. Create PurchasedMedicines records and associate with the created PurchaseMedicine
         const transactionPromises = createTransactionDto.services.map((serviceDTO) => {
           const transactionService = this.transactionServiceRepo.create({
             ...serviceDTO,
@@ -56,9 +58,14 @@ export class TransactionsService {
         });
 
         await Promise.all(transactionPromises);
+
         return savedTransaction;
       }
     );
+
+    if (savedTransaction.status) {
+      await this.generateReceipt(savedTransaction.id);
+    }
   }
 
   async findAll(query) {
@@ -165,7 +172,7 @@ export class TransactionsService {
       where : {
         id
       },
-      relations: ['services', 'medical_certificate']
+      relations: ['services', 'medical_certificate', 'receipt']
     });
 
     if (!data) {
@@ -181,15 +188,72 @@ export class TransactionsService {
     }
   }
 
-  update(id: number, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
+  async update(id: number, updateTransactionDto: UpdateTransactionDto) {
+    const updatedTransaction = await this.transactionRepo.manager.transaction(
+      async (transactionalEntityManager: EntityManager) => {
+        // Find the transaction to update
+        const transaction = await this.transactionRepo.findOne({
+          where: { id },
+          relations: ['services'],
+        });
+
+        if (!transaction) {
+          throw new Error('Transaction not found');
+        }
+
+        // Update the transaction fields (if any)
+        Object.assign(transaction, updateTransactionDto);
+        const updatedTransaction = await transactionalEntityManager.save(transaction);
+
+        // First, handle removing old services that are no longer in the update DTO
+        const existingServiceIds = updateTransactionDto.services?.map(service => service.id).filter(id => id !== null) || [];
+        const servicesToRemove = transaction.services.filter(service => !existingServiceIds.includes(service.id) && service.id !== null);
+
+        // Remove old services
+        await transactionalEntityManager.remove(servicesToRemove);
+
+        // Now, handle creating and updating services
+        const transactionPromises = (updateTransactionDto.services || []).map((serviceDTO) => {
+          if (serviceDTO.id) {
+            // If the service has an ID, we update it
+            const existingService = transaction.services.find(service => service.id === serviceDTO.id);
+            if (existingService) {
+              // Clone the existing service into a proper entity
+              const updatedService = this.transactionServiceRepo.create({
+                ...existingService,
+                ...serviceDTO,
+              });
+              return transactionalEntityManager.save(updatedService);
+            }
+
+          } else {
+            // If no ID, create a new service
+            const newService = this.transactionServiceRepo.create({
+              ...serviceDTO,
+              transaction_invoice_id: id,
+            });
+
+            return transactionalEntityManager.save(newService);
+          }
+        });
+
+        // Wait for all promises (service creation/update) to finish
+        await Promise.all(transactionPromises);
+        return updatedTransaction;
+      }
+    );
+
+    if (updatedTransaction.status) {
+      await this.generateReceipt(updatedTransaction.id);
+    }
   }
+
 
   async remove(id: number) {
     await this.transactionRepo.manager.transaction(async (transactionalEntityManager: EntityManager) => {
         const transaction = await transactionalEntityManager.findOne(TransactionInvoice, {
           where: { id },
-          relations: ['services'],
+          relations: ['services', 'receipt'],
         });
   
         if (!transaction) {
@@ -201,6 +265,13 @@ export class TransactionsService {
             transaction_invoice_id: id,
           });
         }
+
+        if (transaction.receipt) {
+          await transactionalEntityManager.delete(TransactionInvoiceReceipt, {
+            transaction_invoice_id: id,
+          });
+        }
+
         await transactionalEntityManager.delete(TransactionInvoice, id);
     });
   }
@@ -260,6 +331,47 @@ export class TransactionsService {
     }
   }
 
+  async generateReceipt(transactionId: number) {
+    const transaction = await this.transactionRepo.findOne({
+      where: { id: transactionId },
+      relations: ['services', 'receipt']
+    });
+
+    if (!transaction) {
+      throw new Error('Transaction not found');
+    }
+
+    if (transaction.receipt) {
+      return transaction.receipt;
+    }
+
+    let totalServiceAmount = 0;
+    let totalInventoryAmount = 0;
+
+    const services = transaction.services;
+
+    services.forEach(service => {
+      if (service.type === 'Inventories') {
+        totalInventoryAmount += service.sub_total;
+      }
+
+      if (service.type === 'Services') {
+        totalServiceAmount += service.sub_total;
+      }
+    });
+
+    const invoiceNumber = await this.generateTransactionInvoice();
+    const receipt = this.transactionReceiptRepo.create({
+      transaction_invoice_id: transaction.id,
+      receipt_number: invoiceNumber,
+      service_amount: totalServiceAmount,
+      inventory_amount: totalInventoryAmount,
+      amount: transaction.net_amount
+    });
+
+    return await this.transactionReceiptRepo.save(receipt);
+  }
+
   async generateInvoiceNumber() {
     const lastPatient = await this.transactionRepo
       .createQueryBuilder('transaction_invoice')
@@ -273,6 +385,19 @@ export class TransactionsService {
       nextNumber = (lastMRN + 1).toString().padStart(6, '0');
     } else {
       nextNumber = '000001';
+    }
+
+    return nextNumber;
+  }
+
+  async generateTransactionInvoice(): Promise<string> {
+    const count = await this.transactionReceiptRepo.count();
+    
+    let nextNumber: string;
+    if (count > 0) {
+      nextNumber = (count + 1).toString().padStart(5, '0');
+    } else {
+      nextNumber = '00001';
     }
 
     return nextNumber;
@@ -327,4 +452,56 @@ export class TransactionsService {
     const pdfBuffer = await this.pdfService.createPdfFromHtml(htmlContent);
     return pdfBuffer;
   } 
+
+  async exportReceipt(id : number) {
+    const templatePath = join(__dirname, '..', 'templates', 'transaction-receipt.ejs');
+    const transactionInvoice = await this.transactionRepo.findOne({ 
+      where : {
+        id
+      },
+      relations : [
+        'receipt',
+        'patient', 
+        'patient.user',
+      ] 
+    });
+
+    if (!transactionInvoice) {
+      throw new NotFoundException('Certificate not found');
+    }
+
+    const clinicSetting = await this.clinicDocumentRepo.findOneBy({clinic_id : transactionInvoice.clinic_id});
+    if (!clinicSetting) {
+      throw new NotFoundException('Clinic Setting not found');
+    }
+
+    const countryCode = await this.helpService.getCurrencyCode(transactionInvoice.clinic_id);
+    const receipt = transactionInvoice.receipt;
+    const receiptAt = moment(receipt.created_at).format('DD/MM/YYYY')
+
+    const templateData = {
+      'patient_name'      : `${transactionInvoice.patient.user.first_name} ${transactionInvoice.patient.user.last_name}`,
+      'invoice_number'    : transactionInvoice.invoice_number,
+      'invoice_date'      : moment(transactionInvoice.bill_date).format('DD/MM/YYYY'),
+      'id_number'         : transactionInvoice.patient.user.id_number ?? 'N/A',
+      'payment_method'    : transactionInvoice.payment_type ? PAYMENT_TYPE_VALUE[transactionInvoice.payment_type] : 'N/A',
+      'total_amount'      : receipt ? `${countryCode} ${receipt.amount.toFixed(2)}` : 'N/A',
+      'service_amount'    : receipt ? `${countryCode} ${receipt.service_amount.toFixed(2)}`: 'N/A',
+      'inventory_amount'  : receipt ? `${countryCode} ${receipt.inventory_amount.toFixed(2)}` : 'N/A'
+    }
+
+    let body = clinicSetting.transaction_receipt_template;
+    body = parseTemplateContent(body, templateData);
+
+    const htmlContent = await ejs.renderFile(templatePath, {
+      header: clinicSetting.header,
+      receipt,
+      receiptAt,
+      __ : this.i18n.t.bind(this.i18n),
+      body
+    });
+
+    const pdfBuffer = await this.pdfService.createPdfFromHtml(htmlContent);
+    return pdfBuffer;
+  }
 }

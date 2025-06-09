@@ -11,12 +11,14 @@ import { ClinicService } from '../entites/clinic-service.entity';
 import { TransactionInvoiceService } from '../entites/transaction-invoice-service.entity';
 import { ClinicDocumentSetting } from '../entites/clinic-document-setting.entity';
 import { PdfService } from '../shared/pdf/pdf.service';
+import { TransactionInvoiceReceipt } from '../entites/transaction-invoice-receipt.entity';
 
 @Module({
   imports : [
     TypeOrmModule.forFeature([
       TransactionInvoice,
       TransactionInvoiceService,
+      TransactionInvoiceReceipt,
       ClinicDocumentSetting,
       Label,
       Medicine,

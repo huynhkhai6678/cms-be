@@ -10,6 +10,8 @@ import { Patient } from '../entites/patient.entity';
 import { User } from '../entites/user.entity';
 import { Appointment } from '../entites/appointment.entitty';
 import * as moment from 'moment';
+import { TransactionInvoice } from '../entites/transaction-invoice.entity';
+import { TransactionMedicalCertificate } from '../entites/transaction-medical-certificate.entity';
 
 @Injectable()
 export class VisitsService {
@@ -153,6 +155,20 @@ export class VisitsService {
       'visit.appointment_id = appointment.id',
     );
 
+    qb.leftJoinAndMapOne(
+      'visit.transaction',
+      TransactionInvoice,
+      'transaction',
+      'transaction.visit_id = visit.id',
+    );
+
+    qb.leftJoinAndMapOne(
+      'transaction.certificate',
+      TransactionMedicalCertificate,
+      'certificate',
+      'certificate.transaction_invoice_id = transaction.id',
+    );
+
     qb.select([
       'ROW_NUMBER() OVER (ORDER BY visit.id DESC) AS row_index',
       'visit.id AS visit_id',
@@ -163,6 +179,7 @@ export class VisitsService {
       'visit.status AS visit_status',
       'visit.description AS visit_description',
       'visit.important_notes AS visit_important_notes',
+      'visit.clinic_id AS visit_clinic_id',
       'user_patient.email AS patient_email',
       'user_patient.image_url AS patient_image_url',
       'user_patient.gender AS patient_gender',
@@ -173,6 +190,8 @@ export class VisitsService {
       'appointment.date AS appointment_date',
       'appointment.from_time AS appointment_from_time',
       'appointment.from_time_type AS appointment_from_time_type',
+      'transaction.id AS transaction_invoice_id',
+      'certificate.id AS certificate_id',
       `CONCAT(user_patient.first_name, ' ', user_patient.last_name) as patient_full_name`,
       `CONCAT(user_doctor.first_name, ' ', user_doctor.last_name) as doctor_full_name`,
     ]);

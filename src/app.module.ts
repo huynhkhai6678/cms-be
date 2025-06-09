@@ -102,6 +102,7 @@ import { TransactionInvoiceReceipt } from './entites/transaction-invoice-receipt
 import { TransactionInvoiceService } from './entites/transaction-invoice-service.entity';
 import { TransactionMedicalCertificate } from './entites/transaction-medical-certificate.entity';
 import { TransactionMedicalCertificateModule } from './transaction-medical-certificate/transaction-medical-certificate.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -233,6 +234,7 @@ import { TransactionMedicalCertificateModule } from './transaction-medical-certi
     MedicinePurchaseModule,
     TransactionsModule,
     TransactionMedicalCertificateModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService, ExcelService],

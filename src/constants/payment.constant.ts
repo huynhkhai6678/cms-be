@@ -18,6 +18,7 @@ export const PAYMENT_TYPE_LIST = [
 ];
 
 export const PAYMENT_TYPE_VALUE = {
+  0: 'Pending',
   1: 'Cash / Bank Transfer',
   2: 'Stripe',
   3: 'Credit / Debit Card',

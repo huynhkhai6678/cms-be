@@ -1,8 +1,8 @@
-import { IsNotEmpty, IsNumber, Min, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, Min, IsOptional, IsString, IsNumberString } from 'class-validator';
 
 export class CreateTransactionServiceDTO {
-    @IsNotEmpty({ message: 'Medicine ID is required.' })
-    name: number;
+    @IsNotEmpty()
+    name: string;
 
     @IsNotEmpty()
     @IsNumber()
@@ -18,7 +18,7 @@ export class CreateTransactionServiceDTO {
 
     @IsNotEmpty()
     @IsString()
-    type: number;
+    type: string;
 
     @IsNotEmpty()
     service_id: number;
@@ -46,4 +46,7 @@ export class CreateTransactionServiceDTO {
     @IsNotEmpty()
     @IsNumber()
     sub_total
+
+    @IsOptional()
+    id : number;
 }

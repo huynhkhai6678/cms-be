@@ -1,5 +1,5 @@
 import { IsArray, IsDateString, IsInt, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsString } from "class-validator";
-import { CreateClinicServiceDto } from "src/clinic-services/dto/create-clinic-service.dto";
+import { CreateTransactionServiceDTO } from "./create-transaction-service.dto";
 
 export class CreateTransactionDto {
     @IsOptional()
@@ -39,7 +39,7 @@ export class CreateTransactionDto {
     status?: number = 0;
 
     @IsArray()
-    services: CreateClinicServiceDto[];
+    services: CreateTransactionServiceDTO[];
 
     @IsOptional()
     @IsString()

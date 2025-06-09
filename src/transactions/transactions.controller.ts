@@ -47,6 +47,22 @@ export class TransactionsController {
     res.end(pdfBuffer);
   }
 
+  @Get('export-receipt/:id')
+  async exportReceipt(@Param('id') id: string, @Res() res) {
+    const pdfBuffer = await this.transactionsService.exportReceipt(+id);
+    if (!pdfBuffer) {
+      res.status(404).send('PDF not generated');
+      return;
+    }
+    
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="receipt.pdf"',
+      'Content-Length': pdfBuffer.length,
+    });
+    res.end(pdfBuffer);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.transactionsService.findOne(+id);

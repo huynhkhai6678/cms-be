@@ -85,7 +85,7 @@ export class TransactionInvoice {
   @Column({ name: 'clinic_id', type: 'bigint', unsigned: true })
   clinic_id: number;
 
-  @ManyToOne(() => Visit, (visit) => visit.transactions, { nullable: true })
+  @OneToOne(() => Visit, (visit) => visit.transaction, { nullable: true })
   @JoinColumn({ name: 'visit_id' })
   visit: Visit;
 
@@ -99,6 +99,6 @@ export class TransactionInvoice {
   @OneToMany(() => TransactionInvoiceService, (service) => service.transaction_invoice)
   services: TransactionInvoiceService[];
 
-  @OneToMany(() => TransactionInvoiceReceipt, (receipt) => receipt.transaction_invoice)
-  receipt: TransactionInvoiceReceipt[];
+  @OneToOne(() => TransactionInvoiceReceipt, (receipt) => receipt.transaction_invoice)
+  receipt: TransactionInvoiceReceipt;
 }
