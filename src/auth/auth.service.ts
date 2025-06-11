@@ -5,12 +5,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entites/user.entity';
 import { Repository } from 'typeorm';
 import { Role } from '../entites/role.entity';
+import { UserClinic } from '../entites/user-clinic.entity';
+import { UserRole } from 'src/constants/user.constant';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Role) private roleRepository: Repository<Role>,
+     @InjectRepository(UserClinic) private userClinicRepo: Repository<UserClinic>,
     private jwtService: JwtService,
   ) {}
 
@@ -78,5 +81,18 @@ export class AuthService {
     return {
       data: user?.clinics || [],
     };
+  }
+
+  async isUserInClinic(user: any, clinicId: number) {
+    const type = parseInt(user.type);
+    if (type === UserRole.PATIENT) {
+      return parseInt(user.clinic_id) === clinicId;
+    }
+
+    const matches = await this.userClinicRepo.count({
+      where: { user_id: user.id, clinic_id: clinicId },
+    });
+
+    return matches > 0;
   }
 }

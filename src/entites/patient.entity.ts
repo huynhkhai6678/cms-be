@@ -79,8 +79,8 @@ export class Patient {
   @OneToMany(() => Review, review => review.patient)
   reviews: Review[];
 
-  @OneToMany(() => PatientMedicalRecord, (record) => record.patient)
-  medicalRecords: PatientMedicalRecord[];
+  @OneToOne(() => PatientMedicalRecord, (record) => record.patient)
+  medical_record: PatientMedicalRecord;
 
   @ManyToOne(() => SmartPatientCard, smartCard => smartCard.patients)
   @JoinColumn({ name: 'template_id', referencedColumnName: 'id' })

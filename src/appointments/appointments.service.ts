@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,15 +6,15 @@ import { Brackets, Repository } from 'typeorm';
 import { Appointment } from '../entites/appointment.entitty';
 import * as moment from 'moment';
 import { HelperService } from '../helper/helper.service';
-import { User } from 'src/entites/user.entity';
+import { UserRole } from '../constants/user.constant';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class AppointmentsService {
   constructor(
     @InjectRepository(Appointment)
     private readonly appointmentRepository: Repository<Appointment>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private authService: AuthService,
     private helpService: HelperService
   ) {}
 
@@ -121,15 +121,50 @@ export class AppointmentsService {
     return await this.appointmentRepository.remove(appointment);
   }
 
-  async findAllCalendar(id: number) {
-    const appointments = await this.appointmentRepository.find({
-      where: {
-        clinic_id: id,
-      },
-      relations: ['doctor.user', 'patient.user', 'service'],
-    });
+  async findAllCalendar(clinicId: number, user : any) {
 
-    const data = appointments.map((appointment, index) => {
+    const canDo = await this.authService.isUserInClinic(user, clinicId);
+    if (!canDo) {
+      throw new UnauthorizedException('You dont have permission in this clinic');
+    }
+
+    const type = parseInt(user.type);
+    let appointments : Appointment[] = [];
+    if (type === UserRole.DOCTOR) {
+      appointments = await this.appointmentRepository.find({
+        where: {
+          clinic_id: clinicId,
+          doctor : {
+            user : {
+              id: user.id
+            }
+          }
+        },
+        relations: ['doctor.user', 'patient.user', 'service'],
+      });
+
+    } else if (type === UserRole.PATIENT) {
+      appointments = await this.appointmentRepository.find({
+        where: {
+          clinic_id: clinicId,
+          patient : {
+            user : {
+              id: user.id
+            }
+          }
+        },
+        relations: ['doctor.user', 'patient.user', 'service'],
+      });
+    } else {
+      appointments = await this.appointmentRepository.find({
+        where: {
+          clinic_id: clinicId,
+        },
+        relations: ['doctor.user', 'patient.user', 'service'],
+      });
+    }
+
+    const data = appointments.map((appointment) => {
       const patientName = appointment.patient?.user?.first_name ?? appointment.patient_name;
       const startTime = `${appointment.from_time} ${appointment.from_time_type}`;
       const endTime = `${appointment.to_time} ${appointment.to_time_type}`;

@@ -14,6 +14,7 @@ import { Clinic } from '../entites/clinic.entity';
 import { City } from '../entites/city.entity';
 import { Country } from '../entites/country.entity';
 import { State } from '../entites/state.entity';
+import { QrService } from 'src/shared/qr/qr.service';
 
 @Module({
   imports: [
@@ -32,6 +33,6 @@ import { State } from '../entites/state.entity';
     HelperModule
   ],
   controllers: [SmartPatientCardsController],
-  providers: [SmartPatientCardsService, PdfService],
+  providers: [SmartPatientCardsService, PdfService, QrService],
 })
 export class SmartPatientCardsModule {}

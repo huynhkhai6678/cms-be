@@ -103,6 +103,14 @@ import { TransactionInvoiceService } from './entites/transaction-invoice-service
 import { TransactionMedicalCertificate } from './entites/transaction-medical-certificate.entity';
 import { TransactionMedicalCertificateModule } from './transaction-medical-certificate/transaction-medical-certificate.module';
 import { ReportsModule } from './reports/reports.module';
+import { QrService } from './shared/qr/qr.service';
+import { MedicalRecordModule } from './medical-record/medical-record/medical-record.module';
+import { PatientMedicalRecordBloodPressure } from './entites/patient-medical-record-blood-pressure.entity';
+import { PatientMedicalRecordDocument } from './entites/patient-medical-record-document.entity';
+import { PatientMedicalRecordHistory } from './entites/patient-medical-record-history.entity';
+import { PatientMedicalRecordPulseRate } from './entites/patient-medical-record-pulse-rate.entity';
+import { PatientMedicalRecordTemperature } from './entites/patient-medical-record-pulse-temperature.entity';
+import { PatientMedicalRecordWeight } from './entites/patient-medical-record-pulse-weight.entity';
 
 @Module({
   imports: [
@@ -173,6 +181,12 @@ import { ReportsModule } from './reports/reports.module';
         PaymentGateway,
         DoctorHoliday,
         PatientMedicalRecord,
+        PatientMedicalRecordBloodPressure,
+        PatientMedicalRecordDocument,
+        PatientMedicalRecordHistory,
+        PatientMedicalRecordPulseRate,
+        PatientMedicalRecordTemperature,
+        PatientMedicalRecordWeight,
         SmartPatientCard,
         Review,
         Label,
@@ -190,7 +204,7 @@ import { ReportsModule } from './reports/reports.module';
         PurchaseMedicine,
         PurchasedMedicine,
       ],
-      synchronize: true,
+      synchronize: false,
     }),
     FileServiceModule,
     DashboardModule,
@@ -235,8 +249,9 @@ import { ReportsModule } from './reports/reports.module';
     TransactionsModule,
     TransactionMedicalCertificateModule,
     ReportsModule,
+    MedicalRecordModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PdfService, ExcelService],
+  providers: [AppService, PdfService, ExcelService, QrService],
 })
 export class AppModule {}

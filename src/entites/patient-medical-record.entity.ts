@@ -38,7 +38,7 @@ export class PatientMedicalRecord {
   clinic_id: number;
 
   // Relationships with Patient and Clinic entities (assuming you have those entities)
-  @ManyToOne(() => Patient, (patient) => patient.medicalRecords)
+  @ManyToOne(() => Patient, (patient) => patient.medical_record)
   @JoinColumn({ name: 'patient_id' })
   patient: Patient;
 

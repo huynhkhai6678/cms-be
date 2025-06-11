@@ -17,6 +17,8 @@ import * as ejs from 'ejs';
 import { City } from 'src/entites/city.entity';
 import { State } from 'src/entites/state.entity';
 import { Country } from 'src/entites/country.entity';
+import { ConfigService } from '@nestjs/config';
+import { QrService } from 'src/shared/qr/qr.service';
 
 @Injectable()
 export class SmartPatientCardsService {
@@ -35,6 +37,8 @@ export class SmartPatientCardsService {
     private readonly stateRepo: Repository<State>,
     @InjectRepository(Country)
     private readonly countryRepo: Repository<Country>,
+    private config: ConfigService,
+    private qrCode: QrService,
     private helperService : HelperService,
     private pdfService: PdfService,
     private database: DatabaseService,
@@ -290,12 +294,16 @@ export class SmartPatientCardsService {
       },
     });
 
+    const webUrl = this.config.get<string>('WEB_URL');
+    const svg = await this.qrCode.generateQRCodeSVG(`${webUrl}/qr-code/t/${patient.patient_unique_id}`);
+
     return {
       data : patient,
       patient_address: addrress?.address1,
       clinic_name : settings[0]?.value || '',
       address_one : settings[1]?.value || '',
       logo : settings[2]?.value || '',
+      svg
     }
   }
 
@@ -307,14 +315,18 @@ export class SmartPatientCardsService {
     const country = await this.countryRepo.findOneBy({id: setting['country_id']});
     const state = await this.stateRepo.findOneBy({id: setting['state_id']});
 
+    const webUrl = this.config.get<string>('WEB_URL');
+    const apiUrl = this.config.get<string>('API_URL')
+    const svg = await this.qrCode.generateQRCodeSVG(`${webUrl}/qr-code/t/${data.patient_unique_id}`);
+
     const htmlContent = await ejs.renderFile(templatePath, {
       city: city?.name ?? '',
       state: state?.name ?? '',
       country: country?.name ?? '',
       setting: setting,
       datas: data,
-      assetsPath: `${process.env.API_URL}/public`,
-      base64QrCode: 'base64_encoded_qr_code',
+      assetsPath: `${apiUrl}/public`,
+      svg,
     });
 
     const pdfBuffer = await this.pdfService.createPdfFromHtml(htmlContent);

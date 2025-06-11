@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, UseGuards, Req } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
@@ -25,8 +25,9 @@ export class AppointmentsController {
   }
 
   @Get('calendar/:id')
-  async findAllCalendar(@Param('id') id: string) {
-    const data = await this.appointmentsService.findAllCalendar(+id);
+  async findAllCalendar(@Param('id') id: string, @Req() request: any) {
+    const user = request.user;
+    const data = await this.appointmentsService.findAllCalendar(+id, user);
     return {
       data
     }

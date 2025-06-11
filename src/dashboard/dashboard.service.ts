@@ -37,19 +37,19 @@ export class DashboardService {
     }
     const doctorCount = await this.userRepo
       .createQueryBuilder('user')
-      .innerJoin('user.user_clinics', 'user_clinic') // Join the UserClinic table (relation alias 'user_clinic')
-      .innerJoin('user_clinic.clinic', 'clinic') // Join Clinic through the UserClinic relation
+      .innerJoin('user.user_clinics', 'user_clinic')
+      .innerJoin('user_clinic.clinic', 'clinic')
       .where('user.type = :type', { type: UserRole.DOCTOR })
       .andWhere('user.status = :status', { status: true })
-      .andWhere('clinic.id = :clinicId', { clinicId }) // Filter by clinic ID
+      .andWhere('clinic.id = :clinicId', { clinicId })
       .getCount();
 
     const patientCount = await this.userRepo
       .createQueryBuilder('user')
-      .innerJoin('user.user_clinics', 'user_clinic') // Join the UserClinic table (relation alias 'user_clinic')
-      .innerJoin('user_clinic.clinic', 'clinic') // Join Clinic through the UserClinic relation
+      .innerJoin('user.user_clinics', 'user_clinic')
+      .innerJoin('user_clinic.clinic', 'clinic')
       .where('user.type = :type', { type: UserRole.PATIENT })
-      .andWhere('clinic.id = :clinicId', { clinicId }) // Filter by clinic ID
+      .andWhere('clinic.id = :clinicId', { clinicId })
       .getCount();
 
     const appointmentCount = await this.appoitnementRepo
