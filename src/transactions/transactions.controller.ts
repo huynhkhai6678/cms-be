@@ -70,7 +70,7 @@ export class TransactionsController {
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body(new ValidationPipe()) updateTransactionDto: UpdateTransactionDto) {
-    return  this.transactionsService.update(+id, updateTransactionDto);
+    return this.transactionsService.update(+id, updateTransactionDto);
   }
 
   @Delete(':id')

@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DashboardController } from './dashboard.controller';
 import { DashboardService } from './dashboard.service';
-import { PrismaServiceModule } from 'src/shared/prisma/prisma.module';
 import { User } from '../entites/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserClinic } from '../entites/user-clinic.entity';
@@ -9,11 +8,14 @@ import { Clinic } from '../entites/clinic.entity';
 import { Appointment } from '../entites/appointment.entitty';
 import { TransactionInvoice } from '../entites/transaction-invoice.entity';
 import { Visit } from '../entites/visit.entity';
-import { AuthModule } from 'src/auth/auth.module';
+import { AuthModule } from '../auth/auth.module';
+import { DatabaseServiceModule } from '../shared/database/database.module';
+import { Patient } from '../entites/patient.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
+      Patient,
       User,
       UserClinic,
       Clinic,
@@ -22,7 +24,7 @@ import { AuthModule } from 'src/auth/auth.module';
       Visit,
     ]),
     AuthModule,
-    PrismaServiceModule,
+    DatabaseServiceModule
   ],
   controllers: [DashboardController],
   providers: [DashboardService],

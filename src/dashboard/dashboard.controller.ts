@@ -1,29 +1,27 @@
 import {
   Controller,
   Get,
+  Param,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { PrismaService } from '../shared/prisma/prisma.service';
-import { Request } from 'express';
 import { DashboardService } from './dashboard.service';
 import { AuthGuard } from '../guards/auth.guard';
 
 @Controller('dashboard')
 export class DashboardController {
   constructor(
-    private prisma: PrismaService,
     private dashboardService: DashboardService,
   ) {}
 
   @UseGuards(AuthGuard)
   @Get()
-  async index(@Req() request) {
+  async index(@Req() request, @Query() queryParams) {
     const user = request.user;
-    const user_card = await this.dashboardService.getUserCardData(user);
-    const appointment_card =
-      await this.dashboardService.getUpcommingAppointmentData(user);
-    const visit_card = await this.dashboardService.getVisitCard(user);
+    const user_card = await this.dashboardService.getUserCardData(user, queryParams);
+    const appointment_card = await this.dashboardService.getUpcommingAppointmentData(user, queryParams);
+    const visit_card = await this.dashboardService.getVisitCard(user, queryParams);
 
     return {
       data: {
@@ -36,20 +34,46 @@ export class DashboardController {
 
   @UseGuards(AuthGuard)
   @Get('admin-revenue')
-  async adminRevenue(@Req() request: Request) {
-    const user = await this.prisma.users.findUnique({
-      where: {
-        id: 90,
-      },
-      include: {
-        doctor: true,
-        patient: true,
-      },
-    });
-
-    const data = await this.dashboardService.getAdminRevenueData(user, request);
+  async adminRevenue(@Query() query) {
+    const data = await this.dashboardService.getAdminRevenueData(query);
     return {
       data,
     };
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('doctor-appointment-chart')
+  async getDoctorAppointment(@Req() request) {
+    const data = await this.dashboardService.getDoctorAppointmentData(request);
+    return {
+      data,
+    };
+  }
+  
+  @UseGuards(AuthGuard)
+  @Get('patient-register')
+  patientRegister(@Query() query : any) {
+    return this.dashboardService.patientRegister(query);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('doctor-appointment/:id')
+  doctorAppointment(@Req() request : any, @Param('id') clinicId: number, @Query() query : any) {
+    const user = request.user;
+    return this.dashboardService.doctorAppointment(user.id, clinicId, query);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('patient-today-appointment')
+  patientTodayAppointment(@Req() request : any, @Query() query : any) {
+    const user = request.user;
+    return this.dashboardService.patientTodayAppointment(user.id, user.clinic_id, query);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('patient-upcomming-appointment')
+  patientUpcommingAppointment(@Req() request : any, @Query() query : any) {
+    const user = request.user;
+    return this.dashboardService.patientUpcommingAppointment(user.id, user.clinic_id, query);
   }
 }
