@@ -18,6 +18,8 @@ import { ClinicChain } from './clinic-chain.entity';
 import { Clinic } from './clinic.entity';
 import { Address } from './address.entity';
 import { UserClinic } from './user-clinic.entity';
+import { PatientMedicalRecordHistory } from './patient-medical-record-history.entity';
+import { Exclude, Expose } from 'class-transformer';
 
 @Entity('users')
 export class User {
@@ -57,6 +59,7 @@ export class User {
   email_verified_at?: Date;
 
   @Column({ type: 'varchar', length: 255 })
+  @Exclude()
   password: string;
 
   @Column({ type: 'int', nullable: true })
@@ -193,8 +196,16 @@ export class User {
   @OneToMany(() => UserClinic, (userClinic) => userClinic.user)
   user_clinics: UserClinic[];
 
+  @OneToMany(() => PatientMedicalRecordHistory, (history) => history.user)
+  histories: PatientMedicalRecordHistory[];
+
   @Column({ type: 'varchar', length: 255 })
   image_url: string;
+
+  @Expose()
+  get fullName(): string {
+    return `${this.first_name} ${this.last_name}`;
+  }
 
   address?: Address;
 }

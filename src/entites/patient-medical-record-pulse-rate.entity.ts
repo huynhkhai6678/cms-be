@@ -9,10 +9,10 @@ import {
 @Entity('patient_medical_record_pulse_rates')
 export class PatientMedicalRecordPulseRate {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-  id: string;
+  id: number;
 
   @Column({ type: 'bigint', unsigned: true })
-  patient_medical_record_id: string;
+  patient_medical_record_id: number;
 
   @Column({ type: 'int' })
   pulse: number;

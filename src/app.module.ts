@@ -111,6 +111,11 @@ import { PatientMedicalRecordHistory } from './entites/patient-medical-record-hi
 import { PatientMedicalRecordPulseRate } from './entites/patient-medical-record-pulse-rate.entity';
 import { PatientMedicalRecordTemperature } from './entites/patient-medical-record-pulse-temperature.entity';
 import { PatientMedicalRecordWeight } from './entites/patient-medical-record-pulse-weight.entity';
+import { BloodPressureModule } from './medical-record/blood-pressure/blood-pressure.module';
+import { TemperatureModule } from './medical-record/temperature/temperature.module';
+import { PulseRateModule } from './medical-record/pulse-rate/pulse-rate.module';
+import { WeightModule } from './medical-record/weight/weight.module';
+import { DocumentModule } from './medical-record/document/document.module';
 
 @Module({
   imports: [
@@ -250,6 +255,11 @@ import { PatientMedicalRecordWeight } from './entites/patient-medical-record-pul
     TransactionMedicalCertificateModule,
     ReportsModule,
     MedicalRecordModule,
+    BloodPressureModule,
+    TemperatureModule,
+    PulseRateModule,
+    WeightModule,
+    DocumentModule
   ],
   controllers: [AppController],
   providers: [AppService, PdfService, ExcelService, QrService],
