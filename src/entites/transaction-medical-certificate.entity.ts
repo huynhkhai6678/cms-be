@@ -31,7 +31,7 @@ export class TransactionMedicalCertificate {
   @Column({ type: 'timestamp', nullable: true })
   start_date: Date;
 
-  @Column({ type: 'timestamp', nullable: true})
+  @Column({ type: 'timestamp', nullable: true })
   end_date: Date;
 
   @Column({ type: 'varchar', length: 50, nullable: true })

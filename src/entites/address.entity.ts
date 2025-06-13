@@ -50,19 +50,44 @@ export class Address {
   @Column({ name: 'postal_code', type: 'varchar', length: 255, nullable: true })
   postal_code?: string;
 
-  @Column({ name: 'other_region_code', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'other_region_code',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   other_region_code: string;
 
-  @Column({ name: 'other_contact', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'other_contact',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   other_contact: string;
 
-  @Column({ name: 'other_address1', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'other_address1',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   other_address1: string;
 
-  @Column({ name: 'other_address2', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'other_address2',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   other_address2: string;
 
-  @Column({ name: 'other_country_id', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'other_country_id',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   other_country_id: number;
 
   @CreateDateColumn({

@@ -26,11 +26,11 @@ import { QrService } from 'src/shared/qr/qr.service';
       Clinic,
       City,
       Country,
-      State
+      State,
     ]),
     AuthModule,
     DatabaseServiceModule,
-    HelperModule
+    HelperModule,
   ],
   controllers: [SmartPatientCardsController],
   providers: [SmartPatientCardsService, PdfService, QrService],

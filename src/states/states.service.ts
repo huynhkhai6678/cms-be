@@ -13,6 +13,7 @@ export class StatesService {
   ) {}
 
   create(createStateDto: CreateStateDto) {
+    console.log(createStateDto);
     return 'This action adds a new state';
   }
 
@@ -25,6 +26,7 @@ export class StatesService {
   }
 
   update(id: number, updateStateDto: UpdateStateDto) {
+    console.log(updateStateDto);
     return `This action updates a #${id} state`;
   }
 

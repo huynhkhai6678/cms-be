@@ -9,9 +9,7 @@ import { TemperatureService } from './temperature.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      PatientMedicalRecordTemperature,
-    ]),
+    TypeOrmModule.forFeature([PatientMedicalRecordTemperature]),
     MedicalRecordModule,
     DatabaseServiceModule,
     AuthModule,

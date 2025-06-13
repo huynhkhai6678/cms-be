@@ -1,41 +1,39 @@
-import { IsNumber, IsOptional, IsPositive, IsString, IsDate, IsNotEmpty, IsNumberString, IsDefined } from 'class-validator';
+import { IsNumber, IsOptional, IsString, IsDefined } from 'class-validator';
 
 export class CreateMedicineInventoryDto {
-    
-    // @IsNumber()
-    // @IsPositive()
-    @IsDefined()
-    medicine_id: number;
+  // @IsNumber()
+  // @IsPositive()
+  @IsDefined()
+  medicine_id: number;
 
-    @IsDefined()
-    quantity: number;
+  @IsDefined()
+  quantity: number;
 
-    @IsOptional()
-    bonus?: number;
+  @IsOptional()
+  bonus?: number;
 
-    @IsString()
-    @IsOptional()
-    uom?: string;
+  @IsString()
+  @IsOptional()
+  uom?: string;
 
-    @IsDefined()
-    price: number;
+  @IsDefined()
+  price: number;
 
-    @IsOptional()
-    cost_per_unit?: number;
+  @IsOptional()
+  cost_per_unit?: number;
 
-    @IsNumber()
-    @IsOptional()
-    available_quantity?: number;
+  @IsNumber()
+  @IsOptional()
+  available_quantity?: number;
 
-    @IsString()
-    @IsOptional()
-    batch_number?: string;
+  @IsString()
+  @IsOptional()
+  batch_number?: string;
 
-    @IsOptional()
-    expiration_date?: string;
+  @IsOptional()
+  expiration_date?: string;
 
-    @IsString()
-    @IsOptional()
-    description?: string;
+  @IsString()
+  @IsOptional()
+  description?: string;
 }
-

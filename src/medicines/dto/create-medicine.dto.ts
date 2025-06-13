@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, IsNumber, MinLength, IsNumberString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateMedicineDto {
   @IsNotEmpty()
@@ -76,7 +76,7 @@ export class CreateMedicineDto {
   @IsString()
   inventory_image?: string;
 
-  image : File;
+  image: File;
 
   @IsOptional()
   low_stock_level?: number;

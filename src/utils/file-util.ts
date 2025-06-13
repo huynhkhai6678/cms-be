@@ -1,6 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
 
-export const fileFilter = (req, file, callback) => {
+export const fileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  callback: (error: Error | null, acceptFile: boolean) => void,
+) => {
   const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
   if (allowedMimeTypes.includes(file.mimetype)) {
     callback(null, true);
@@ -12,8 +16,17 @@ export const fileFilter = (req, file, callback) => {
   }
 };
 
-export const documentFilter = (req, file, callback) => {
-  const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+export const documentFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  callback: (error: Error | null, acceptFile: boolean) => void,
+) => {
+  const allowedMimeTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/jpg',
+    'application/pdf',
+  ];
   if (allowedMimeTypes.includes(file.mimetype)) {
     callback(null, true);
   } else {

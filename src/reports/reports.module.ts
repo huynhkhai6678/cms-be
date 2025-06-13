@@ -12,9 +12,9 @@ import { AuthModule } from 'src/auth/auth.module';
     TypeOrmModule.forFeature([
       PaymentGateway,
       TransactionInvoice,
-      TransactionInvoiceService
+      TransactionInvoiceService,
     ]),
-    AuthModule
+    AuthModule,
   ],
   controllers: [ReportsController],
   providers: [ReportsService],

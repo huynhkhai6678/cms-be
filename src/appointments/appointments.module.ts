@@ -11,7 +11,12 @@ import { Doctor } from '../entites/doctor.entity';
 import { HelperModule } from '../helper/helper.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Appointment, User, Patient, Doctor]), AuthModule, DatabaseServiceModule, HelperModule],
+  imports: [
+    TypeOrmModule.forFeature([Appointment, User, Patient, Doctor]),
+    AuthModule,
+    DatabaseServiceModule,
+    HelperModule,
+  ],
   controllers: [AppointmentsController],
   providers: [AppointmentsService],
 })

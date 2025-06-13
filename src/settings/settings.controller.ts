@@ -3,9 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
-  Delete,
   ValidationPipe,
   UseGuards,
 } from '@nestjs/common';
@@ -37,22 +35,22 @@ export class SettingsController {
   @Post('general/:id')
   async updateGeneralSetting(
     @Param('id') id: string,
-    @Body(new ValidationPipe()) updateSettingDto: UpdateGenralDto,
+    @Body(ValidationPipe) updateSettingDto: UpdateGenralDto,
   ) {
-    this.settingsService.updateGeneralSetting(+id, updateSettingDto);
+    await this.settingsService.updateGeneralSetting(+id, updateSettingDto);
     return {
-      message: await this.i18n.t('main.messages.flash.setting_update'),
+      message: this.i18n.t('main.messages.flash.setting_update'),
     };
   }
 
   @Post('contact-information/:id')
   async updateContactInformation(
     @Param('id') id: string,
-    @Body(new ValidationPipe()) updateSettingDto: UpdateContactInformationDto,
+    @Body(ValidationPipe) updateSettingDto: UpdateContactInformationDto,
   ) {
-    this.settingsService.updateContactInformation(+id, updateSettingDto);
+    await this.settingsService.updateContactInformation(+id, updateSettingDto);
     return {
-      message: await this.i18n.t('main.messages.flash.setting_update'),
+      message: this.i18n.t('main.messages.flash.setting_update'),
     };
   }
 }

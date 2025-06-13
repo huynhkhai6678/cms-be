@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -6,7 +15,10 @@ import { I18nService } from 'nestjs-i18n';
 
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService, private i18n : I18nService) {}
+  constructor(
+    private readonly categoriesService: CategoriesService,
+    private i18n: I18nService,
+  ) {}
 
   @Post()
   async create(@Body() createCategoryDto: CreateCategoryDto) {
@@ -27,7 +39,7 @@ export class CategoriesController {
   }
 
   @Post('update-status/:id')
-  async updateStatus(@Param('id') id: string, @Body('active') active : boolean) {
+  async updateStatus(@Param('id') id: string, @Body('active') active: boolean) {
     await this.categoriesService.updateStatus(+id, active);
     return {
       message: this.i18n.translate('main.messages.flash.update_status'),
@@ -35,7 +47,10 @@ export class CategoriesController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ) {
     await this.categoriesService.update(+id, updateCategoryDto);
     return {
       message: this.i18n.translate('main.messages.flash.cat_update'),

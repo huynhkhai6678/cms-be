@@ -9,7 +9,9 @@ describe('TransactionMedicalCertificateService', () => {
       providers: [TransactionMedicalCertificateService],
     }).compile();
 
-    service = module.get<TransactionMedicalCertificateService>(TransactionMedicalCertificateService);
+    service = module.get<TransactionMedicalCertificateService>(
+      TransactionMedicalCertificateService,
+    );
   });
 
   it('should be defined', () => {

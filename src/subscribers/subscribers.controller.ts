@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   ValidationPipe,
@@ -21,7 +20,7 @@ export class SubscribersController {
   ) {}
 
   @Post()
-  create(@Body(new ValidationPipe()) createSubscriberDto: CreateSubscriberDto) {
+  create(@Body(ValidationPipe) createSubscriberDto: CreateSubscriberDto) {
     return this.subscribersService.create(createSubscriberDto);
   }
 
@@ -32,9 +31,9 @@ export class SubscribersController {
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    this.subscribersService.remove(+id);
+    await this.subscribersService.remove(+id);
     return {
-      message: await this.i18n.t('main.messages.flash.subscribe_delete'),
+      message: this.i18n.t('main.messages.flash.subscribe_delete'),
     };
   }
 }

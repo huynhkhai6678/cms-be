@@ -63,8 +63,7 @@ export class TestimonialsService {
 
     if (imageUrl) {
       // Delete old file in system
-      await this.fileService.deleteFile(testimonial.image_url);
-
+      this.fileService.deleteFile(testimonial.image_url);
       testimonial.image_url = imageUrl;
     }
     return await this.testimonialRepo.save(testimonial);

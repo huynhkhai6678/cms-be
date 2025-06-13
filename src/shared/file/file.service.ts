@@ -4,7 +4,7 @@ import * as path from 'path';
 
 @Injectable()
 export class FileService {
-  async deleteFile(filePath: string): Promise<void> {
+  deleteFile(filePath: string) {
     const fullFilePath = path.join(__dirname, '..', filePath);
 
     try {

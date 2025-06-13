@@ -1,14 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  Index,
-  CreateDateColumn,
-  UpdateDateColumn,
-  PrimaryColumn,
-} from 'typeorm';
+import { Entity, ManyToOne, JoinColumn, Index, PrimaryColumn } from 'typeorm';
 import { Doctor } from './doctor.entity';
 import { Specialization } from './specilization.entity';
 

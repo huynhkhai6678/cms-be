@@ -1,11 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateCurrencyDto } from './dto/create-currency.dto';
 import { UpdateCurrencyDto } from './dto/update-currency.dto';
 import { DatabaseService } from 'src/shared/database/database.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Currency } from '../entites/currency.entity';
-import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class CurrenciesService {

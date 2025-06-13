@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ValidationPipe, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+  ValidationPipe,
+  Res,
+} from '@nestjs/common';
 import { SmartPatientCardsService } from './smart-patient-cards.service';
 import { CreateSmartPatientCardDto } from './dto/create-smart-patient-card.dto';
 import { UpdateSmartPatientCardDto } from './dto/update-smart-patient-card.dto';
@@ -6,17 +18,27 @@ import { AuthGuard } from '../guards/auth.guard';
 import { RoleGuardFactory } from '../guards/role.guard.factory';
 import { I18nService } from 'nestjs-i18n';
 import { CreatePatientSmartPatientCardDto } from './dto/create-patient-smart-patient-card.dto';
+import { QueryParamsDto } from 'src/shared/dto/query-params.dto';
+import { Response } from 'express';
 
 @UseGuards(AuthGuard, RoleGuardFactory('manage_patients'))
 @Controller('smart-patient-cards')
 export class SmartPatientCardsController {
-  constructor(private readonly smartPatientCardsService: SmartPatientCardsService, private i18n: I18nService) {}
+  constructor(
+    private readonly smartPatientCardsService: SmartPatientCardsService,
+    private i18n: I18nService,
+  ) {}
 
   @Post()
-  async create(@Body(new ValidationPipe()) createSmartPatientCardDto: CreateSmartPatientCardDto) {
+  async create(
+    @Body(ValidationPipe)
+    createSmartPatientCardDto: CreateSmartPatientCardDto,
+  ) {
     await this.smartPatientCardsService.create(createSmartPatientCardDto);
     return {
-      message: this.i18n.translate('messages.smart_patient_card.template_create'),
+      message: this.i18n.translate(
+        'messages.smart_patient_card.template_create',
+      ),
     };
   }
 
@@ -26,13 +48,14 @@ export class SmartPatientCardsController {
   }
 
   @Get('patient-card')
-  findPatientCard(@Query() query) {
+  findPatientCard(@Query() query: QueryParamsDto) {
     return this.smartPatientCardsService.findPatientCard(query);
   }
 
   @Get('template-by-clinic/:clinicId')
   async templateByClinic(@Param('clinicId') clinicId: string) {
-    const data = await this.smartPatientCardsService.templateByClinic(+clinicId);
+    const data =
+      await this.smartPatientCardsService.templateByClinic(+clinicId);
     return { data };
   }
 
@@ -47,14 +70,14 @@ export class SmartPatientCardsController {
   }
 
   @Get('export/:id')
-  async export(@Param('id') id: string, @Res() res) {
+  async export(@Param('id') id: string, @Res() res: Response) {
     const pdfBuffer = await this.smartPatientCardsService.export(+id);
 
     if (!pdfBuffer) {
       res.status(404).send('PDF not generated');
       return;
     }
-    
+
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': 'attachment; filename="invoice.pdf"',
@@ -64,17 +87,22 @@ export class SmartPatientCardsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @Query('clinic_id') clinicId : number) {
+  findOne(@Param('id') id: string, @Query('clinic_id') clinicId: number) {
     return this.smartPatientCardsService.findOne(+id, clinicId);
   }
 
   @Post('generate')
-  createPatientCard(@Body(new ValidationPipe()) createPatientSmartPatientCardDto: CreatePatientSmartPatientCardDto) {
-    return this.smartPatientCardsService.createPatientCard(createPatientSmartPatientCardDto);
+  createPatientCard(
+    @Body(new ValidationPipe())
+    createPatientSmartPatientCardDto: CreatePatientSmartPatientCardDto,
+  ) {
+    return this.smartPatientCardsService.createPatientCard(
+      createPatientSmartPatientCardDto,
+    );
   }
 
   @Post('update-entity/:id')
-  async updateEntity(@Param('id') id: string, @Body() body) {
+  async updateEntity(@Param('id') id: string, @Body() body: any) {
     await this.smartPatientCardsService.updateEntity(+id, body);
     return {
       message: this.i18n.t('main.messages.smart_patient_card.template_update'),
@@ -82,7 +110,10 @@ export class SmartPatientCardsController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateSmartPatientCardDto: UpdateSmartPatientCardDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateSmartPatientCardDto: UpdateSmartPatientCardDto,
+  ) {
     await this.smartPatientCardsService.update(+id, updateSmartPatientCardDto);
     return {
       message: this.i18n.t('main.messages.smart_patient_card.template_update'),

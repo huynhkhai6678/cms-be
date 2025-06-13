@@ -11,6 +11,7 @@ import {
   ValidationPipe,
   UseInterceptors,
   UploadedFile,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { CreateServiceDto } from './dto/create-service.dto';
@@ -36,7 +37,7 @@ export class ServicesController {
   create(
     @UploadedFile() logo: Express.Multer.File,
     @Req() req: any,
-    @Body(new ValidationPipe()) createServiceDto: CreateServiceDto,
+    @Body(ValidationPipe) createServiceDto: CreateServiceDto,
   ) {
     const clinicId = createServiceDto.clinic_id || req['user'].clinic_id;
     let imageUrl = '';
@@ -68,7 +69,7 @@ export class ServicesController {
     @UploadedFile() logo: Express.Multer.File,
     @Req() req: any,
     @Param('id') id: string,
-    @Body(new ValidationPipe()) updateServiceDto: UpdateServiceDto,
+    @Body(ValidationPipe) updateServiceDto: UpdateServiceDto,
   ) {
     const clinicId = updateServiceDto.clinic_id || req['user'].clinic_id;
     let imageUrl = '';
@@ -79,12 +80,15 @@ export class ServicesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseIntPipe) id: string) {
     return this.servicesService.remove(+id);
   }
 
   @Post('/update-status/:id')
-  async updateActive(@Param('id') id: number, @Body('status') active: boolean) {
+  async updateActive(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('status') active: boolean,
+  ) {
     return this.servicesService.updateActive(+id, active);
   }
 }

@@ -76,15 +76,15 @@ export class Patient {
   @OneToMany(() => TransactionInvoice, (tran) => tran.patient)
   transactions: TransactionInvoice[];
 
-  @OneToMany(() => Review, review => review.patient)
+  @OneToMany(() => Review, (review) => review.patient)
   reviews: Review[];
 
   @OneToOne(() => PatientMedicalRecord, (record) => record.patient)
   medical_record: PatientMedicalRecord;
 
-  @ManyToOne(() => SmartPatientCard, smartCard => smartCard.patients)
+  @ManyToOne(() => SmartPatientCard, (smartCard) => smartCard.patients)
   @JoinColumn({ name: 'template_id', referencedColumnName: 'id' })
   smart_patient_card: SmartPatientCard;
 
-  address : Address | null;
+  address: Address | null;
 }

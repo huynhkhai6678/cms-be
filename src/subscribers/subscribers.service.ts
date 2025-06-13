@@ -41,6 +41,6 @@ export class SubscribersService {
       throw new NotFoundException('Enquiry not found');
     }
 
-    this.subscribeRepo.remove(enquiry);
+    return await this.subscribeRepo.remove(enquiry);
   }
 }

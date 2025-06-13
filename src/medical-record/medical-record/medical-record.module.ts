@@ -12,12 +12,12 @@ import { PatientMedicalRecordHistory } from '../../entites/patient-medical-recor
     TypeOrmModule.forFeature([
       Patient,
       PatientMedicalRecord,
-      PatientMedicalRecordHistory
+      PatientMedicalRecordHistory,
     ]),
     AuthModule,
   ],
   controllers: [MedicalRecordController],
   providers: [MedicalRecordService],
-  exports : [MedicalRecordService]
+  exports: [MedicalRecordService],
 })
 export class MedicalRecordModule {}

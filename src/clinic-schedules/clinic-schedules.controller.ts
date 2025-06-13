@@ -3,13 +3,12 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
-  Delete,
   HttpCode,
   HttpStatus,
   BadRequestException,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ClinicSchedulesService } from './clinic-schedules.service';
 import { UpdateClinicScheduleDto } from './dto/update-clinic-schedule.dto';
@@ -26,16 +25,16 @@ export class ClinicSchedulesController {
   ) {}
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseIntPipe) id: string) {
     return this.clinicSchedulesService.findOne(+id);
   }
 
   @Post(':id')
-  update(
-    @Param('id') id: string,
+  async update(
+    @Param('id', ParseIntPipe) id: string,
     @Body() updateClinicScheduleDto: UpdateClinicScheduleDto,
   ) {
-    const result = this.clinicSchedulesService.update(
+    const result = await this.clinicSchedulesService.update(
       +id,
       updateClinicScheduleDto,
     );

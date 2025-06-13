@@ -12,29 +12,31 @@ export class TemperatureService {
     @InjectRepository(PatientMedicalRecordTemperature)
     private readonly medicalRecordRepo: Repository<PatientMedicalRecordTemperature>,
     private database: DatabaseService,
-  ) { }
+  ) {}
 
   async create(createTemperatureDto: CreateTemperatureDto) {
     const temperature = this.medicalRecordRepo.create(createTemperatureDto);
     return this.medicalRecordRepo.save(temperature);
   }
 
-  async findAll(id : number, query: any) {
-    return await this.database.paginateAndSearch<PatientMedicalRecordTemperature>({
-      repository: this.medicalRecordRepo,
-      alias: 'temperature',
-      query: {
-        patient_medical_record_id: id,
-        ...query
+  async findAll(id: number, query: any) {
+    return await this.database.paginateAndSearch<PatientMedicalRecordTemperature>(
+      {
+        repository: this.medicalRecordRepo,
+        alias: 'temperature',
+        query: {
+          patient_medical_record_id: id,
+          ...query,
+        },
+        searchFields: ['temperature'],
+        filterFields: ['patient_medical_record_id'],
+        allowedOrderFields: ['temperature'],
+        defaultOrderField: 'created_at',
+        defaultOrderDirection: 'DESC',
+        selectFields: [],
+        relations: [],
       },
-      searchFields: ['temperature'],
-      filterFields: ['patient_medical_record_id'],
-      allowedOrderFields: ['temperature'],
-      defaultOrderField: 'created_at',
-      defaultOrderDirection: 'DESC',
-      selectFields: [],
-      relations: [],
-    });
+    );
   }
 
   async findOne(id: number) {
@@ -48,7 +50,7 @@ export class TemperatureService {
     if (!temperature) {
       throw new NotFoundException('Temperature not found');
     }
-  
+
     return this.medicalRecordRepo.update({ id }, updateTemperatureDto);
   }
 
@@ -57,14 +59,16 @@ export class TemperatureService {
     if (!temperature) {
       throw new NotFoundException('Temperature not found');
     }
-  
+
     return await this.medicalRecordRepo.remove(temperature);
   }
 
-  async findChart(id : number) {
-    const data = await this.medicalRecordRepo.findBy({ patient_medical_record_id : id});
+  async findChart(id: number) {
+    const data = await this.medicalRecordRepo.findBy({
+      patient_medical_record_id: id,
+    });
     return {
-      data
-    }
+      data,
+    };
   }
 }

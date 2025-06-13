@@ -10,7 +10,6 @@ import {
   ParseIntPipe,
   Query,
   UseGuards,
-  NotFoundException,
 } from '@nestjs/common';
 import { CurrenciesService } from './currencies.service';
 import { CreateCurrencyDto } from './dto/create-currency.dto';
@@ -28,8 +27,8 @@ export class CurrenciesController {
   ) {}
 
   @Post()
-  create(@Body(new ValidationPipe()) createCurrencyDto: CreateCurrencyDto) {
-    this.currenciesService.create(createCurrencyDto);
+  async create(@Body(ValidationPipe) createCurrencyDto: CreateCurrencyDto) {
+    await this.currenciesService.create(createCurrencyDto);
     return {
       message: this.i18n.translate('main.messages.flash.currency_create'),
     };
@@ -48,7 +47,7 @@ export class CurrenciesController {
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body(new ValidationPipe()) updateCurrencyDto: UpdateCurrencyDto,
+    @Body(ValidationPipe) updateCurrencyDto: UpdateCurrencyDto,
   ) {
     const result = await this.currenciesService.update(+id, updateCurrencyDto);
     if (result) {

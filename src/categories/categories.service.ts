@@ -4,7 +4,6 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DatabaseService } from '../shared/database/database.service';
-import { Brand } from '../entites/brand.entity';
 import { Category } from 'src/entites/category.entity';
 
 @Injectable()
@@ -57,7 +56,7 @@ export class CategoriesService {
     return await this.categoryRepo.remove(brand);
   }
 
-  async updateStatus(id: number, active : boolean) {
+  async updateStatus(id: number, active: boolean) {
     const category = await this.categoryRepo.findOneBy({ id });
     if (!category) throw new NotFoundException('Category not found');
 

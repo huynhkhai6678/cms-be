@@ -148,6 +148,6 @@ export class ServicesService {
     if (!service) throw new NotFoundException('Service not found');
 
     service.status = status ? 1 : 0;
-    this.serviceRepo.save(service);
+    return await this.serviceRepo.save(service);
   }
 }

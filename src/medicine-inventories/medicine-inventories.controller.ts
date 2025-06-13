@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+  ValidationPipe,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { MedicineInventoriesService } from './medicine-inventories.service';
 import { CreateMedicineInventoryDto } from './dto/create-medicine-inventory.dto';
 import { UpdateMedicineInventoryDto } from './dto/update-medicine-inventory.dto';
@@ -9,10 +21,16 @@ import { I18nService } from 'nestjs-i18n';
 @UseGuards(AuthGuard, RoleGuardFactory('manage_medicines'))
 @Controller('medicine-inventories')
 export class MedicineInventoriesController {
-  constructor(private readonly medicineInventoriesService: MedicineInventoriesService, private i18n : I18nService) {}
+  constructor(
+    private readonly medicineInventoriesService: MedicineInventoriesService,
+    private i18n: I18nService,
+  ) {}
 
   @Post()
-  async create(@Body(new ValidationPipe()) createMedicineInventoryDto: CreateMedicineInventoryDto) {
+  async create(
+    @Body(ValidationPipe)
+    createMedicineInventoryDto: CreateMedicineInventoryDto,
+  ) {
     await this.medicineInventoriesService.create(createMedicineInventoryDto);
   }
 
@@ -22,17 +40,24 @@ export class MedicineInventoriesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseIntPipe) id: string) {
     return this.medicineInventoriesService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body(new ValidationPipe()) updateMedicineInventoryDto: UpdateMedicineInventoryDto) {
-    return this.medicineInventoriesService.update(+id, updateMedicineInventoryDto);
+  update(
+    @Param('id', ParseIntPipe) id: string,
+    @Body(ValidationPipe)
+    updateMedicineInventoryDto: UpdateMedicineInventoryDto,
+  ) {
+    return this.medicineInventoriesService.update(
+      +id,
+      updateMedicineInventoryDto,
+    );
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseIntPipe) id: string) {
     return this.medicineInventoriesService.remove(+id);
   }
 }

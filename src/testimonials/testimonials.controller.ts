@@ -36,7 +36,7 @@ export class TestimonialsController {
   create(
     @UploadedFile() image: Express.Multer.File,
     @Req() req: any,
-    @Body(new ValidationPipe()) createTestimonialDto: CreateTestimonialDto,
+    @Body(ValidationPipe) createTestimonialDto: CreateTestimonialDto,
   ) {
     const clinicId = createTestimonialDto.clinic_id || req['user'].clinic_id;
     let imageUrl = '';

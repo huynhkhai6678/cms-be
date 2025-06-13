@@ -11,8 +11,8 @@ export class DocumentService {
   constructor(
     @InjectRepository(PatientMedicalRecordDocument)
     private readonly medicalRecordDocumentRepo: Repository<PatientMedicalRecordDocument>,
-    private fileService: FileService
-  ) { }
+    private fileService: FileService,
+  ) {}
 
   async create(createDocumentDto: CreateDocumentDto) {
     const category = this.medicalRecordDocumentRepo.create(createDocumentDto);
@@ -20,9 +20,11 @@ export class DocumentService {
   }
 
   async findAll(id: number) {
-    const data = await this.medicalRecordDocumentRepo.findBy({ patient_medical_record_id : id });
+    const data = await this.medicalRecordDocumentRepo.findBy({
+      patient_medical_record_id: id,
+    });
     return {
-      data
+      data,
     };
   }
 
@@ -44,7 +46,7 @@ export class DocumentService {
     const document = await this.medicalRecordDocumentRepo.findOneBy({ id });
     if (!document) throw new NotFoundException('Document not found');
 
-    await this.fileService.deleteFile(document.path);
+    this.fileService.deleteFile(document.path);
 
     await this.medicalRecordDocumentRepo.remove(document);
   }

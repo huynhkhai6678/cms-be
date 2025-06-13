@@ -174,11 +174,11 @@ export class SettingsService {
     return true;
   }
 
-  updatePhone(clinic_id, value) {
+  async updatePhone(clinic_id, value) {
     const contact = value.e164Number.split(value.dialCode)[1];
     const region_code = value.dialCode.substring(1);
-    this.updateSetting(clinic_id, 'contact_no', contact);
-    this.updateSetting(clinic_id, 'region_code', region_code);
+    await this.updateSetting(clinic_id, 'contact_no', contact);
+    await this.updateSetting(clinic_id, 'region_code', region_code);
   }
 
   async updateSetting(clinic_id, key, value) {
@@ -205,10 +205,10 @@ export class SettingsService {
       (gateway) => gateway.payment_gateway_id,
     );
     const gatewaysToRemove = currentGatewayIds.filter(
-      (id) => !gateways.includes(id),
+      (id: string) => !gateways.includes(id),
     );
     const gatewaysToAdd = gateways.filter(
-      (id) => !currentGatewayIds.includes(id),
+      (id: string) => !currentGatewayIds.includes(id),
     );
 
     if (gatewaysToRemove.length > 0) {

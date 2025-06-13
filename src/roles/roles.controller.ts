@@ -9,6 +9,7 @@ import {
   Query,
   ValidationPipe,
   BadRequestException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
@@ -23,13 +24,13 @@ export class RolesController {
   ) {}
 
   @Post()
-  async create(@Body(new ValidationPipe()) createRoleDto: CreateRoleDto) {
+  async create(@Body(ValidationPipe) createRoleDto: CreateRoleDto) {
     const result = await this.rolesService.create(createRoleDto);
     if (!result) {
       throw new BadRequestException('Error');
     }
     return {
-      message: await this.i18n.t('main.messages.flash.role_create'),
+      message: this.i18n.t('main.messages.flash.role_create'),
     };
   }
 
@@ -39,29 +40,29 @@ export class RolesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseIntPipe) id: string) {
     return this.rolesService.findOne(+id);
   }
 
   @Patch(':id')
   async update(
-    @Param('id') id: string,
-    @Body(new ValidationPipe()) updateRoleDto: UpdateRoleDto,
+    @Param('id', ParseIntPipe) id: string,
+    @Body(ValidationPipe) updateRoleDto: UpdateRoleDto,
   ) {
     const result = await this.rolesService.update(+id, updateRoleDto);
     if (!result) {
       throw new BadRequestException('Error');
     }
     return {
-      message: await this.i18n.t('main.messages.flash.role_create'),
+      message: this.i18n.t('main.messages.flash.role_create'),
     };
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    this.rolesService.remove(+id);
+  async remove(@Param('id', ParseIntPipe) id: string) {
+    await this.rolesService.remove(+id);
     return {
-      message: await this.i18n.t('main.messages.flash.role_delete'),
+      message: this.i18n.t('main.messages.flash.role_delete'),
     };
   }
 }

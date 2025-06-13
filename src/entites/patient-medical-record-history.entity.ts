@@ -36,5 +36,5 @@ export class PatientMedicalRecordHistory {
   @UpdateDateColumn({ type: 'timestamp', nullable: true })
   updated_at?: Date;
 
-  note_data? : JSON;
+  note_data?: JSON;
 }

@@ -7,7 +7,6 @@ import {
   ManyToMany,
   OneToMany,
   JoinTable,
-  ManyToOne,
 } from 'typeorm';
 import { Permission } from './permission.entity';
 import { RoleHasPermission } from './role-has-permission.entity';

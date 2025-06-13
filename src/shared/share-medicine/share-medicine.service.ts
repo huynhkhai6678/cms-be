@@ -14,7 +14,7 @@ export class ShareMedicineService {
     private readonly medicineInvenRepo: Repository<MedicineInventory>,
     @InjectRepository(MedicineInventoryUsage)
     private readonly medicineInvenUsageRepo: Repository<MedicineInventoryUsage>,
-  ) { }
+  ) {}
 
   async calculateAvailableMedicine(id: number): Promise<void> {
     const medicine = await this.medicineRepo.findOne({
@@ -28,7 +28,8 @@ export class ShareMedicineService {
 
     // Sum up available_quantity
     const availableQuantity = medicine.inventories.reduce(
-      (sum, inventory) => sum + parseInt(inventory.available_quantity.toString()),
+      (sum, inventory) =>
+        sum + parseInt(inventory.available_quantity.toString()),
       0,
     );
 
@@ -54,7 +55,9 @@ export class ShareMedicineService {
       throw new NotFoundException(`MedicineInventory with ID ${id} not found`);
     }
 
-    let availableQuantity = parseInt(medicineInventory.quantity.toString()) + parseInt(medicineInventory.bonus.toString());
+    let availableQuantity =
+      parseInt(medicineInventory.quantity.toString()) +
+      parseInt(medicineInventory.bonus.toString());
 
     const totalUsage = medicineInventory.usages.reduce(
       (sum, usage) => sum + parseInt(usage.quantity.toString()),

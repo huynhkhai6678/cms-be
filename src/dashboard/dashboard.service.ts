@@ -10,8 +10,9 @@ import { Appointment } from '../entites/appointment.entitty';
 import { TransactionInvoice } from '../entites/transaction-invoice.entity';
 import { Visit } from '../entites/visit.entity';
 import { DatabaseService } from '../shared/database/database.service';
-import { Patient } from 'src/entites/patient.entity';
-import { Doctor } from 'src/entites/doctor.entity';
+import { Patient } from '../entites/patient.entity';
+import { Doctor } from '../entites/doctor.entity';
+import { QueryParamsDto } from '../shared/dto/query-params.dto';
 
 @Injectable()
 export class DashboardService {
@@ -30,7 +31,7 @@ export class DashboardService {
     private i18n: I18nService,
   ) {}
 
-  async getUserCardData(user : any, queryParams) {
+  async getUserCardData(user: User, queryParams: QueryParamsDto) {
     let clinicId = user.clinic_id;
     if (queryParams.clinic_id) {
       clinicId = queryParams.clinic_id;
@@ -81,9 +82,10 @@ export class DashboardService {
     };
   }
 
-  async getUpcommingAppointmentData(user : any, queryParams : any) {
+  async getUpcommingAppointmentData(user: User, queryParams: QueryParamsDto) {
     let data = {};
-    const userType = parseInt(user.type);
+    const userType = user.type;
+
     let clinicId = user.clinic_id;
     if (queryParams.clinic_id) {
       clinicId = queryParams.clinic_id;
@@ -195,8 +197,8 @@ export class DashboardService {
     return data;
   }
 
-  async getVisitCard(user : any, queryParams : any) {
-    const type = parseInt(user.type);
+  async getVisitCard(user: User, queryParams: any) {
+    const type = user.type;
     if (type === UserRole.PATIENT || type === UserRole.DOCTOR) {
       return null;
     }
@@ -282,7 +284,7 @@ export class DashboardService {
 
     const revenue = {};
     Object.values(months).forEach((name) => (revenue[name] = 0));
-    results.forEach((row) => {
+    results.forEach((row: { month: string; total: string }) => {
       const name = months[row.month];
       revenue[name] = parseFloat(row.total);
     });
@@ -297,7 +299,7 @@ export class DashboardService {
     const { clinicId = '' } = req.body || {};
     let filters = `a.date BETWEEN '${yearStart}' AND '${yearEnd}'`;
 
-     if (clinicId) {
+    if (clinicId) {
       filters += ` AND a.clinic_id = ${clinicId}`;
     }
 
@@ -329,7 +331,7 @@ export class DashboardService {
 
     const revenue = {};
     Object.values(months).forEach((name) => (revenue[name] = 0));
-    results.forEach((row) => {
+    results.forEach((row: { month: string; total: string }) => {
       const name = months[row.month];
       revenue[name] = parseFloat(row.total);
     });
@@ -365,28 +367,32 @@ export class DashboardService {
     ]);
 
     if (query.clinic_id) {
-      qb.andWhere('user.clinic_id = :clinicId', { clinicId : query.clinic_id });
+      qb.andWhere('user.clinic_id = :clinicId', { clinicId: query.clinic_id });
     }
 
     if (query.start_date) {
-      qb.andWhere('patient.created_at >= :startDate', { startDate: `${query.start_date} 00:00:00` });
+      qb.andWhere('patient.created_at >= :startDate', {
+        startDate: `${query.start_date} 00:00:00`,
+      });
     }
 
     if (query.end_date) {
-      qb.andWhere('patient.created_at <= :endDate', { endDate: `${query.end_date} 23:59:59` });
+      qb.andWhere('patient.created_at <= :endDate', {
+        endDate: `${query.end_date} 23:59:59`,
+      });
     }
 
     qb.groupBy('patient.id');
 
     // Fetch the results and total count
     const data = await qb.getRawMany();
-    
+
     return {
-      data
+      data,
     };
   }
 
-  async doctorAppointment(userId: number, clinicId : number, query : any) {
+  async doctorAppointment(userId: number, clinicId: number, query: any) {
     const qb = this.appoitnementRepo.createQueryBuilder('appointment');
 
     userId = 99;
@@ -432,28 +438,34 @@ export class DashboardService {
     qb.andWhere('user_doctor.clinic_id = :clinicId', { clinicId });
 
     if (query.start_date) {
-      qb.andWhere('appointment.date >= :startDate', { startDate: `${query.start_date}` });
+      qb.andWhere('appointment.date >= :startDate', {
+        startDate: `${query.start_date}`,
+      });
     }
 
     if (query.start_date) {
-      qb.andWhere('appointment.date >= :startDate', { startDate: `${query.start_date}` });
+      qb.andWhere('appointment.date >= :startDate', {
+        startDate: `${query.start_date}`,
+      });
     }
 
     if (query.end_date) {
-      qb.andWhere('appointment.date <= :endDate', { endDate: `${query.end_date}` });
+      qb.andWhere('appointment.date <= :endDate', {
+        endDate: `${query.end_date}`,
+      });
     }
 
     qb.groupBy('appointment.id');
 
     // Fetch the results and total count
     const data = await qb.getRawMany();
-    
+
     return {
-      data
+      data,
     };
   }
 
-  async patientTodayAppointment(userId: number, clinicId : number, query : any) {
+  async patientTodayAppointment(userId: number, clinicId: number) {
     const today = moment().format('YYYY-MM-DD');
     const qb = this.appoitnementRepo.createQueryBuilder('appointment');
 
@@ -501,13 +513,13 @@ export class DashboardService {
 
     // Fetch the results and total count
     const data = await qb.getRawMany();
-    
+
     return {
-      data
+      data,
     };
   }
 
-  async patientUpcommingAppointment(userId: number, clinicId : number, query : any) {
+  async patientUpcommingAppointment(userId: number, clinicId: number) {
     const today = moment().format('YYYY-MM-DD');
     const qb = this.appoitnementRepo.createQueryBuilder('appointment');
 
@@ -555,9 +567,9 @@ export class DashboardService {
 
     // Fetch the results and total count
     const data = await qb.getRawMany();
-    
+
     return {
-      data
+      data,
     };
   }
 }

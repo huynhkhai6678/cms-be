@@ -34,7 +34,7 @@ export class AddClinicInterceptor implements NestInterceptor {
     ).pipe(
       switchMap((fullUser) =>
         next.handle().pipe(
-          map((data) => ({
+          map((data: User) => ({
             ...data,
             clinics: fullUser?.clinics || [],
           })),

@@ -108,7 +108,7 @@ export class Medicine {
   @JoinTable({
     name: 'medicines_categories',
     joinColumn: { name: 'medicine_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' }
+    inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' },
   })
   categories: Category[];
 
@@ -122,15 +122,15 @@ export class Medicine {
   })
   brands: Brand[];
 
-  @OneToMany(() => MedicineInventory, inventory => inventory.medicine)
+  @OneToMany(() => MedicineInventory, (inventory) => inventory.medicine)
   inventories: MedicineInventory[];
 
   @OneToMany(() => PurchasedMedicine, (pm) => pm.medicine)
   purchased_medicines: PurchasedMedicine[];
 
-//   @OneToMany(() => PrescriptionMedicine, (pm) => pm.medicine)
-//   prescriptions_medicines: PrescriptionMedicine[];
+  //   @OneToMany(() => PrescriptionMedicine, (pm) => pm.medicine)
+  //   prescriptions_medicines: PrescriptionMedicine[];
 
-//   @OneToMany(() => UsedMedicine, (um) => um.medicine)
-//   used_medicines: UsedMedicine[];
+  //   @OneToMany(() => UsedMedicine, (um) => um.medicine)
+  //   used_medicines: UsedMedicine[];
 }

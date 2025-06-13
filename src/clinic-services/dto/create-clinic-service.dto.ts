@@ -1,11 +1,5 @@
 import { Transform } from 'class-transformer';
-import {
-  IsDecimal,
-  IsDefined,
-  IsNumber,
-  IsNumberString,
-  IsString,
-} from 'class-validator';
+import { IsDefined, IsNumber, IsNumberString, IsString } from 'class-validator';
 
 export class CreateClinicServiceDto {
   @IsDefined()
@@ -17,7 +11,7 @@ export class CreateClinicServiceDto {
   name: string;
 
   @IsDefined()
-  @Transform(({ value }) =>
+  @Transform(({ value }: { value: unknown }) =>
     typeof value === 'string' && !isNaN(Number(value)) ? Number(value) : value,
   )
   @IsNumber()

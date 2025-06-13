@@ -4,7 +4,7 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany
+  OneToMany,
 } from 'typeorm';
 import { Patient } from './patient.entity';
 
@@ -13,13 +13,13 @@ export class SmartPatientCard {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
 
-  @Column({type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255 })
   template_name: string;
 
   @Column({ type: 'varchar', length: 255 })
   address: string;
 
-  @Column({type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255 })
   header_color: string;
 
   @Column({ type: 'boolean', default: true })
@@ -31,10 +31,10 @@ export class SmartPatientCard {
   @Column({ type: 'boolean', default: true })
   show_dob: boolean;
 
-  @Column({  type: 'boolean', default: true })
+  @Column({ type: 'boolean', default: true })
   show_blood_group: boolean;
 
-  @Column({  type: 'boolean', default: true })
+  @Column({ type: 'boolean', default: true })
   show_address: boolean;
 
   @Column({ type: 'boolean', default: true })
@@ -50,6 +50,6 @@ export class SmartPatientCard {
   clinic_id: number;
 
   // Relations
-  @OneToMany(() => Patient, patient => patient.smart_patient_card)
+  @OneToMany(() => Patient, (patient) => patient.smart_patient_card)
   patients: Patient[];
 }

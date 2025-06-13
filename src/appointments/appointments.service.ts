@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +13,7 @@ import * as moment from 'moment';
 import { HelperService } from '../helper/helper.service';
 import { UserRole } from '../constants/user.constant';
 import { AuthService } from '../auth/auth.service';
+import { User } from '../entites/user.entity';
 
 @Injectable()
 export class AppointmentsService {
@@ -15,24 +21,36 @@ export class AppointmentsService {
     @InjectRepository(Appointment)
     private readonly appointmentRepository: Repository<Appointment>,
     private authService: AuthService,
-    private helpService: HelperService
+    private helpService: HelperService,
   ) {}
 
   async create(createAppointmentDto: CreateAppointmentDto) {
-    createAppointmentDto.from_time_type = createAppointmentDto.from_time_value.split(' ')[1];
-    createAppointmentDto.to_time_type = createAppointmentDto.to_time_value.split(' ')[1];
-    createAppointmentDto.from_time = createAppointmentDto.from_time_value.split(' ')[0];
-    createAppointmentDto.to_time = createAppointmentDto.to_time_value.split(' ')[0];
+    createAppointmentDto.from_time_type =
+      createAppointmentDto.from_time_value.split(' ')[1];
+    createAppointmentDto.to_time_type =
+      createAppointmentDto.to_time_value.split(' ')[1];
+    createAppointmentDto.from_time =
+      createAppointmentDto.from_time_value.split(' ')[0];
+    createAppointmentDto.to_time =
+      createAppointmentDto.to_time_value.split(' ')[0];
 
     await this.checkDoctorAvailability(createAppointmentDto);
 
     const appointment = this.appointmentRepository.create(createAppointmentDto);
     appointment.status = createAppointmentDto.status || 1;
-    appointment.date = moment(appointment.date, 'DD/MM/YYYY').format('YYYY-MM-DD');
-    appointment.appointment_unique_id = await this.helpService.generateUniqueIdInDatabase(this.appointmentRepository, 'appointment_unique_id');
-    appointment.contact = createAppointmentDto.phone.e164Number.split(createAppointmentDto.phone.dialCode)[1];
+    appointment.date = moment(appointment.date, 'DD/MM/YYYY').format(
+      'YYYY-MM-DD',
+    );
+    appointment.appointment_unique_id =
+      await this.helpService.generateUniqueIdInDatabase(
+        this.appointmentRepository,
+        'appointment_unique_id',
+      );
+    appointment.contact = createAppointmentDto.phone.e164Number.split(
+      createAppointmentDto.phone.dialCode,
+    )[1];
     appointment.region_code = createAppointmentDto.phone.dialCode.substring(1);
-    
+
     if (createAppointmentDto.patient_name) {
       const patient = await this.helpService.createNewPatient(appointment);
       appointment.patient_id = patient.id;
@@ -47,17 +65,20 @@ export class AppointmentsService {
   }
 
   async findOne(id: number, clinicId: number) {
-    const appointment = await this.appointmentRepository.findOneBy({id});
+    const appointment = await this.appointmentRepository.findOneBy({ id });
     const doctors = await this.helpService.clinicDoctor(clinicId);
     const patients = await this.helpService.clinicPatient(clinicId);
     const paymentMethods = await this.helpService.getPaymentGateways(clinicId);
 
-    let services : any = [];
+    let services: any = [];
     if (appointment) {
-      services = await this.helpService.doctorService(appointment.doctor_id, appointment.clinic_id);
+      services = await this.helpService.doctorService(
+        appointment.doctor_id,
+        appointment.clinic_id,
+      );
     }
 
-    let data = {
+    const data = {
       clinic_id: appointment?.clinic_id,
       date: appointment?.date,
       from_time_value: `${appointment?.from_time} ${appointment?.from_time_type}`,
@@ -74,19 +95,19 @@ export class AppointmentsService {
       id_type: appointment?.id_type ? parseInt(appointment?.id_type) : 0,
       id_number: appointment?.id_number,
       age: appointment?.status,
-    }
+    };
 
     return {
-      data : appointment ? data : null,
+      data: appointment ? data : null,
       doctors,
       patients,
       services,
-      payment_methods : paymentMethods
-    }
+      payment_methods: paymentMethods,
+    };
   }
 
   async update(id: number, updateAppointmentDto: UpdateAppointmentDto) {
-    const appointment = await this.appointmentRepository.findOneBy({id});
+    const appointment = await this.appointmentRepository.findOneBy({ id });
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
     }
@@ -97,14 +118,24 @@ export class AppointmentsService {
       appointment.patient_id = patient.id;
     }
 
-    appointment.contact = updateAppointmentDto.phone?.e164Number.split(updateAppointmentDto.phone.dialCode)[1] || '';
-    appointment.region_code = updateAppointmentDto.phone?.dialCode.substring(1) || '';
-    appointment.from_time_type = updateAppointmentDto.from_time_value?.split(' ')[1];
-    appointment.to_time_type = updateAppointmentDto.to_time_value?.split(' ')[1];
+    appointment.contact =
+      updateAppointmentDto.phone?.e164Number.split(
+        updateAppointmentDto.phone.dialCode,
+      )[1] || '';
+    appointment.region_code =
+      updateAppointmentDto.phone?.dialCode.substring(1) || '';
+    appointment.from_time_type =
+      updateAppointmentDto.from_time_value?.split(' ')[1];
+    appointment.to_time_type =
+      updateAppointmentDto.to_time_value?.split(' ')[1];
     appointment.from_time = updateAppointmentDto.from_time_value?.split(' ')[0];
     appointment.to_time = updateAppointmentDto.to_time_value?.split(' ')[0];
-    appointment.contact = updateAppointmentDto.phone?.e164Number.split(updateAppointmentDto.phone.dialCode)[1] || '';
-    appointment.region_code = updateAppointmentDto.phone?.dialCode.substring(1) || '';
+    appointment.contact =
+      updateAppointmentDto.phone?.e164Number.split(
+        updateAppointmentDto.phone.dialCode,
+      )[1] || '';
+    appointment.region_code =
+      updateAppointmentDto.phone?.dialCode.substring(1) || '';
 
     await this.checkDoctorAvailability(appointment);
     Object.assign(appointment, updateAppointmentDto);
@@ -113,7 +144,7 @@ export class AppointmentsService {
   }
 
   async remove(id: number) {
-    const appointment = await this.appointmentRepository.findOneBy({id});
+    const appointment = await this.appointmentRepository.findOneBy({ id });
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
     }
@@ -121,37 +152,37 @@ export class AppointmentsService {
     return await this.appointmentRepository.remove(appointment);
   }
 
-  async findAllCalendar(clinicId: number, user : any) {
-
+  async findAllCalendar(clinicId: number, user: User) {
     const canDo = await this.authService.isUserInClinic(user, clinicId);
     if (!canDo) {
-      throw new UnauthorizedException('You dont have permission in this clinic');
+      throw new UnauthorizedException(
+        'You dont have permission in this clinic',
+      );
     }
 
-    const type = parseInt(user.type);
-    let appointments : Appointment[] = [];
+    const type = user.type;
+    let appointments: Appointment[] = [];
     if (type === UserRole.DOCTOR) {
       appointments = await this.appointmentRepository.find({
         where: {
           clinic_id: clinicId,
-          doctor : {
-            user : {
-              id: user.id
-            }
-          }
+          doctor: {
+            user: {
+              id: user.id,
+            },
+          },
         },
         relations: ['doctor.user', 'patient.user', 'service'],
       });
-
     } else if (type === UserRole.PATIENT) {
       appointments = await this.appointmentRepository.find({
         where: {
           clinic_id: clinicId,
-          patient : {
-            user : {
-              id: user.id
-            }
-          }
+          patient: {
+            user: {
+              id: user.id,
+            },
+          },
         },
         relations: ['doctor.user', 'patient.user', 'service'],
       });
@@ -165,14 +196,18 @@ export class AppointmentsService {
     }
 
     const data = appointments.map((appointment) => {
-      const patientName = appointment.patient?.user?.first_name ?? appointment.patient_name;
+      const patientName =
+        appointment.patient?.user?.first_name ?? appointment.patient_name;
       const startTime = `${appointment.from_time} ${appointment.from_time_type}`;
       const endTime = `${appointment.to_time} ${appointment.to_time_type}`;
       const patientContact = appointment.contact
         ? ` (+${appointment.region_code}) ${appointment.contact}`
         : '';
 
-      const start = moment(`${appointment.date} ${startTime}`, 'YYYY-MM-DD h:mm A');
+      const start = moment(
+        `${appointment.date} ${startTime}`,
+        'YYYY-MM-DD h:mm A',
+      );
       const end = moment(`${appointment.date} ${endTime}`, 'YYYY-MM-DD h:mm A');
 
       return {
@@ -217,17 +252,33 @@ export class AppointmentsService {
   }) {
     const appointment = await this.appointmentRepository
       .createQueryBuilder('appointment')
-      .where('appointment.doctor_id = :doctor_id', { doctor_id: input.doctor_id })
-      .andWhere('appointment.patient_id != :patient_id', { patient_id: input.patient_id })
+      .where('appointment.doctor_id = :doctor_id', {
+        doctor_id: input.doctor_id,
+      })
+      .andWhere('appointment.patient_id != :patient_id', {
+        patient_id: input.patient_id,
+      })
       .andWhere('appointment.date = :date', { date: input.date })
-      .andWhere(new Brackets(qb => {
-        qb.where('appointment.from_time = :from_time', { from_time: input.from_time })
-          .orWhere(new Brackets(qb2 => {
-            qb2.where('appointment.from_time < :from_time', { from_time: input.from_time })
-              .andWhere('appointment.to_time > :from_time', { from_time: input.from_time });
-          }));
-      }))
-      .andWhere('appointment.from_time_type = :from_time_type', { from_time_type: input.from_time_type })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('appointment.from_time = :from_time', {
+            from_time: input.from_time,
+          }).orWhere(
+            new Brackets((qb2) => {
+              qb2
+                .where('appointment.from_time < :from_time', {
+                  from_time: input.from_time,
+                })
+                .andWhere('appointment.to_time > :from_time', {
+                  from_time: input.from_time,
+                });
+            }),
+          );
+        }),
+      )
+      .andWhere('appointment.from_time_type = :from_time_type', {
+        from_time_type: input.from_time_type,
+      })
       .getOne();
 
     if (appointment) {

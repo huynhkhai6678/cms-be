@@ -4,20 +4,19 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
 import { AuthService } from 'src/auth/auth.service';
+import { User } from '../entites/user.entity';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
   constructor(
     private readonly authService: AuthService,
-    private readonly reflector: Reflector,
     private readonly permission: string,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const userInToken = request.user;
+    const userInToken: User = request.user;
 
     if (!userInToken?.id) {
       throw new ForbiddenException('User ID missing in token');

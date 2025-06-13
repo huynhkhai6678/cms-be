@@ -13,6 +13,7 @@ export class CitiesService {
   ) {}
 
   create(createCityDto: CreateCityDto) {
+    console.log(createCityDto);
     return 'This action adds a new city';
   }
 
@@ -25,6 +26,7 @@ export class CitiesService {
   }
 
   update(id: number, updateCityDto: UpdateCityDto) {
+    console.log(updateCityDto);
     return `This action updates a #${id} city`;
   }
 

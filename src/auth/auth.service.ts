@@ -13,7 +13,8 @@ export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Role) private roleRepository: Repository<Role>,
-     @InjectRepository(UserClinic) private userClinicRepo: Repository<UserClinic>,
+    @InjectRepository(UserClinic)
+    private userClinicRepo: Repository<UserClinic>,
     private jwtService: JwtService,
   ) {}
 
@@ -83,10 +84,10 @@ export class AuthService {
     };
   }
 
-  async isUserInClinic(user: any, clinicId: number) {
-    const type = parseInt(user.type);
+  async isUserInClinic(user: User, clinicId: number) {
+    const type = user.type;
     if (type === UserRole.PATIENT) {
-      return parseInt(user.clinic_id) === clinicId;
+      return user.clinic_id === clinicId;
     }
 
     const matches = await this.userClinicRepo.count({

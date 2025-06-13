@@ -11,7 +11,9 @@ describe('SmartPatientCardsController', () => {
       providers: [SmartPatientCardsService],
     }).compile();
 
-    controller = module.get<SmartPatientCardsController>(SmartPatientCardsController);
+    controller = module.get<SmartPatientCardsController>(
+      SmartPatientCardsController,
+    );
   });
 
   it('should be defined', () => {

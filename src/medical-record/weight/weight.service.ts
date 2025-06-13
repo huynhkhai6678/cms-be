@@ -12,20 +12,20 @@ export class WeightService {
     @InjectRepository(PatientMedicalRecordWeight)
     private readonly medicalRecordRepo: Repository<PatientMedicalRecordWeight>,
     private database: DatabaseService,
-  ) { }
+  ) {}
 
   async create(createWeightDto: CreateWeightDto) {
     const weight = this.medicalRecordRepo.create(createWeightDto);
     return this.medicalRecordRepo.save(weight);
   }
 
-  async findAll(id : number, query: any) {
+  async findAll(id: number, query: any) {
     return await this.database.paginateAndSearch<PatientMedicalRecordWeight>({
       repository: this.medicalRecordRepo,
       alias: 'weight',
       query: {
         patient_medical_record_id: id,
-        ...query
+        ...query,
       },
       searchFields: ['weight'],
       filterFields: ['patient_medical_record_id'],
@@ -48,7 +48,7 @@ export class WeightService {
     if (!bloodPressure) {
       throw new NotFoundException('Blood pressure not found');
     }
-  
+
     return this.medicalRecordRepo.update({ id }, updateBloodPressureDto);
   }
 
@@ -57,14 +57,16 @@ export class WeightService {
     if (!bloodPressure) {
       throw new NotFoundException('Blood pressure not found');
     }
-  
+
     return await this.medicalRecordRepo.remove(bloodPressure);
   }
 
-  async findChart(id : number) {
-    const data = await this.medicalRecordRepo.findBy({ patient_medical_record_id : id});
+  async findChart(id: number) {
+    const data = await this.medicalRecordRepo.findBy({
+      patient_medical_record_id: id,
+    });
     return {
-      data
-    }
+      data,
+    };
   }
 }

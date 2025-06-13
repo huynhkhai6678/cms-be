@@ -1,15 +1,15 @@
-import { IsDefined, IsNumber, IsNumberString, IsString } from "class-validator";
+import { IsDefined, IsNumber, IsNumberString, IsString } from 'class-validator';
 
 export class CreateLabelDto {
-    @IsDefined()
-    @IsString()
-    name: string;
+  @IsDefined()
+  @IsString()
+  name: string;
 
-    @IsDefined()
-    @IsNumber()
-    type: number;
+  @IsDefined()
+  @IsNumber()
+  type: number;
 
-    @IsDefined()
-    @IsNumberString()
-    clinic_id: number;
+  @IsDefined()
+  @IsNumberString()
+  clinic_id: number;
 }

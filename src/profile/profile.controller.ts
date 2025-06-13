@@ -12,6 +12,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { AuthGuard } from '../guards/auth.guard';
 import { I18nService } from 'nestjs-i18n';
+import { User } from 'src/entites/user.entity';
 
 @UseGuards(AuthGuard)
 @Controller('profile')
@@ -22,9 +23,9 @@ export class ProfileController {
   ) {}
 
   @Get()
-  getProfile(@Req() request) {
-    const user = request['user'];
-    return this.profileService.getProfile(user.id);
+  async getProfile(@Req() request) {
+    const user: User = request['user'];
+    return await this.profileService.getProfile(user.id);
   }
 
   @Post()
@@ -32,32 +33,35 @@ export class ProfileController {
     @Req() request,
     @Body(new ValidationPipe()) updateProfileDto: UpdateProfileDto,
   ) {
-    const user = request['user'];
+    const user: User = request['user'];
     return this.profileService.updateProfile(user.id, updateProfileDto);
   }
 
   @Post('change-password')
-  changePassword(
-    @Req() request,
-    @Body(new ValidationPipe()) changePasswordDto: ChangePasswordDto,
+  async changePassword(
+    @Req() request: any,
+    @Body(ValidationPipe) changePasswordDto: ChangePasswordDto,
   ) {
-    const user = request['user'];
-    return this.profileService.changePassword(user.id, changePasswordDto);
+    const user: User = request['user'];
+    return await this.profileService.changePassword(user.id, changePasswordDto);
   }
 
   @Post('update-language')
-  updateLanguage(@Req() request, @Body('language') language: string) {
-    const user = request['user'];
-    this.profileService.updateLanguage(user.id, language);
+  async updateLanguage(
+    @Req() request: any,
+    @Body('language') language: string,
+  ) {
+    const user: User = request['user'];
+    await this.profileService.updateLanguage(user.id, language);
     return {
       message: this.i18n.translate('main.messages.flash.language_change'),
     };
   }
 
   @Post('update-theme')
-  updateTheme(@Req() request, @Body('dark_mode') darkMode: boolean) {
-    const user = request['user'];
-    this.profileService.updateTheme(user.id, darkMode);
+  async updateTheme(@Req() request: any, @Body('dark_mode') darkMode: boolean) {
+    const user: User = request['user'];
+    await this.profileService.updateTheme(user.id, darkMode);
     return {
       message: this.i18n.translate('main.messages.flash.theme_change'),
     };

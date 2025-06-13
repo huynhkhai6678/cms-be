@@ -90,6 +90,8 @@ export class ProfileService {
   }
 
   updateProfile(id: number, updateProfileDto: UpdateProfileDto) {
+    console.log(id);
+    console.log(updateProfileDto);
     return `This action returns all profile`;
   }
 
@@ -99,7 +101,7 @@ export class ProfileService {
       throw new NotFoundException('User not found');
     }
 
-    const hashed = await hashPassword(changePasswordDto.new_password);
+    const hashed: string = await hashPassword(changePasswordDto.new_password);
     user.password = hashed;
     return this.userRepo.save(user);
   }

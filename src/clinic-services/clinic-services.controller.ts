@@ -10,7 +10,7 @@ import {
   ValidationPipe,
   BadRequestException,
   UseGuards,
-  Req,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ClinicServicesService } from './clinic-services.service';
 import { CreateClinicServiceDto } from './dto/create-clinic-service.dto';
@@ -18,6 +18,7 @@ import { UpdateClinicServiceDto } from './dto/update-clinic-service.dto';
 import { I18nService } from 'nestjs-i18n';
 import { AuthGuard } from '../guards/auth.guard';
 import { RoleGuardFactory } from '../guards/role.guard.factory';
+import { QueryParamsDto } from 'src/shared/dto/query-params.dto';
 
 @UseGuards(AuthGuard, RoleGuardFactory('manage_clinic_service'))
 @Controller('clinic-services')
@@ -28,14 +29,12 @@ export class ClinicServicesController {
   ) {}
 
   @Post()
-  create(
-    @Body(new ValidationPipe()) createClinicServiceDto: CreateClinicServiceDto,
-  ) {
+  create(@Body(ValidationPipe) createClinicServiceDto: CreateClinicServiceDto) {
     return this.clinicServicesService.create(createClinicServiceDto);
   }
 
   @Get()
-  async findAll(@Req() request, @Query() query) {
+  async findAll(@Query() query: QueryParamsDto) {
     if (!query.active) {
       query.active = 1;
     }
@@ -43,21 +42,24 @@ export class ClinicServicesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.clinicServicesService.findOne(+id);
   }
 
   @Post('/update-active/:id')
-  updateActive(@Param('id') id: number, @Body('active') active: boolean) {
+  updateActive(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('active') active: boolean,
+  ) {
     return this.clinicServicesService.updateActive(+id, active);
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: number,
-    @Body(new ValidationPipe()) updateClinicServiceDto: UpdateClinicServiceDto,
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(ValidationPipe) updateClinicServiceDto: UpdateClinicServiceDto,
   ) {
-    const result = this.clinicServicesService.update(
+    const result = await this.clinicServicesService.update(
       +id,
       updateClinicServiceDto,
     );
@@ -71,8 +73,8 @@ export class ClinicServicesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    this.clinicServicesService.remove(+id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    await this.clinicServicesService.remove(+id);
     return {
       message: this.i18n.t('main.messages.flash.clinic_service_delete'),
     };

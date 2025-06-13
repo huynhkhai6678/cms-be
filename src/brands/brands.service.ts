@@ -65,10 +65,10 @@ export class BrandsService {
   async findSupplier(id: number) {
     const brand = await this.brandRepo.findOne({
       where: {
-        id
+        id,
       },
-      relations: ['medicines']
-    })
+      relations: ['medicines'],
+    });
     return {
       data: brand,
     };

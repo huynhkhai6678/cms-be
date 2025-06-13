@@ -16,9 +16,9 @@ import { MedicineInventory } from '../entites/medicine-inventory.entity';
       MedicineInventory,
       Category,
       Brand,
-      Label
+      Label,
     ]),
-    AuthModule
+    AuthModule,
   ],
   controllers: [MedicinesController],
   providers: [MedicinesService, MedicinesService],

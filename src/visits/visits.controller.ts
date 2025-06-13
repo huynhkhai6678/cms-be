@@ -1,15 +1,30 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ValidationPipe, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+  ValidationPipe,
+} from '@nestjs/common';
 import { VisitsService } from './visits.service';
 import { CreateVisitDto } from './dto/create-visit.dto';
 import { UpdateVisitDto } from './dto/update-visit.dto';
 import { AuthGuard } from '../guards/auth.guard';
 import { RoleGuardFactory } from '../guards/role.guard.factory';
 import { I18nService } from 'nestjs-i18n';
+import { QueryParamsDto } from '../shared/dto/query-params.dto';
 
 @UseGuards(AuthGuard, RoleGuardFactory('manage_patient_visits'))
 @Controller('visits')
 export class VisitsController {
-  constructor(private readonly visitsService: VisitsService, private i18n: I18nService) {}
+  constructor(
+    private readonly visitsService: VisitsService,
+    private i18n: I18nService,
+  ) {}
 
   @Post()
   async create(@Body(new ValidationPipe()) createVisitDto: CreateVisitDto) {
@@ -20,7 +35,7 @@ export class VisitsController {
   }
 
   @Get()
-  findAll(@Query() query) {
+  findAll(@Query() query: QueryParamsDto) {
     return this.visitsService.findAll(query);
   }
 
@@ -30,7 +45,10 @@ export class VisitsController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body(new ValidationPipe()) updateVisitDto: UpdateVisitDto) {
+  async update(
+    @Param('id') id: string,
+    @Body(new ValidationPipe()) updateVisitDto: UpdateVisitDto,
+  ) {
     await this.visitsService.update(+id, updateVisitDto);
     return {
       message: this.i18n.t('main.messages.flash.visit_update'),
@@ -38,7 +56,7 @@ export class VisitsController {
   }
 
   @Post('update-status/:id')
-  async updateStatus(@Param('id') id: string, @Body('status') status : number) {
+  async updateStatus(@Param('id') id: string, @Body('status') status: number) {
     await this.visitsService.updateStatus(+id, status);
     return {
       message: this.i18n.t('main.messages.flash.update_status'),

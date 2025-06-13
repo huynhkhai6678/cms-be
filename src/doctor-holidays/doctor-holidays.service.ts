@@ -10,33 +10,35 @@ import { AuthGuard } from '../guards/auth.guard';
 import { RoleGuardFactory } from '../guards/role.guard.factory';
 import { HelperService } from '../helper/helper.service';
 import * as moment from 'moment';
+import { QueryParamsDto } from 'src/shared/dto/query-params.dto';
 
 @UseGuards(AuthGuard, RoleGuardFactory('manage_doctors'))
 @Injectable()
 export class DoctorHolidaysService {
   constructor(
-    @InjectRepository(DoctorHoliday) private doctorHolidayRepository: Repository<DoctorHoliday>,
-    private helperService: HelperService
+    @InjectRepository(DoctorHoliday)
+    private doctorHolidayRepository: Repository<DoctorHoliday>,
+    private helperService: HelperService,
   ) {}
-  
+
   async create(createDoctorHolidayDto: CreateDoctorHolidayDto) {
     const holiday = this.doctorHolidayRepository.create(createDoctorHolidayDto);
     holiday.date = moment(holiday.date, 'DD/MM/YYYY').format('YYYY-MM-DD');
     return await this.doctorHolidayRepository.save(holiday);
   }
 
-  async findAll(query) {
+  async findAll(query: QueryParamsDto) {
     return await this.getPaginatedDoctorHoliday(query);
   }
 
-  async findOne(id: number, clinic_id : number) {
-    const data = await this.doctorHolidayRepository.findOneBy({id});
+  async findOne(id: number, clinic_id: number) {
+    const data = await this.doctorHolidayRepository.findOneBy({ id });
     const doctors = await this.helperService.clinicDoctor(clinic_id);
 
     return {
       data,
-      doctors
-    }
+      doctors,
+    };
   }
 
   async update(id: number, updateDoctorHolidayDto: UpdateDoctorHolidayDto) {
@@ -44,7 +46,9 @@ export class DoctorHolidaysService {
     if (!doctorHoliday) throw new NotFoundException('Holiday not found');
 
     doctorHoliday.name = updateDoctorHolidayDto.name ?? '';
-    doctorHoliday.date = moment(updateDoctorHolidayDto.date, 'DD/MM/YYYY').format('YYYY-MM-DD') ?? '';
+    doctorHoliday.date =
+      moment(updateDoctorHolidayDto.date, 'DD/MM/YYYY').format('YYYY-MM-DD') ??
+      '';
     doctorHoliday.clinic_id = updateDoctorHolidayDto.clinic_id ?? 1;
     doctorHoliday.doctor_id = updateDoctorHolidayDto.doctor_id ?? 1;
     return await this.doctorHolidayRepository.save(doctorHoliday);
@@ -57,11 +61,18 @@ export class DoctorHolidaysService {
     await this.doctorHolidayRepository.remove(doctorHoliday);
   }
 
-  async getPaginatedDoctorHoliday(query: any) {
-    const take = !isNaN(Number(query.limit)) && Number(query.limit) > 0 ? Number(query.limit) : 10;
-    const page = !isNaN(Number(query.page)) && Number(query.page) > 0 ? Number(query.page) : 1;
+  async getPaginatedDoctorHoliday(query: QueryParamsDto) {
+    const take =
+      !isNaN(Number(query.limit)) && Number(query.limit) > 0
+        ? Number(query.limit)
+        : 10;
+    const page =
+      !isNaN(Number(query.page)) && Number(query.page) > 0
+        ? Number(query.page)
+        : 1;
     const skip = (page - 1) * take;
-    const qb = this.doctorHolidayRepository.createQueryBuilder('doctor_holiday');
+    const qb =
+      this.doctorHolidayRepository.createQueryBuilder('doctor_holiday');
 
     // Join user with user_clinics
     qb.leftJoinAndMapOne(
@@ -83,11 +94,10 @@ export class DoctorHolidaysService {
       'doctor_holiday.date',
       'doctor_holiday.name',
       'doctor.id',
-      `CONCAT(user.first_name, ' ', user.last_name) as full_name`
+      `CONCAT(user.first_name, ' ', user.last_name) as full_name`,
     ]);
 
     qb.distinct(true);
-    
 
     // Search functionality
     if (query.search) {
@@ -99,21 +109,23 @@ export class DoctorHolidaysService {
 
     // Filter by clinic_id (user_clinics.clinic_id)
     if (query.clinic_id) {
-      qb.andWhere('doctor_holiday.clinic_id = :clinic_id', { clinic_id: query.clinic_id });
+      qb.andWhere('doctor_holiday.clinic_id = :clinic_id', {
+        clinic_id: query.clinic_id,
+      });
     }
 
     const orderableFieldsMap = {
       full_name: "CONCAT(user.first_name, ' ', user.last_name)",
-      name: "doctor_holiday.name",
-      date: "doctor_holiday.date",
+      name: 'doctor_holiday.name',
+      date: 'doctor_holiday.date',
     };
 
-    const orderByField =
+    const orderByField: string =
       query.orderBy && orderableFieldsMap[query.orderBy]
         ? orderableFieldsMap[query.orderBy]
         : 'doctor_holiday.id';
 
-    const orderDirection =
+    const orderDirection: string =
       query.order && ['ASC', 'DESC'].includes(query.order.toUpperCase())
         ? query.order.toUpperCase()
         : 'DESC';

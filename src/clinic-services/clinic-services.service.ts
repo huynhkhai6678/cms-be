@@ -14,9 +14,9 @@ export class ClinicServicesService {
     private dataTable: DatabaseService,
   ) {}
 
-  create(createClinicServiceDto: CreateClinicServiceDto) {
+  async create(createClinicServiceDto: CreateClinicServiceDto) {
     const subscriber = this.clinicServiceRepo.create(createClinicServiceDto);
-    return this.clinicServiceRepo.save(subscriber);
+    return await this.clinicServiceRepo.save(subscriber);
   }
 
   async findAll(query) {
@@ -48,7 +48,7 @@ export class ClinicServicesService {
       throw new NotFoundException('Clinic service not found');
     }
 
-    return this.clinicServiceRepo.update({ id }, updateClinicServiceDto);
+    return await this.clinicServiceRepo.update({ id }, updateClinicServiceDto);
   }
 
   async remove(id: number) {
@@ -57,7 +57,7 @@ export class ClinicServicesService {
       throw new NotFoundException('Enquiry not found');
     }
 
-    this.clinicServiceRepo.remove(clinicService);
+    return await this.clinicServiceRepo.remove(clinicService);
   }
 
   async updateActive(id: number, active: boolean) {
@@ -67,6 +67,6 @@ export class ClinicServicesService {
     }
 
     clinicService.active = active ? 1 : 0;
-    this.clinicServiceRepo.save(clinicService);
+    return await this.clinicServiceRepo.save(clinicService);
   }
 }

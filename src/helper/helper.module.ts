@@ -16,9 +16,24 @@ import { Setting } from '../entites/setting.entity';
 import { Currency } from '../entites/currency.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Doctor, Patient, User, Country, State, City, Service, PaymentGateway, PatientMedicalRecord, Currency, Setting]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([
+      Doctor,
+      Patient,
+      User,
+      Country,
+      State,
+      City,
+      Service,
+      PaymentGateway,
+      PatientMedicalRecord,
+      Currency,
+      Setting,
+    ]),
+    AuthModule,
+  ],
   controllers: [HelperController],
   providers: [HelperService],
-  exports: [HelperService]
+  exports: [HelperService],
 })
 export class HelperModule {}

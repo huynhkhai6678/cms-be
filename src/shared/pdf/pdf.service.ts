@@ -3,30 +3,30 @@ import * as puppeteer from 'puppeteer';
 
 @Injectable()
 export class PdfService {
-    async createPdfFromHtml(htmlContent: string): Promise<Buffer> {
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
+  async createPdfFromHtml(htmlContent: string): Promise<Buffer> {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
 
-        await page.setContent(htmlContent, {
-            waitUntil: 'networkidle0',
-        });
+    await page.setContent(htmlContent, {
+      waitUntil: 'networkidle0',
+    });
 
-        // Generate the PDF
-        const pdfUint8Array  = await page.pdf({
-            format: 'A4',
-            printBackground: true,
-            margin: {
-                top: '20mm',
-                bottom: '20mm',
-                left: '10mm',
-                right: '10mm',
-            },
-        });
+    // Generate the PDF
+    const pdfUint8Array = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: {
+        top: '20mm',
+        bottom: '20mm',
+        left: '10mm',
+        right: '10mm',
+      },
+    });
 
-        const pdfBuffer = Buffer.from(pdfUint8Array);
+    const pdfBuffer = Buffer.from(pdfUint8Array);
 
-        await browser.close();
-        
-        return pdfBuffer;
+    await browser.close();
+
+    return pdfBuffer;
   }
 }

@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   ValidationPipe,
@@ -11,6 +10,7 @@ import {
   Query,
   Req,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { EnquiriesService } from './enquiries.service';
 import { CreateEnquiryDto } from './dto/create-enquiry.dto';
@@ -27,14 +27,14 @@ export class EnquiriesController {
   ) {}
 
   @Post()
-  async create(@Body(new ValidationPipe()) createEnquiryDto: CreateEnquiryDto) {
+  async create(@Body(ValidationPipe) createEnquiryDto: CreateEnquiryDto) {
     const result = await this.enquiriesService.create(createEnquiryDto);
     if (!result) {
       throw new NotFoundException('Error');
     }
 
     return {
-      message: await this.i18n.t('main.messages.flash.enquiry_sent'),
+      message: this.i18n.t('main.messages.flash.enquiry_sent'),
     };
   }
 
@@ -48,15 +48,15 @@ export class EnquiriesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.enquiriesService.findOne(+id);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    this.enquiriesService.remove(+id);
+  async remove(@Param('id', ParseIntPipe) id: string) {
+    await this.enquiriesService.remove(+id);
     return {
-      message: await this.i18n.t('main.messages.flash.enquiry_delete'),
+      message: this.i18n.t('main.messages.flash.enquiry_delete'),
     };
   }
 }

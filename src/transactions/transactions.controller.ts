@@ -1,23 +1,42 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ValidationPipe, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+  ValidationPipe,
+  Res,
+} from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { AuthGuard } from '../guards/auth.guard';
 import { RoleGuardFactory } from '../guards/role.guard.factory';
 import { I18nService } from 'nestjs-i18n';
+import { QueryParamsDto } from 'src/shared/dto/query-params.dto';
+import { Response } from 'express';
 
 @UseGuards(AuthGuard, RoleGuardFactory('manage_transactions'))
 @Controller('transactions')
 export class TransactionsController {
-  constructor(private readonly transactionsService: TransactionsService, private i18n : I18nService) {}
+  constructor(
+    private readonly transactionsService: TransactionsService,
+    private i18n: I18nService,
+  ) {}
 
   @Post()
-  async create(@Body(new ValidationPipe()) createTransactionDto: CreateTransactionDto) {
+  async create(
+    @Body(new ValidationPipe()) createTransactionDto: CreateTransactionDto,
+  ) {
     return this.transactionsService.create(createTransactionDto);
   }
 
   @Get()
-  findAll(@Query() query) {
+  findAll(@Query() query: QueryParamsDto) {
     return this.transactionsService.findAll(query);
   }
 
@@ -32,13 +51,13 @@ export class TransactionsController {
   }
 
   @Get('export-invoice/:id')
-  async exportInvoice(@Param('id') id: string, @Res() res) {
+  async exportInvoice(@Param('id') id: string, @Res() res: Response) {
     const pdfBuffer = await this.transactionsService.exportInvoice(+id);
     if (!pdfBuffer) {
       res.status(404).send('PDF not generated');
       return;
     }
-    
+
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': 'attachment; filename="certificate.pdf"',
@@ -48,13 +67,13 @@ export class TransactionsController {
   }
 
   @Get('export-receipt/:id')
-  async exportReceipt(@Param('id') id: string, @Res() res) {
+  async exportReceipt(@Param('id') id: string, @Res() res: Response) {
     const pdfBuffer = await this.transactionsService.exportReceipt(+id);
     if (!pdfBuffer) {
       res.status(404).send('PDF not generated');
       return;
     }
-    
+
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': 'attachment; filename="receipt.pdf"',
@@ -69,7 +88,10 @@ export class TransactionsController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body(new ValidationPipe()) updateTransactionDto: UpdateTransactionDto) {
+  async update(
+    @Param('id') id: string,
+    @Body(new ValidationPipe()) updateTransactionDto: UpdateTransactionDto,
+  ) {
     return this.transactionsService.update(+id, updateTransactionDto);
   }
 
@@ -77,7 +99,7 @@ export class TransactionsController {
   async remove(@Param('id') id: string) {
     await this.transactionsService.remove(+id);
     return {
-      message : this.i18n.t('main.messages.transaction.deleted_successfully')
-    }
+      message: this.i18n.t('main.messages.transaction.deleted_successfully'),
+    };
   }
 }

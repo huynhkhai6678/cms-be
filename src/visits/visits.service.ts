@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateVisitDto } from './dto/create-visit.dto';
 import { UpdateVisitDto } from './dto/update-visit.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,13 +17,14 @@ import * as moment from 'moment';
 import { TransactionInvoice } from '../entites/transaction-invoice.entity';
 import { TransactionMedicalCertificate } from '../entites/transaction-medical-certificate.entity';
 import { PatientMedicalRecord } from 'src/entites/patient-medical-record.entity';
+import { QueryParamsDto } from 'src/shared/dto/query-params.dto';
 
 @Injectable()
 export class VisitsService {
   constructor(
     @InjectRepository(Visit)
     private readonly visitRepository: Repository<Visit>,
-    private helpService: HelperService
+    private helpService: HelperService,
   ) {}
 
   async create(createVisitDto: CreateVisitDto) {
@@ -29,10 +34,15 @@ export class VisitsService {
     }
 
     const visit = this.visitRepository.create(createVisitDto);
-    visit.visit_date = moment(createVisitDto.visit_date, 'DD/MM/YYYY hh:mm A').format('YYYY-MM-DD hh:mm:ss');
-    visit.contact_no = createVisitDto.phone.e164Number.split(createVisitDto.phone.dialCode)[1];
+    visit.visit_date = moment(
+      createVisitDto.visit_date,
+      'DD/MM/YYYY hh:mm A',
+    ).format('YYYY-MM-DD hh:mm:ss');
+    visit.contact_no = createVisitDto.phone.e164Number.split(
+      createVisitDto.phone.dialCode,
+    )[1];
     visit.region_code = createVisitDto.phone.dialCode.substring(1);
-    
+
     if (createVisitDto.patient_name) {
       const patient = await this.helpService.createNewPatient(visit);
       visit.patient_id = patient.id;
@@ -42,21 +52,21 @@ export class VisitsService {
     return result;
   }
 
-  async findAll(query) {
+  async findAll(query: QueryParamsDto) {
     return await this.getPaginatedVisits(query);
   }
 
   async findOne(id: number, clinicId: number) {
     const visit = await this.visitRepository.findOne({
-      where : {
-        id
+      where: {
+        id,
       },
     });
 
     const doctors = await this.helpService.clinicDoctor(clinicId);
     const patients = await this.helpService.clinicPatient(clinicId);
 
-    let data = {
+    const data = {
       clinic_id: visit?.clinic_id,
       visit_date: visit?.visit_date,
       patient_id: visit?.patient_id,
@@ -68,17 +78,17 @@ export class VisitsService {
       phone: visit?.contact_no,
       id_type: visit?.id_type ? parseInt(visit?.id_type.toString()) : null,
       id_number: visit?.id_number ? parseInt(visit?.id_number.toString()) : '',
-    }
+    };
 
     return {
-      data : visit ? data : null,
+      data: visit ? data : null,
       doctors,
       patients,
-    }
+    };
   }
 
   async update(id: number, updateVisitDto: UpdateVisitDto) {
-    const visit = await this.visitRepository.findOneBy({id});
+    const visit = await this.visitRepository.findOneBy({ id });
     if (!visit) {
       throw new NotFoundException('Visit not found');
     }
@@ -87,15 +97,18 @@ export class VisitsService {
       const patient = await this.helpService.createNewPatient(visit);
       visit.patient_id = patient.id;
     }
-    
+
     Object.assign(visit, updateVisitDto);
-    visit.visit_date = moment(updateVisitDto.visit_date, 'DD/MM/YYYY hh:mm A').format('YYYY-MM-DD hh:mm:ss');
+    visit.visit_date = moment(
+      updateVisitDto.visit_date,
+      'DD/MM/YYYY hh:mm A',
+    ).format('YYYY-MM-DD hh:mm:ss');
     const result = this.visitRepository.save(visit);
     return result;
   }
 
   async remove(id: number) {
-    const visit = await this.visitRepository.findOneBy({id});
+    const visit = await this.visitRepository.findOneBy({ id });
     if (!visit) {
       throw new NotFoundException('Visit not found');
     }
@@ -104,7 +117,7 @@ export class VisitsService {
   }
 
   async updateStatus(id: number, status: number) {
-    const visit = await this.visitRepository.findOneBy({id});
+    const visit = await this.visitRepository.findOneBy({ id });
     if (!visit) {
       throw new NotFoundException('Visit not found');
     }
@@ -114,9 +127,15 @@ export class VisitsService {
     return result;
   }
 
-  async getPaginatedVisits(query: any) {
-    const take = !isNaN(Number(query.limit)) && Number(query.limit) > 0 ? Number(query.limit) : 10;
-    const page = !isNaN(Number(query.page)) && Number(query.page) > 0 ? Number(query.page) : 1;
+  async getPaginatedVisits(query: QueryParamsDto) {
+    const take =
+      !isNaN(Number(query.limit)) && Number(query.limit) > 0
+        ? Number(query.limit)
+        : 10;
+    const page =
+      !isNaN(Number(query.page)) && Number(query.page) > 0
+        ? Number(query.page)
+        : 1;
     const skip = (page - 1) * take;
 
     const qb = this.visitRepository.createQueryBuilder('visit');
@@ -218,7 +237,9 @@ export class VisitsService {
     }
 
     if (query.start_date) {
-      qb.andWhere('visit.created_at >= :startDate', { startDate: query.start_date });
+      qb.andWhere('visit.created_at >= :startDate', {
+        startDate: query.start_date,
+      });
     }
 
     if (query.end_date) {
@@ -228,16 +249,16 @@ export class VisitsService {
     // Order by logic (can also order by concatenated full_name)
     const orderableFieldsMap = {
       full_name: "CONCAT(user.first_name, ' ', user.last_name)",
-      email_verified_at: "user.email_verified_at",
-      row_index: "ROW_NUMBER() OVER (ORDER BY visit.id DESC)",
+      email_verified_at: 'user.email_verified_at',
+      row_index: 'ROW_NUMBER() OVER (ORDER BY visit.id DESC)',
     };
 
-    const orderByField =
+    const orderByField: string =
       query.orderBy && orderableFieldsMap[query.orderBy]
         ? orderableFieldsMap[query.orderBy]
         : 'visit.id';
 
-    const orderDirection =
+    const orderDirection: string =
       query.order && ['ASC', 'DESC'].includes(query.order.toUpperCase())
         ? query.order.toUpperCase()
         : 'DESC';
@@ -262,12 +283,12 @@ export class VisitsService {
     };
   }
 
-  async checkVisitAvaiable(patientId : number) {
+  async checkVisitAvaiable(patientId: number) {
     return await this.visitRepository.count({
-      where : {
-        patient_id : patientId,
-        status : 1
-      }
-    })
+      where: {
+        patient_id: patientId,
+        status: 1,
+      },
+    });
   }
 }

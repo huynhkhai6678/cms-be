@@ -3,9 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
-  Delete,
   UseGuards,
   UseInterceptors,
   UploadedFiles,
@@ -72,7 +70,7 @@ export class CmsController {
       }
     }
 
-    this.cmsService.update(+id, updateCmDto);
+    await this.cmsService.update(+id, updateCmDto);
     return {
       message: this.i18n.t('main.messages.flash.cms_update'),
     };

@@ -14,7 +14,7 @@ import { PdfService } from '../shared/pdf/pdf.service';
 import { TransactionInvoiceReceipt } from '../entites/transaction-invoice-receipt.entity';
 
 @Module({
-  imports : [
+  imports: [
     TypeOrmModule.forFeature([
       TransactionInvoice,
       TransactionInvoiceService,
@@ -22,10 +22,10 @@ import { TransactionInvoiceReceipt } from '../entites/transaction-invoice-receip
       ClinicDocumentSetting,
       Label,
       Medicine,
-      ClinicService
+      ClinicService,
     ]),
     HelperModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [TransactionsController],
   providers: [TransactionsService, PdfService],

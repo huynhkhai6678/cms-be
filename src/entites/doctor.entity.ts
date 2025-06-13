@@ -8,7 +8,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
-  Transaction,
   ManyToMany,
   JoinTable,
 } from 'typeorm';
@@ -103,20 +102,26 @@ export class Doctor {
   @ManyToMany(() => Service, (service) => service.doctors)
   services: Service[];
 
-  @OneToMany(() => Review, review => review.doctor)
+  @OneToMany(() => Review, (review) => review.doctor)
   reviews: Review[];
 
-  @OneToMany(() => DoctorHoliday, holiday => holiday.doctor)
+  @OneToMany(() => DoctorHoliday, (holiday) => holiday.doctor)
   holidays: DoctorHoliday[];
 
   @ManyToMany(() => Specialization, (specialization) => specialization.doctors)
   @JoinTable({
     name: 'doctor_specialization',
     joinColumn: { name: 'doctor_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'specialization_id', referencedColumnName: 'id' },
+    inverseJoinColumn: {
+      name: 'specialization_id',
+      referencedColumnName: 'id',
+    },
   })
   specializations: Specialization[];
 
-  @OneToMany(() => TransactionMedicalCertificate, (certificate) => certificate.doctor)
+  @OneToMany(
+    () => TransactionMedicalCertificate,
+    (certificate) => certificate.doctor,
+  )
   medical_certificates: TransactionMedicalCertificate[];
 }

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import * as path from 'path';
 import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { DashboardModule } from './dashboard/dashboard.module';
@@ -120,7 +120,7 @@ import { DocumentModule } from './medical-record/document/document.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
     }),
     AuthModule,
     MulterModule.register({
@@ -259,7 +259,7 @@ import { DocumentModule } from './medical-record/document/document.module';
     TemperatureModule,
     PulseRateModule,
     WeightModule,
-    DocumentModule
+    DocumentModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService, ExcelService, QrService],

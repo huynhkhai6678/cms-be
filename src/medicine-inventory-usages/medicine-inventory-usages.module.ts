@@ -9,12 +9,10 @@ import { ShareMedicineServiceModule } from 'src/shared/share-medicine/share-medi
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      MedicineInventoryUsage,
-    ]),
+    TypeOrmModule.forFeature([MedicineInventoryUsage]),
     AuthModule,
     DatabaseServiceModule,
-    ShareMedicineServiceModule
+    ShareMedicineServiceModule,
   ],
   controllers: [MedicineInventoryUsagesController],
   providers: [MedicineInventoryUsagesService],

@@ -1,10 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { PurchasedMedicine } from './purchased-medicines.entity';
 
 @Entity('labels')
 export class Label {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-  id: number;  // Use string in TypeScript for BigInt columns
+  id: number; // Use string in TypeScript for BigInt columns
 
   @Column({ type: 'varchar', length: 255 })
   name: string;

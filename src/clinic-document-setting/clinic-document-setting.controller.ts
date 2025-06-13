@@ -3,9 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
-  Delete,
   ValidationPipe,
 } from '@nestjs/common';
 import { ClinicDocumentSettingService } from './clinic-document-setting.service';

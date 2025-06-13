@@ -93,12 +93,21 @@ export class TransactionInvoice {
   @JoinColumn({ name: 'clinic_id' })
   clinic: Clinic;
 
-  @OneToOne(() => TransactionMedicalCertificate, (certificate) => certificate.transaction_invoice)
+  @OneToOne(
+    () => TransactionMedicalCertificate,
+    (certificate) => certificate.transaction_invoice,
+  )
   medical_certificate: TransactionMedicalCertificate;
 
-  @OneToMany(() => TransactionInvoiceService, (service) => service.transaction_invoice)
+  @OneToMany(
+    () => TransactionInvoiceService,
+    (service) => service.transaction_invoice,
+  )
   services: TransactionInvoiceService[];
 
-  @OneToOne(() => TransactionInvoiceReceipt, (receipt) => receipt.transaction_invoice)
+  @OneToOne(
+    () => TransactionInvoiceReceipt,
+    (receipt) => receipt.transaction_invoice,
+  )
   receipt: TransactionInvoiceReceipt;
 }

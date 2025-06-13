@@ -7,6 +7,7 @@ import { In, Repository } from 'typeorm';
 import { Label } from '../entites/label.entity';
 import { Category } from '../entites/category.entity';
 import { Brand } from 'src/entites/brand.entity';
+import { QueryParamsDto } from 'src/shared/dto/query-params.dto';
 
 @Injectable()
 export class MedicinesService {
@@ -19,7 +20,7 @@ export class MedicinesService {
     private readonly categoryRepo: Repository<Category>,
     @InjectRepository(Brand)
     private readonly brandRepo: Repository<Brand>,
-  ) { }
+  ) {}
 
   async create(createMedicineDto: CreateMedicineDto) {
     const medicine = this.medicinRepo.create(createMedicineDto);
@@ -44,12 +45,19 @@ export class MedicinesService {
     return await this.medicinRepo.save(medicine);
   }
 
-  async findAll(@Query() query) {
-    const take = !isNaN(Number(query.limit)) && Number(query.limit) > 0 ? Number(query.limit) : 10;
-    const page = !isNaN(Number(query.page)) && Number(query.page) > 0 ? Number(query.page) : 1;
+  async findAll(@Query() query: QueryParamsDto) {
+    const take =
+      !isNaN(Number(query.limit)) && Number(query.limit) > 0
+        ? Number(query.limit)
+        : 10;
+    const page =
+      !isNaN(Number(query.page)) && Number(query.page) > 0
+        ? Number(query.page)
+        : 1;
     const skip = (page - 1) * take;
 
-    const qb = this.medicinRepo.createQueryBuilder('medicine')
+    const qb = this.medicinRepo
+      .createQueryBuilder('medicine')
       .leftJoinAndSelect('medicine.brands', 'brand')
       .leftJoinAndSelect('medicine.categories', 'category');
 
@@ -62,7 +70,9 @@ export class MedicinesService {
     }
 
     if (query.clinic_id) {
-      qb.andWhere('medicine.clinic_id = :clinicId', { clinicId: query.clinic_id });
+      qb.andWhere('medicine.clinic_id = :clinicId', {
+        clinicId: query.clinic_id,
+      });
     }
 
     if (query.active) {
@@ -78,12 +88,12 @@ export class MedicinesService {
       active: 'medicine.active',
     };
 
-    const orderByField =
+    const orderByField: string =
       query.orderBy && orderableFieldsMap[query.orderBy]
         ? orderableFieldsMap[query.orderBy]
         : 'medicine.id'; // Default fallback
 
-    const orderDirection =
+    const orderDirection: string =
       query.order && ['ASC', 'DESC'].includes(query.order.toUpperCase())
         ? query.order.toUpperCase()
         : 'DESC';
@@ -108,61 +118,65 @@ export class MedicinesService {
     };
   }
 
-  async getFormSelection(clinicId : number) {
-    let categories : Category[] = [];
-    let brands : Brand[] = [];
-    let uoms : any[] = [];
-    let frequencies : any[] = [];
-    let purposes : any[] = [];
+  async getFormSelection(clinicId: number) {
+    let categories: Category[] = [];
+    let brands: Brand[] = [];
+    const uoms: any[] = [];
+    const frequencies: any[] = [];
+    const purposes: any[] = [];
 
     if (clinicId) {
-      categories = await this.categoryRepo.findBy({clinic_id : clinicId });
-      brands = await this.brandRepo.findBy({clinic_id : clinicId });
-      const labels = await this.labelCateRepo.findBy({clinic_id : clinicId });
-      labels.forEach(label => {
+      categories = await this.categoryRepo.findBy({ clinic_id: clinicId });
+      brands = await this.brandRepo.findBy({ clinic_id: clinicId });
+      const labels = await this.labelCateRepo.findBy({ clinic_id: clinicId });
+      labels.forEach((label) => {
         if (label.type === 1) {
-          uoms.push({label : label.name, value: label.name});
+          uoms.push({ label: label.name, value: label.name });
         }
         if (label.type === 2) {
-          frequencies.push({label : label.name, value: label.name});
+          frequencies.push({ label: label.name, value: label.name });
         }
         if (label.type === 3) {
-          purposes.push({label : label.name, value: label.name});
+          purposes.push({ label: label.name, value: label.name });
         }
       });
     }
 
     return {
-      brands : brands.map(brand => {return {label: brand.name, value: brand.id}}),
-      categories: categories.map(category => {return {label: category.name, value: category.id}}),
+      brands: brands.map((brand) => {
+        return { label: brand.name, value: brand.id };
+      }),
+      categories: categories.map((category) => {
+        return { label: category.name, value: category.id };
+      }),
       uoms,
       frequencies,
-      purposes
-    }
+      purposes,
+    };
   }
 
   async findOne(id: number) {
     const medicine = await this.medicinRepo.findOne({
-      where : {
-        id
+      where: {
+        id,
       },
-      relations : ['brands', 'categories']
+      relations: ['brands', 'categories'],
     });
 
     const type = medicine?.type ? parseInt(medicine?.type) : null;
 
     return {
-      data : {
-        category_ids : medicine?.categories.map((category) => {
+      data: {
+        category_ids: medicine?.categories.map((category) => {
           return category.id;
         }),
-        brand_ids : medicine?.brands.map((brand) => {
+        brand_ids: medicine?.brands.map((brand) => {
           return brand.id;
         }),
         ...medicine,
-        type
-      }
-    }
+        type,
+      },
+    };
   }
 
   async update(id: number, updateMedicineDto: UpdateMedicineDto) {
@@ -197,7 +211,7 @@ export class MedicinesService {
     return await this.medicinRepo.remove(medicine);
   }
 
-  async updateStatus(id: number, active : boolean) {
+  async updateStatus(id: number, active: boolean) {
     const medicine = await this.medicinRepo.findOneBy({ id });
     if (!medicine) throw new NotFoundException('Medicine not found');
 

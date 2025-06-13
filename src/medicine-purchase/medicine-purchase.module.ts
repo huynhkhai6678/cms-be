@@ -16,7 +16,7 @@ import { Brand } from '../entites/brand.entity';
       PurchaseMedicine,
       PurchasedMedicine,
       Label,
-      Brand
+      Brand,
     ]),
     AuthModule,
     DatabaseServiceModule,

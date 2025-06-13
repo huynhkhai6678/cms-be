@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateClinicDto } from './dto/create-clinic.dto';
 import { UpdateClinicDto } from './dto/update-clinic.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,6 +8,7 @@ import { State } from '../entites/state.entity';
 import { Clinic } from '../entites/clinic.entity';
 import { Country } from '../entites/country.entity';
 import { Address } from '../entites/address.entity';
+import { QueryParamsDto } from 'src/shared/dto/query-params.dto';
 
 @Injectable()
 export class ClinicsService {
@@ -55,13 +52,85 @@ export class ClinicsService {
       owner_id: clinic.id,
     });
 
-    this.addressRepository.save(addressDto);
-
-    return true;
+    return await this.addressRepository.save(addressDto);
   }
 
-  async findAll(query) {
-    return await this.getPaginatedClinics(query);
+  async findAll(query: QueryParamsDto) {
+    const take = Number(query.limit) || 10;
+    const page = Number(query.page) || 1;
+    const skip = (page - 1) * take;
+
+    const qb = this.clinicRepository.createQueryBuilder('clinic');
+
+    qb.leftJoinAndMapOne(
+      'clinic.address',
+      Address,
+      'address',
+      'address.owner_id = clinic.id AND address.owner_type = :ownerType',
+      { ownerType: 'App\\Models\\Clinic' },
+    );
+
+    qb.leftJoinAndMapOne(
+      'address.state',
+      State,
+      'state',
+      'state.id = address.state_id',
+    );
+
+    qb.select([
+      `clinic.id`,
+      `clinic.name`,
+      `clinic.phone`,
+      `clinic.region_code`,
+      `address.address1`,
+      `address.postal_code`,
+      `state.name`,
+    ]);
+
+    // Search
+    if (query.search) {
+      qb.andWhere(
+        `(clinic.name LIKE :search 
+        OR clinic.phone LIKE :search 
+        OR address.address1 LIKE :search 
+        OR state.name LIKE :search)`,
+        { search: `%${query.search}%` },
+      );
+    }
+
+    // ORDER BY logic
+    const orderableFieldsMap = {
+      name: 'clinic.name',
+      phone: 'clinic.phone',
+      'address.address1': 'address.address1',
+      'address.state.name': 'state.name',
+    };
+
+    const orderByField: string =
+      query.orderBy && orderableFieldsMap[query.orderBy]
+        ? orderableFieldsMap[query.orderBy]
+        : 'clinic.id';
+
+    const orderDirection: string =
+      query.order && ['ASC', 'DESC'].includes(query.order.toUpperCase())
+        ? query.order.toUpperCase()
+        : 'DESC';
+
+    qb.orderBy(orderByField, orderDirection as 'ASC' | 'DESC');
+    // Pagination
+    qb.skip(skip).take(take);
+
+    const [data, total] = await qb.getManyAndCount();
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit: take,
+        total,
+        totalPages: Math.ceil(total / take),
+      },
+    };
   }
 
   async findOne(id: number) {
@@ -135,7 +204,7 @@ export class ClinicsService {
       throw new NotFoundException('Clinic not found');
     }
 
-    this.clinicRepository.update(
+    await this.clinicRepository.update(
       { id },
       {
         name: updateClinicDto.name,
@@ -159,7 +228,7 @@ export class ClinicsService {
     });
 
     if (addrress) {
-      this.addressRepository.update(
+      await this.addressRepository.update(
         { id: addrress.id },
         {
           address1: updateClinicDto.address1,
@@ -173,6 +242,7 @@ export class ClinicsService {
         },
       );
     }
+    return true;
   }
 
   async remove(id: number) {
@@ -196,83 +266,5 @@ export class ClinicsService {
     }
 
     await this.clinicRepository.remove(clinic);
-  }
-
-  async getPaginatedClinics(query: any) {
-    const take = Number(query.limit) || 10;
-    const page = Number(query.page) || 1;
-    const skip = (page - 1) * take;
-
-    const qb = this.clinicRepository.createQueryBuilder('clinic');
-
-    qb.leftJoinAndMapOne(
-      'clinic.address',
-      Address,
-      'address',
-      'address.owner_id = clinic.id AND address.owner_type = :ownerType',
-      { ownerType: 'App\\Models\\Clinic' },
-    );
-
-    qb.leftJoinAndMapOne(
-      'address.state',
-      State,
-      'state',
-      'state.id = address.state_id',
-    );
-
-    qb.select([
-      `clinic.id`,
-      `clinic.name`,
-      `clinic.phone`,
-      `clinic.region_code`,
-      `address.address1`,
-      `address.postal_code`,
-      `state.name`,
-    ]);
-
-    // Search
-    if (query.search) {
-      qb.andWhere(
-        `(clinic.name LIKE :search 
-        OR clinic.phone LIKE :search 
-        OR address.address1 LIKE :search 
-        OR state.name LIKE :search)`,
-        { search: `%${query.search}%` },
-      );
-    }
-
-    // ORDER BY logic
-    const orderableFieldsMap = {
-      name: 'clinic.name',
-      phone: 'clinic.phone',
-      'address.address1': 'address.address1',
-      'address.state.name': 'state.name',
-    };
-
-    const orderByField =
-      query.orderBy && orderableFieldsMap[query.orderBy]
-        ? orderableFieldsMap[query.orderBy]
-        : 'clinic.id';
-
-    const orderDirection =
-      query.order && ['ASC', 'DESC'].includes(query.order.toUpperCase())
-        ? query.order.toUpperCase()
-        : 'DESC';
-
-    qb.orderBy(orderByField, orderDirection as 'ASC' | 'DESC');
-    // Pagination
-    qb.skip(skip).take(take);
-
-    const [data, total] = await qb.getManyAndCount();
-
-    return {
-      data,
-      pagination: {
-        page,
-        limit: take,
-        total,
-        totalPages: Math.ceil(total / take),
-      },
-    };
   }
 }

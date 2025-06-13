@@ -24,4 +24,4 @@ async function bootstrap() {
     console.error('NestJS app failed to start:', error);
   }
 }
-bootstrap();
+void bootstrap();

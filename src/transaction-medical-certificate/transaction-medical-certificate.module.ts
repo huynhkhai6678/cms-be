@@ -9,13 +9,13 @@ import { ClinicDocumentSetting } from '../entites/clinic-document-setting.entity
 import { PdfService } from '../shared/pdf/pdf.service';
 
 @Module({
-  imports : [
+  imports: [
     TypeOrmModule.forFeature([
       ClinicDocumentSetting,
-      TransactionMedicalCertificate
+      TransactionMedicalCertificate,
     ]),
     HelperModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [TransactionMedicalCertificateController],
   providers: [TransactionMedicalCertificateService, PdfService],

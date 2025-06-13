@@ -3,48 +3,50 @@ import { HelperService } from './helper.service';
 
 @Controller('helper')
 export class HelperController {
-
   constructor(private readonly helperService: HelperService) {}
 
   @Get('clinic-doctors/:id')
   async clinicDoctor(@Param('id') id: string) {
-    return { 
-      data: await this.helperService.clinicDoctor(+id) 
+    return {
+      data: await this.helperService.clinicDoctor(+id),
     };
   }
 
   @Get('clinic-patients/:id')
   async clinicPatient(@Param('id') id: string) {
-    return { 
-      data: await this.helperService.clinicPatient(+id) 
+    return {
+      data: await this.helperService.clinicPatient(+id),
     };
   }
 
   @Get('doctor-services/:id/:clinicId')
-  async doctorService(@Param('id') id: string, @Param('clinicId') clinicId: string) {
-    return { 
-      data: await this.helperService.doctorService(+id, +clinicId) 
+  async doctorService(
+    @Param('id') id: string,
+    @Param('clinicId') clinicId: string,
+  ) {
+    return {
+      data: await this.helperService.doctorService(+id, +clinicId),
     };
   }
 
   @Get('countries')
   async getAllCountries() {
-    return { 
-      data: await this.helperService.getAllCountries() 
+    return {
+      data: await this.helperService.getAllCountries(),
     };
   }
 
   @Get('states-by-country/:id')
   async getStateByCountry(@Param('id') id: string) {
-    return { 
-      data: await this.helperService.getStateByCountry(id)
+    return {
+      data: await this.helperService.getStateByCountry(id),
     };
   }
 
   @Get('cities-by-state/:id')
   async getCityByState(@Param('id') id: string) {
-    return { 
-      data: await this.helperService.getCityByState(id)
+    return {
+      data: await this.helperService.getCityByState(id),
     };
   }
 }

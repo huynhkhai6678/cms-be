@@ -1,5 +1,4 @@
 import { Entity, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { Category } from './category.entity';
 import { Medicine } from './medicine.entity';
 import { Brand } from './brand.entity';
 
@@ -16,6 +15,6 @@ export class MedicineBrand {
   medicine: Medicine;
 
   @ManyToOne(() => Brand, (brand) => brand.medicines)
-  @JoinColumn({ name: 'brand_id', referencedColumnName: 'id',  })
+  @JoinColumn({ name: 'brand_id', referencedColumnName: 'id' })
   brand: Brand;
 }

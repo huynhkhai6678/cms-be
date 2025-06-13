@@ -1,4 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Req, UseGuards, ValidationPipe, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+  UploadedFile,
+  Req,
+  UseGuards,
+  ValidationPipe,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { DocumentService } from './document.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
@@ -14,22 +28,19 @@ export class DocumentController {
   constructor(private readonly documentService: DocumentService) {}
 
   @Post('upload')
-    @UseInterceptors(
+  @UseInterceptors(
     FileInterceptor('file', {
-        storage: createFileUploadStorage('patient-document'),
-        fileFilter : documentFilter,
+      storage: createFileUploadStorage('patient-document'),
+      fileFilter: documentFilter,
     }),
   )
-  upload(
-    @UploadedFile() file: Express.Multer.File,
-    @Req() req : any
-  ) {
+  upload(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
     const clinicId = req['user'].clinic_id;
     return {
-      file_name : file.originalname,
+      file_name: file.originalname,
       type: file.mimetype,
-      path : `public/uploads/${clinicId}/patient-document/${file.filename}`
-    }
+      path: `public/uploads/${clinicId}/patient-document/${file.filename}`,
+    };
   }
 
   @Post('')
@@ -48,7 +59,10 @@ export class DocumentController {
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: string, @Body() updateDocumentDto: UpdateDocumentDto) {
+  update(
+    @Param('id', ParseIntPipe) id: string,
+    @Body() updateDocumentDto: UpdateDocumentDto,
+  ) {
     return this.documentService.update(+id, updateDocumentDto);
   }
 

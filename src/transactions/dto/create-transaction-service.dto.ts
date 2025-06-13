@@ -1,52 +1,58 @@
-import { IsNotEmpty, IsNumber, Min, IsOptional, IsString, IsNumberString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  Min,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateTransactionServiceDTO {
-    @IsNotEmpty()
-    name: string;
+  @IsNotEmpty()
+  name: string;
 
-    @IsNotEmpty()
-    @IsNumber()
-    price: number;
+  @IsNotEmpty()
+  @IsNumber()
+  price: number;
 
-    @IsNumber({}, { message: 'Purchase price must be a number.' })
-    @Min(0, { message: 'Quantity price must be at least 0.' })
-    quantity: number;
+  @IsNumber({}, { message: 'Purchase price must be a number.' })
+  @Min(0, { message: 'Quantity price must be at least 0.' })
+  quantity: number;
 
-    @IsOptional()
-    @IsNumber({}, { message: 'Quantity must be a number.' })
-    discount: number;
+  @IsOptional()
+  @IsNumber({}, { message: 'Quantity must be a number.' })
+  discount: number;
 
-    @IsNotEmpty()
-    @IsString()
-    type: string;
+  @IsNotEmpty()
+  @IsString()
+  type: string;
 
-    @IsNotEmpty()
-    service_id: number;
+  @IsNotEmpty()
+  service_id: number;
 
-    @IsOptional()
-    @IsString()
-    description: string;
+  @IsOptional()
+  @IsString()
+  description: string;
 
-    @IsOptional()
-    @IsString()
-    dosage: string;
+  @IsOptional()
+  @IsString()
+  dosage: string;
 
-    @IsOptional()
-    @IsString()
-    frequency: string;
+  @IsOptional()
+  @IsString()
+  frequency: string;
 
-    @IsOptional()
-    @IsString()
-    administration: string;
+  @IsOptional()
+  @IsString()
+  administration: string;
 
-    @IsOptional()
-    @IsString()
-    purpose: string;
+  @IsOptional()
+  @IsString()
+  purpose: string;
 
-    @IsNotEmpty()
-    @IsNumber()
-    sub_total
+  @IsNotEmpty()
+  @IsNumber()
+  sub_total;
 
-    @IsOptional()
-    id : number;
+  @IsOptional()
+  id: number;
 }

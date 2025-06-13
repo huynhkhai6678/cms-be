@@ -9,9 +9,7 @@ import { PatientMedicalRecordPulseRate } from 'src/entites/patient-medical-recor
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      PatientMedicalRecordPulseRate,
-    ]),
+    TypeOrmModule.forFeature([PatientMedicalRecordPulseRate]),
     MedicalRecordModule,
     DatabaseServiceModule,
     AuthModule,

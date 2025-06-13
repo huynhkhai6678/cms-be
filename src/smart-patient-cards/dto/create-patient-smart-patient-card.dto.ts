@@ -1,17 +1,17 @@
-import { IsBoolean, IsDefined, IsNumber, IsNumberString, IsString } from "class-validator";
+import { IsDefined, IsNumber, IsNumberString } from 'class-validator';
 
 export class CreatePatientSmartPatientCardDto {
-    @IsDefined()
-    @IsNumberString()
-    template_id: number;
+  @IsDefined()
+  @IsNumberString()
+  template_id: number;
 
-    @IsDefined()
-    @IsNumberString()
-    clinic_id: number;
+  @IsDefined()
+  @IsNumberString()
+  clinic_id: number;
 
-    patient_id: number;
+  patient_id: number;
 
-    @IsDefined()
-    @IsNumber()
-    type : number;
+  @IsDefined()
+  @IsNumber()
+  type: number;
 }

@@ -11,7 +11,9 @@ describe('MedicineInventoryUsagesController', () => {
       providers: [MedicineInventoryUsagesService],
     }).compile();
 
-    controller = module.get<MedicineInventoryUsagesController>(MedicineInventoryUsagesController);
+    controller = module.get<MedicineInventoryUsagesController>(
+      MedicineInventoryUsagesController,
+    );
   });
 
   it('should be defined', () => {

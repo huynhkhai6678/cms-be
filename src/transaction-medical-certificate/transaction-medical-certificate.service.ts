@@ -8,10 +8,11 @@ import { HelperService } from '../helper/helper.service';
 import { join } from 'path';
 import { ClinicDocumentSetting } from '../entites/clinic-document-setting.entity';
 import * as moment from 'moment';
-import * as ejs from 'ejs';
+import { renderFile } from 'ejs';
 import { parseTemplateContent } from '../utils/template.util';
 import { I18nService } from 'nestjs-i18n';
 import { PdfService } from 'src/shared/pdf/pdf.service';
+import { toStringSafe } from 'src/utils/format';
 
 @Injectable()
 export class TransactionMedicalCertificateService {
@@ -20,29 +21,38 @@ export class TransactionMedicalCertificateService {
     private readonly transactionMedicalCertificateRepo: Repository<TransactionMedicalCertificate>,
     @InjectRepository(ClinicDocumentSetting)
     private readonly clinicDocumentRepo: Repository<ClinicDocumentSetting>,
-    private helperService : HelperService,
+    private helperService: HelperService,
     private i18n: I18nService,
-    private pdfService : PdfService
+    private pdfService: PdfService,
   ) {}
 
-  async create(createTransactionMedicalCertificateDto: CreateTransactionMedicalCertificateDto) {
-    const category = this.transactionMedicalCertificateRepo.create(createTransactionMedicalCertificateDto);
+  async create(
+    createTransactionMedicalCertificateDto: CreateTransactionMedicalCertificateDto,
+  ) {
+    const category = this.transactionMedicalCertificateRepo.create(
+      createTransactionMedicalCertificateDto,
+    );
     category.certificate_number = await this.generateInvoiceNumber();
     return await this.transactionMedicalCertificateRepo.save(category);
   }
 
   async findOne(id: number) {
-    const data = await this.transactionMedicalCertificateRepo.findOneBy({ id});
+    const data = await this.transactionMedicalCertificateRepo.findOneBy({ id });
     const doctors = await this.helperService.clinicDoctor(28);
-   
+
     return {
       data,
-      doctors
+      doctors,
     };
   }
 
-  async update(id: number, updateTransactionMedicalCertificateDto: UpdateTransactionMedicalCertificateDto) {
-    const certificate = await this.transactionMedicalCertificateRepo.findOneBy({ id });
+  async update(
+    id: number,
+    updateTransactionMedicalCertificateDto: UpdateTransactionMedicalCertificateDto,
+  ) {
+    const certificate = await this.transactionMedicalCertificateRepo.findOneBy({
+      id,
+    });
     if (!certificate) {
       throw new NotFoundException('Certificate not found');
     }
@@ -52,7 +62,9 @@ export class TransactionMedicalCertificateService {
   }
 
   async remove(id: number) {
-    const certificate = await this.transactionMedicalCertificateRepo.findOneBy({ id });
+    const certificate = await this.transactionMedicalCertificateRepo.findOneBy({
+      id,
+    });
     if (!certificate) {
       throw new NotFoundException('Certificate not found');
     }
@@ -77,58 +89,75 @@ export class TransactionMedicalCertificateService {
     return nextNumber;
   }
 
-  async export(id : number) {
-    const templatePath = join(__dirname, '..', 'templates', 'transaction-certificate.ejs');
+  async export(id: number) {
+    const templatePath = join(
+      __dirname,
+      '..',
+      'templates',
+      'transaction-certificate.ejs',
+    );
 
-    const certificate = await this.transactionMedicalCertificateRepo.findOne({ 
-      where : {
-        id
+    const certificate = await this.transactionMedicalCertificateRepo.findOne({
+      where: {
+        id,
       },
-      relations : [
-        'transaction_invoice', 
-        'transaction_invoice.patient', 
-        'transaction_invoice.patient.user', 
-        'transaction_invoice.doctor', 
-        'transaction_invoice.doctor.user'
-      ] 
+      relations: [
+        'transaction_invoice',
+        'transaction_invoice.patient',
+        'transaction_invoice.patient.user',
+        'transaction_invoice.doctor',
+        'transaction_invoice.doctor.user',
+      ],
     });
 
     if (!certificate) {
       throw new NotFoundException('Certificate not found');
     }
 
-    const clinicSetting = await this.clinicDocumentRepo.findOneBy({clinic_id : certificate.transaction_invoice.clinic_id});
+    const clinicSetting = await this.clinicDocumentRepo.findOneBy({
+      clinic_id: certificate.transaction_invoice.clinic_id,
+    });
 
     if (!clinicSetting) {
       throw new NotFoundException('Clinic Setting not found');
     }
 
     const templateData = {
-      'patient_name'      : `${certificate.transaction_invoice.patient.user.first_name} ${certificate.transaction_invoice.patient.user.last_name}`,
-      'id_number'         : `${certificate.transaction_invoice.patient.user.id_number}`,
-      'start_date'        : moment(certificate.start_date).format('DD/MM/YYYY'),
-      'end_date'          : moment(certificate.end_date).format('DD/MM/YYYY'),
-      'start_time'        : certificate.type == 2 ? certificate.start_time : '',
-      'end_time'          : certificate.type == 2 ? certificate.end_time : '',
-      'type'              : certificate.type === 2 ? this.i18n.t('main.messages.transaction.medical_certificate') :  this.i18n.t('main.messages.transaction.time_slip'),
-      'reason'            : certificate.reason,
-      'description'       : certificate.description,
-      'certificate_number': certificate.certificate_number,
-      'doctor_name'       : `${certificate.transaction_invoice.doctor.user.first_name} ${certificate.transaction_invoice.doctor.user.last_name}`,
-      'invoice_date'      : moment(certificate.transaction_invoice.bill_date).format('DD/MM/YYYY'),
-    }
+      patient_name: `${certificate.transaction_invoice.patient.user.first_name} ${certificate.transaction_invoice.patient.user.last_name}`,
+      id_number: `${certificate.transaction_invoice.patient.user.id_number}`,
+      start_date: moment(certificate.start_date).format('DD/MM/YYYY'),
+      end_date: moment(certificate.end_date).format('DD/MM/YYYY'),
+      start_time:
+        certificate?.type == 2 ? toStringSafe(certificate.start_time) : '',
+      end_time:
+        certificate?.type == 2 ? toStringSafe(certificate.end_time) : '',
+      type:
+        certificate.type === 2
+          ? this.i18n.t('main.messages.transaction.medical_certificate')
+          : this.i18n.t('main.messages.transaction.time_slip'),
+      reason: toStringSafe(certificate.reason),
+      description: toStringSafe(certificate.description),
+      certificate_number: certificate.certificate_number,
+      doctor_name: `${certificate.transaction_invoice.doctor.user.first_name} ${certificate.transaction_invoice.doctor.user.last_name}`,
+      invoice_date: moment(certificate.transaction_invoice.bill_date).format(
+        'DD/MM/YYYY',
+      ),
+    };
 
     let body = clinicSetting.medical_certificate_template;
     body = parseTemplateContent(body, templateData);
 
-    const htmlContent = await ejs.renderFile(templatePath, {
+    const htmlContent: string = await renderFile(templatePath, {
       title: this.i18n.t('main.messages.transaction.medical_certificate'),
       header: clinicSetting.header,
-      type : certificate.type === 2 ? this.i18n.t('main.messages.transaction.medical_certificate') :  this.i18n.t('main.messages.transaction.time_slip'),
-      body
+      type:
+        certificate.type === 2
+          ? this.i18n.t('main.messages.transaction.medical_certificate')
+          : this.i18n.t('main.messages.transaction.time_slip'),
+      body,
     });
 
     const pdfBuffer = await this.pdfService.createPdfFromHtml(htmlContent);
     return pdfBuffer;
-  } 
+  }
 }

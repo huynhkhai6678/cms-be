@@ -9,9 +9,12 @@ import { FileServiceModule } from 'src/shared/file/file.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([PatientMedicalRecordDocument, PatientMedicalRecord]),
+    TypeOrmModule.forFeature([
+      PatientMedicalRecordDocument,
+      PatientMedicalRecord,
+    ]),
     AuthModule,
-    FileServiceModule
+    FileServiceModule,
   ],
   controllers: [DocumentController],
   providers: [DocumentService],

@@ -3,13 +3,17 @@ import * as ExcelJS from 'exceljs';
 
 @Injectable()
 export class ExcelService {
-  async generateExcel(sheetName: string, headers: { header: string, key: string, width: number }[], data: any[]) {
+  async generateExcel(
+    sheetName: string,
+    headers: { header: string; key: string; width: number }[],
+    data: any[],
+  ) {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(sheetName);
 
     worksheet.columns = headers;
 
-    data.forEach(item => {
+    data.forEach((item) => {
       worksheet.addRow(item);
     });
 

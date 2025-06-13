@@ -13,6 +13,7 @@ import { hashPassword } from '../utils/hash.util';
 import { Clinic } from '../entites/clinic.entity';
 import { Appointment } from '../entites/appointment.entitty';
 import { Patient } from '../entites/patient.entity';
+import { QueryParamsDto } from 'src/shared/dto/query-params.dto';
 
 @Injectable()
 export class DoctorsService {
@@ -31,7 +32,7 @@ export class DoctorsService {
     private readonly apptRepository: Repository<Appointment>,
   ) {}
 
-  async create(createDoctorDto: CreateDoctorDto, imageUrl : string) {
+  async create(createDoctorDto: CreateDoctorDto, imageUrl: string) {
     // Create user
     const hashed = await hashPassword(createDoctorDto.password);
     const clinicIds = createDoctorDto.clinic_ids.split(',');
@@ -78,21 +79,21 @@ export class DoctorsService {
     return true;
   }
 
-  async findAll(query) {
+  async findAll(query: QueryParamsDto) {
     return await this.getPaginatedDoctors(query);
   }
 
-  async findOne(id: number, clinic_id : number) {
-    const doctor = await this.doctorRepository.findOne({ 
-      where : {
-        id
+  async findOne(id: number, clinic_id: number) {
+    const doctor = await this.doctorRepository.findOne({
+      where: {
+        id,
       },
-      relations : ['user', 'specializations', 'user.clinics']
+      relations: ['user', 'specializations', 'user.clinics'],
     });
-    const specializations = await this.specialRepository.findBy({clinic_id});
+    const specializations = await this.specialRepository.findBy({ clinic_id });
 
     return {
-      data : {
+      data: {
         clinic_id: doctor?.user.clinic_id,
         first_name: doctor?.user.first_name,
         last_name: doctor?.user.last_name,
@@ -101,20 +102,26 @@ export class DoctorsService {
         dob: doctor?.user.dob,
         gender: doctor?.user.gender,
         status: doctor?.user.status,
-        specialization_ids: doctor?.specializations.map(specialization => { return specialization.id}),
-        clinic_ids : doctor?.user.clinics.map(clinic => { return clinic.id}),
+        specialization_ids: doctor?.specializations.map((specialization) => {
+          return specialization.id;
+        }),
+        clinic_ids: doctor?.user.clinics.map((clinic) => {
+          return clinic.id;
+        }),
         experience: doctor?.experience,
       },
-      specializations : specializations.map(specialization => { return {value: specialization.id, label: specialization.name}})
-    }
+      specializations: specializations.map((specialization) => {
+        return { value: specialization.id, label: specialization.name };
+      }),
+    };
   }
 
-  async update(id: number, updateDoctorDto: UpdateDoctorDto, image_url) {
+  async update(id: number, updateDoctorDto: UpdateDoctorDto, imageUrl: string) {
     const doctor = await this.doctorRepository.findOne({
-      where : {
-        id
+      where: {
+        id,
       },
-      relations : ['specializations']
+      relations: ['specializations'],
     });
 
     if (!doctor) {
@@ -133,10 +140,10 @@ export class DoctorsService {
 
     // Update user
     const user = await this.userRepository.findOne({
-      where : {
-        id : doctor.user_id
+      where: {
+        id: doctor.user_id,
       },
-      relations : ['clinics']
+      relations: ['clinics'],
     });
 
     if (user) {
@@ -155,6 +162,11 @@ export class DoctorsService {
       user.status = updateDoctorDto.status ? 1 : 0;
       user.clinic_id = parseInt(clinicIds[0]);
       user.clinics = clinics;
+
+      if (imageUrl) {
+        user.image_url = imageUrl;
+      }
+
       await this.userRepository.save(user);
     }
     return true;
@@ -162,10 +174,10 @@ export class DoctorsService {
 
   async remove(id: number) {
     const doctor = await this.doctorRepository.findOne({
-      where : {
-        id
+      where: {
+        id,
       },
-      relations : ['specializations']
+      relations: ['specializations'],
     });
 
     if (!doctor) {
@@ -175,7 +187,7 @@ export class DoctorsService {
     }
 
     const user = await this.userRepository.findOneBy({
-      id : doctor.user_id
+      id: doctor.user_id,
     });
 
     if (user) {
@@ -194,9 +206,15 @@ export class DoctorsService {
     }
   }
 
-  async getPaginatedDoctors(query: any) {
-    const take = !isNaN(Number(query.limit)) && Number(query.limit) > 0 ? Number(query.limit) : 10;
-    const page = !isNaN(Number(query.page)) && Number(query.page) > 0 ? Number(query.page) : 1;
+  async getPaginatedDoctors(query: QueryParamsDto) {
+    const take =
+      !isNaN(Number(query.limit)) && Number(query.limit) > 0
+        ? Number(query.limit)
+        : 10;
+    const page =
+      !isNaN(Number(query.page)) && Number(query.page) > 0
+        ? Number(query.page)
+        : 1;
     const skip = (page - 1) * take;
 
     const qb = this.doctorRepository.createQueryBuilder('doctor');
@@ -222,7 +240,7 @@ export class DoctorsService {
       'doctor.reviews',
       Review,
       'review',
-      'review.doctor_id = doctor.id', // Join reviews with doctor using doctor_id
+      'review.doctor_id = doctor.id',
     );
 
     qb.select([
@@ -235,7 +253,7 @@ export class DoctorsService {
       'user.status',
       'user.email_verified_at',
       `CONCAT(user.first_name, ' ', user.last_name) as full_name`,
-      `ROUND(COALESCE(AVG(review.rating), 0), 1) as avg_review`
+      `ROUND(COALESCE(AVG(review.rating), 0), 1) as avg_review`,
     ]);
 
     qb.groupBy('doctor.id');
@@ -250,7 +268,9 @@ export class DoctorsService {
 
     // Filter by clinic_id (user_clinics.clinic_id)
     if (query.clinic_id) {
-      qb.andWhere('userClinic.clinic_id = :clinic_id', { clinic_id: query.clinic_id });
+      qb.andWhere('userClinic.clinic_id = :clinic_id', {
+        clinic_id: query.clinic_id,
+      });
     }
 
     // Filter by user status
@@ -261,16 +281,16 @@ export class DoctorsService {
     // Order by logic (can also order by concatenated full_name)
     const orderableFieldsMap = {
       full_name: "CONCAT(user.first_name, ' ', user.last_name)",
-      status: "user.status",
-      email_verified_at: "user.email_verified_at",
+      status: 'user.status',
+      email_verified_at: 'user.email_verified_at',
     };
 
-    const orderByField =
+    const orderByField: string =
       query.orderBy && orderableFieldsMap[query.orderBy]
         ? orderableFieldsMap[query.orderBy]
         : 'doctor.id'; // Default to doctor.id if no valid orderBy is provided
 
-    const orderDirection =
+    const orderDirection: string =
       query.order && ['ASC', 'DESC'].includes(query.order.toUpperCase())
         ? query.order.toUpperCase()
         : 'DESC';
@@ -297,41 +317,47 @@ export class DoctorsService {
 
   async findDetail(id) {
     const doctor = await this.doctorRepository.findOne({
-      where : {
+      where: {
         id,
       },
-      relations : ['user', 'appointments', 'specializations']
+      relations: ['user', 'appointments', 'specializations'],
     });
 
     if (!doctor) {
       throw new NotFoundException(`Doctor with ID ${id} not found`);
     }
-    
+
     return {
-      data : {
-        name : `${doctor.user?.first_name} ${doctor.user?.last_name}`,
-        email : doctor.user?.email,
-        contact : `+${doctor.user?.region_code} ${doctor?.user?.contact}`,
-        image_url : doctor.user?.image_url,
-        experience : doctor.experience,
-        gender : doctor.user?.gender,
-        dob : doctor.user?.dob,
-        address : doctor.user?.address?.address1,
-        register_on : doctor.user?.created_at,
-        last_update : doctor.user?.updated_at,
-        appointments : doctor.appointments,
-        specializations : doctor.specializations
-      }
-    }
+      data: {
+        name: `${doctor.user?.first_name} ${doctor.user?.last_name}`,
+        email: doctor.user?.email,
+        contact: `+${doctor.user?.region_code} ${doctor?.user?.contact}`,
+        image_url: doctor.user?.image_url,
+        experience: doctor.experience,
+        gender: doctor.user?.gender,
+        dob: doctor.user?.dob,
+        address: doctor.user?.address?.address1,
+        register_on: doctor.user?.created_at,
+        last_update: doctor.user?.updated_at,
+        appointments: doctor.appointments,
+        specializations: doctor.specializations,
+      },
+    };
   }
 
-  async findAppointment(id, query) {
+  async findAppointment(id: number, query: QueryParamsDto) {
     return await this.getPaginatedPatientAppointment(id, query);
   }
 
-  async getPaginatedPatientAppointment(id : number, query: any) {
-    const take = !isNaN(Number(query.limit)) && Number(query.limit) > 0 ? Number(query.limit) : 10;
-    const page = !isNaN(Number(query.page)) && Number(query.page) > 0 ? Number(query.page) : 1;
+  async getPaginatedPatientAppointment(id: number, query: QueryParamsDto) {
+    const take =
+      !isNaN(Number(query.limit)) && Number(query.limit) > 0
+        ? Number(query.limit)
+        : 10;
+    const page =
+      !isNaN(Number(query.page)) && Number(query.page) > 0
+        ? Number(query.page)
+        : 1;
     const skip = (page - 1) * take;
 
     const qb = this.apptRepository.createQueryBuilder('appointment');
@@ -367,29 +393,30 @@ export class DoctorsService {
 
     // Search functionality
     if (query.search) {
-      qb.andWhere(
-        `CONCAT(user.first_name, ' ', user.last_name) LIKE :search`,
-        { search: `%${query.search}%` },
-      );
+      qb.andWhere(`CONCAT(user.first_name, ' ', user.last_name) LIKE :search`, {
+        search: `%${query.search}%`,
+      });
     }
 
     qb.andWhere('appointment.doctor_id = :id', { id });
     if (query.clinic_id) {
-      qb.andWhere('appointment.clinic_id = :clinic_id', { clinic_id: query.clinic_id });
+      qb.andWhere('appointment.clinic_id = :clinic_id', {
+        clinic_id: query.clinic_id,
+      });
     }
 
     // Order by logic (can also order by concatenated full_name)
     const orderableFieldsMap = {
       full_name: "CONCAT(user.first_name, ' ', user.last_name)",
-      appointment_at: "user.date",
+      appointment_at: 'user.date',
     };
 
-    const orderByField =
+    const orderByField: string =
       query.orderBy && orderableFieldsMap[query.orderBy]
         ? orderableFieldsMap[query.orderBy]
         : 'appointment.id';
 
-    const orderDirection =
+    const orderDirection: string =
       query.order && ['ASC', 'DESC'].includes(query.order.toUpperCase())
         ? query.order.toUpperCase()
         : 'DESC';
@@ -411,5 +438,4 @@ export class DoctorsService {
       },
     };
   }
-
 }

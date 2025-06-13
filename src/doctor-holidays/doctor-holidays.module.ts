@@ -7,7 +7,11 @@ import { DoctorHoliday } from '../entites/doctor-holiday.entity';
 import { HelperModule } from '../helper/helper.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([DoctorHoliday]), AuthModule, HelperModule],
+  imports: [
+    TypeOrmModule.forFeature([DoctorHoliday]),
+    AuthModule,
+    HelperModule,
+  ],
   controllers: [DoctorHolidaysController],
   providers: [DoctorHolidaysService],
 })

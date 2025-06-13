@@ -1,12 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  Index,
-  JoinColumn,
-  PrimaryColumn,
-} from 'typeorm';
+import { Entity, ManyToOne, JoinColumn, PrimaryColumn } from 'typeorm';
 import { Service } from './service.entity';
 import { Doctor } from './doctor.entity';
 

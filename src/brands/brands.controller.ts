@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { BrandsService } from './brands.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
@@ -9,7 +19,10 @@ import { RoleGuardFactory } from '../guards/role.guard.factory';
 @UseGuards(AuthGuard, RoleGuardFactory('manage_medicines'))
 @Controller('brands')
 export class BrandsController {
-  constructor(private readonly brandsService: BrandsService, private i18n : I18nService) {}
+  constructor(
+    private readonly brandsService: BrandsService,
+    private i18n: I18nService,
+  ) {}
 
   @Post()
   async create(@Body() createBrandDto: CreateBrandDto) {
@@ -35,7 +48,10 @@ export class BrandsController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateBrandDto: UpdateBrandDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateBrandDto: UpdateBrandDto,
+  ) {
     await this.brandsService.update(+id, updateBrandDto);
     return {
       message: this.i18n.translate('main.messages.flash.supplier_update'),

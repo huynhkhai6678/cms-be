@@ -9,9 +9,7 @@ import { PatientMedicalRecordWeight } from '../../entites/patient-medical-record
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      PatientMedicalRecordWeight,
-    ]),
+    TypeOrmModule.forFeature([PatientMedicalRecordWeight]),
     MedicalRecordModule,
     DatabaseServiceModule,
     AuthModule,

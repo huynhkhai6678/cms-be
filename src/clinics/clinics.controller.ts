@@ -17,6 +17,7 @@ import { UpdateClinicDto } from './dto/update-clinic.dto';
 import { AuthGuard } from '../guards/auth.guard';
 import { RoleGuardFactory } from '../guards/role.guard.factory';
 import { I18nService } from 'nestjs-i18n';
+import { QueryParamsDto } from '../shared/dto/query-params.dto';
 
 @Controller('clinics')
 @UseGuards(AuthGuard, RoleGuardFactory('manage_clinics'))
@@ -27,8 +28,8 @@ export class ClinicsController {
   ) {}
 
   @Post()
-  create(@Body(new ValidationPipe()) createClinicDto: CreateClinicDto) {
-    const result = this.clinicsService.create(createClinicDto);
+  async create(@Body(ValidationPipe) createClinicDto: CreateClinicDto) {
+    const result = await this.clinicsService.create(createClinicDto);
     if (!result) {
       throw new BadRequestException('Error');
     }
@@ -39,7 +40,7 @@ export class ClinicsController {
   }
 
   @Get()
-  async findAll(@Query() query) {
+  async findAll(@Query() query: QueryParamsDto) {
     return this.clinicsService.findAll(query);
   }
 
@@ -49,11 +50,11 @@ export class ClinicsController {
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
-    @Body(new ValidationPipe()) updateClinicDto: UpdateClinicDto,
+    @Body(ValidationPipe) updateClinicDto: UpdateClinicDto,
   ) {
-    const result = this.clinicsService.update(+id, updateClinicDto);
+    const result = await this.clinicsService.update(+id, updateClinicDto);
     if (!result) {
       throw new BadRequestException('Error');
     }
@@ -64,8 +65,8 @@ export class ClinicsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    this.clinicsService.remove(+id);
+  async remove(@Param('id') id: string) {
+    await this.clinicsService.remove(+id);
     return {
       message: this.i18n.t('main.messages.flash.role_delete'),
     };

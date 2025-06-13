@@ -8,7 +8,7 @@ export function createFileUploadStorage(entity: string) {
     destination: (
       req: Request,
       file: Express.Multer.File,
-      callback: Function,
+      callback: (error: Error | null, destination: string) => void,
     ) => {
       const clinicId = req.body?.clinic_id || req['user']?.clinic_id;
       const uploadPath = `./public/uploads/${clinicId}/${entity}`;
@@ -18,7 +18,11 @@ export function createFileUploadStorage(entity: string) {
 
       callback(null, uploadPath);
     },
-    filename: (req: Request, file: Express.Multer.File, callback: Function) => {
+    filename: (
+      req: Request,
+      file: Express.Multer.File,
+      callback: (error: Error | null, destination: string) => void,
+    ) => {
       const uniqueSuffix = Date.now() + extname(file.originalname);
       callback(null, file.fieldname + '-' + uniqueSuffix);
     },

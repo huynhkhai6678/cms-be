@@ -62,8 +62,8 @@ export class User {
   @Exclude()
   password: string;
 
-  @Column({ type: 'int', nullable: true })
-  type?: number;
+  @Column({ type: 'bigint', nullable: true })
+  type: number;
 
   @Column({ name: 'blood_group', type: 'varchar', length: 255, nullable: true })
   blood_group?: string;
@@ -172,10 +172,10 @@ export class User {
   @OneToMany(() => Patient, (patient) => patient.user, { eager: false })
   patient: Patient;
 
-  @ManyToOne(() => Clinic, (clinic) => clinic.user, { 
+  @ManyToOne(() => Clinic, (clinic) => clinic.user, {
     createForeignKeyConstraints: false,
-    eager: false
-   })
+    eager: false,
+  })
   @JoinColumn({ name: 'clinic_id' })
   clinic: Clinic;
 

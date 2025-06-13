@@ -9,6 +9,7 @@ import { Specialization } from '../entites/specilization.entity';
 import { FrontPatientTestimonial } from '../entites/front-patient-testimonial.entity';
 import { Slider } from '../entites/slider.entity';
 import { Clinic } from '../entites/clinic.entity';
+import { DoctorSpecialization } from 'src/entites/doctor-specilization.entity';
 
 @Injectable()
 export class FrontService {
@@ -117,7 +118,7 @@ export class FrontService {
     const data = doctors.map((doctor) => {
       const user = doctor.user;
       const minSpecialization = doctor.doctorSpecializations.reduce(
-        (min: any, ds) => {
+        (min: Specialization | null, ds: DoctorSpecialization) => {
           if (!min || (ds.specialization && ds.specialization.id < min.id))
             return ds.specialization;
           return min;
@@ -166,7 +167,7 @@ export class FrontService {
     const data = topDoctors.map((doctor) => {
       const user = doctor.user;
       const minSpecialization = doctor.doctorSpecializations.reduce(
-        (min: any, ds) => {
+        (min: Specialization | null, ds: DoctorSpecialization) => {
           if (!min || ds.specialization.id < min.id) return ds.specialization;
           return min;
         },

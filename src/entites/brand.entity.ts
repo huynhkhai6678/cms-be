@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToMany,
-  OneToMany
+  OneToMany,
 } from 'typeorm';
 import { Medicine } from './medicine.entity';
 import { PurchaseMedicine } from './purchase-medicines.entity';

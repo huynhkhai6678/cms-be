@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsNumberString, IsString } from 'class-validator';
+import { IsArray, IsDefined, IsString } from 'class-validator';
 
 export class UpdateGenralDto {
   @IsDefined()

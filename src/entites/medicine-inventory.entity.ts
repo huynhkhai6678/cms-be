@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+} from 'typeorm';
 import { Medicine } from './medicine.entity';
 import { MedicineInventoryUsage } from './medicine-inventory-usage.entity';
 
@@ -50,6 +59,6 @@ export class MedicineInventory {
   @Column({ type: 'varchar', length: 255, nullable: true })
   uom: string;
 
-  @OneToMany(() => MedicineInventoryUsage, usage => usage.inventory)
+  @OneToMany(() => MedicineInventoryUsage, (usage) => usage.inventory)
   usages: MedicineInventoryUsage[];
 }

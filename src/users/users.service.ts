@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -153,8 +157,8 @@ export class UsersService {
 
   async verify(id: number) {
     const user = await this.userRepository.findOne({
-      where : {
-        id
+      where: {
+        id,
       },
     });
     if (!user) {
@@ -168,8 +172,8 @@ export class UsersService {
 
   async updateStatus(id: number, value: boolean) {
     const user = await this.userRepository.findOne({
-      where : {
-        id
+      where: {
+        id,
       },
     });
     if (!user) {

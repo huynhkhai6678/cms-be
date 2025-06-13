@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsNumber, Min, IsOptional, IsNumberString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  Min,
+  IsOptional,
+  IsNumberString,
+} from 'class-validator';
 
 export class CreatePurchasedMedicineDTO {
   @IsNotEmpty({ message: 'Medicine ID is required.' })

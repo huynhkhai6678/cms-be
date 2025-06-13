@@ -1,18 +1,35 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ValidationPipe,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { AuthGuard } from '../guards/auth.guard';
 import { RoleGuardFactory } from '../guards/role.guard.factory';
 import { I18nService } from 'nestjs-i18n';
+import { User } from '../entites/user.entity';
 
 @UseGuards(AuthGuard, RoleGuardFactory('manage_appointments'))
 @Controller('appointments')
 export class AppointmentsController {
-  constructor(private readonly appointmentsService: AppointmentsService, private i18n: I18nService) {}
+  constructor(
+    private readonly appointmentsService: AppointmentsService,
+    private i18n: I18nService,
+  ) {}
 
   @Post()
-  async create(@Body(new ValidationPipe()) createAppointmentDto: CreateAppointmentDto) {
+  async create(
+    @Body(new ValidationPipe()) createAppointmentDto: CreateAppointmentDto,
+  ) {
     await this.appointmentsService.create(createAppointmentDto);
     return {
       message: this.i18n.t('main.messages.flash.appointment_create'),
@@ -26,11 +43,11 @@ export class AppointmentsController {
 
   @Get('calendar/:id')
   async findAllCalendar(@Param('id') id: string, @Req() request: any) {
-    const user = request.user;
+    const user: User = request.user;
     const data = await this.appointmentsService.findAllCalendar(+id, user);
     return {
-      data
-    }
+      data,
+    };
   }
 
   @Get(':id/:clinicId')
@@ -39,7 +56,10 @@ export class AppointmentsController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body(new ValidationPipe()) updateAppointmentDto: UpdateAppointmentDto) {
+  async update(
+    @Param('id') id: string,
+    @Body(new ValidationPipe()) updateAppointmentDto: UpdateAppointmentDto,
+  ) {
     await this.appointmentsService.update(+id, updateAppointmentDto);
     return {
       message: this.i18n.t('main.messages.flash.appointment_update'),

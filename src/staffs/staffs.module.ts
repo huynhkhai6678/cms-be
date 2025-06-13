@@ -10,7 +10,11 @@ import { Role } from '../entites/role.entity';
 import { FileServiceModule } from '../shared/file/file.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Address, Clinic, Role]), AuthModule, FileServiceModule],
+  imports: [
+    TypeOrmModule.forFeature([User, Address, Clinic, Role]),
+    AuthModule,
+    FileServiceModule,
+  ],
   controllers: [StaffsController],
   providers: [StaffsService],
 })

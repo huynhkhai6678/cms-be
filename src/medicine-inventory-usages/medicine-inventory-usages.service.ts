@@ -13,13 +13,19 @@ export class MedicineInventoryUsagesService {
     @InjectRepository(MedicineInventoryUsage)
     private readonly medicineInvenUsageRepo: Repository<MedicineInventoryUsage>,
     private dataTable: DatabaseService,
-    private shareMedicineService: ShareMedicineService
-  ) { }
+    private shareMedicineService: ShareMedicineService,
+  ) {}
 
-  async create(createMedicineInventoryUsageDto: CreateMedicineInventoryUsageDto) {
-    const dto = this.medicineInvenUsageRepo.create(createMedicineInventoryUsageDto);
+  async create(
+    createMedicineInventoryUsageDto: CreateMedicineInventoryUsageDto,
+  ) {
+    const dto = this.medicineInvenUsageRepo.create(
+      createMedicineInventoryUsageDto,
+    );
     await this.medicineInvenUsageRepo.save(dto);
-    this.shareMedicineService.calculateAvailableMedicineInventory(dto.medicine_inventory_id);
+    await this.shareMedicineService.calculateAvailableMedicineInventory(
+      dto.medicine_inventory_id,
+    );
     return true;
   }
 
@@ -42,25 +48,34 @@ export class MedicineInventoryUsagesService {
 
   async findOne(id: number) {
     return {
-      data : await this.medicineInvenUsageRepo.findOneBy({id})
-    }
+      data: await this.medicineInvenUsageRepo.findOneBy({ id }),
+    };
   }
 
-  async update(id: number, updateMedicineInventoryUsageDto: UpdateMedicineInventoryUsageDto) {
+  async update(
+    id: number,
+    updateMedicineInventoryUsageDto: UpdateMedicineInventoryUsageDto,
+  ) {
     const medicine = await this.medicineInvenUsageRepo.findOneBy({ id });
-    if (!medicine) throw new NotFoundException('Medicine Inventory Usage not found');
-    
+    if (!medicine)
+      throw new NotFoundException('Medicine Inventory Usage not found');
+
     Object.assign(medicine, updateMedicineInventoryUsageDto);
     await this.medicineInvenUsageRepo.save(medicine);
-    this.shareMedicineService.calculateAvailableMedicineInventory(medicine.medicine_inventory_id);
+    await this.shareMedicineService.calculateAvailableMedicineInventory(
+      medicine.medicine_inventory_id,
+    );
     return true;
   }
 
   async remove(id: number) {
-     const medicine = await this.medicineInvenUsageRepo.findOneBy({ id });
-    if (!medicine) throw new NotFoundException('Medicine Inventory Usage not found');
+    const medicine = await this.medicineInvenUsageRepo.findOneBy({ id });
+    if (!medicine)
+      throw new NotFoundException('Medicine Inventory Usage not found');
     await this.medicineInvenUsageRepo.remove(medicine);
-    this.shareMedicineService.calculateAvailableMedicineInventory(medicine.medicine_inventory_id);
+    await this.shareMedicineService.calculateAvailableMedicineInventory(
+      medicine.medicine_inventory_id,
+    );
     return true;
   }
 }

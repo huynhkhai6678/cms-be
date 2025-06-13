@@ -20,28 +20,35 @@ export class MedicinePurchaseService {
     @InjectRepository(Brand)
     private readonly brandRepo: Repository<Brand>,
     private dataTable: DatabaseService,
-  ) { }
+  ) {}
 
-  async create(createMedicinePurchaseDto: CreateMedicinePurchaseDto): Promise<PurchaseMedicine> {
+  async create(
+    createMedicinePurchaseDto: CreateMedicinePurchaseDto,
+  ): Promise<PurchaseMedicine> {
     return await this.purchaseMedicineRepository.manager.transaction(
       async (transactionalEntityManager: EntityManager) => {
         // 1. Create PurchaseMedicine record
-        const purchaseMedicine = this.purchaseMedicineRepository.create(createMedicinePurchaseDto);
-        purchaseMedicine.purchase_no = await this.generateUniquePurchaseNumber();
-        const savedPurchaseMedicine = await transactionalEntityManager.save(purchaseMedicine);
+        const purchaseMedicine = this.purchaseMedicineRepository.create(
+          createMedicinePurchaseDto,
+        );
+        purchaseMedicine.purchase_no =
+          await this.generateUniquePurchaseNumber();
+        const savedPurchaseMedicine =
+          await transactionalEntityManager.save(purchaseMedicine);
 
         // 2. Create PurchasedMedicines records and associate with the created PurchaseMedicine
-        const purchasedMedicinesPromises = createMedicinePurchaseDto.medicines.map((medicineDTO) => {
-          const purchasedMedicine = this.purchasedMedicineRepository.create({
-            ...medicineDTO,
-            purchase_medicines_id: savedPurchaseMedicine.id,
+        const purchasedMedicinesPromises =
+          createMedicinePurchaseDto.medicines.map((medicineDTO) => {
+            const purchasedMedicine = this.purchasedMedicineRepository.create({
+              ...medicineDTO,
+              purchase_medicines_id: savedPurchaseMedicine.id,
+            });
+            return transactionalEntityManager.save(purchasedMedicine);
           });
-          return transactionalEntityManager.save(purchasedMedicine);
-        });
 
         await Promise.all(purchasedMedicinesPromises);
         return savedPurchaseMedicine;
-      }
+      },
     );
   }
 
@@ -52,9 +59,25 @@ export class MedicinePurchaseService {
       query: {
         ...query,
       },
-      searchFields: ['created_at', 'brand.name', 'purchase_no', 'tax', 'total', 'net_amount', 'discount'],
+      searchFields: [
+        'created_at',
+        'brand.name',
+        'purchase_no',
+        'tax',
+        'total',
+        'net_amount',
+        'discount',
+      ],
       filterFields: ['clinic_id'],
-      allowedOrderFields: ['created_at', 'brand.name','purchase_no', 'tax', 'total', 'net_amount', 'discount'],
+      allowedOrderFields: [
+        'created_at',
+        'brand.name',
+        'purchase_no',
+        'tax',
+        'total',
+        'net_amount',
+        'discount',
+      ],
       defaultOrderField: 'created_at',
       defaultOrderDirection: 'DESC',
       selectFields: [],
@@ -65,52 +88,66 @@ export class MedicinePurchaseService {
   async findOne(id: number) {
     const purchaseMedicine = await this.purchaseMedicineRepository.findOne({
       where: { id },
-      relations: ['brand', 'purchased_medicines', 'purchased_medicines.label', 'purchased_medicines.medicine'],
+      relations: [
+        'brand',
+        'purchased_medicines',
+        'purchased_medicines.label',
+        'purchased_medicines.medicine',
+      ],
     });
 
     return {
-      data : purchaseMedicine
+      data: purchaseMedicine,
     };
   }
 
   async remove(id: number) {
-    await this.purchaseMedicineRepository.manager.transaction(async (transactionalEntityManager: EntityManager) => {
-      const purchaseMedicine = await transactionalEntityManager.findOne(PurchaseMedicine, {
-        where: { id },
-        relations: ['purchased_medicines'],
-      });
+    await this.purchaseMedicineRepository.manager.transaction(
+      async (transactionalEntityManager: EntityManager) => {
+        const purchaseMedicine = await transactionalEntityManager.findOne(
+          PurchaseMedicine,
+          {
+            where: { id },
+            relations: ['purchased_medicines'],
+          },
+        );
 
-      if (!purchaseMedicine) {
-        throw new Error('PurchaseMedicine record not found');
-      }
+        if (!purchaseMedicine) {
+          throw new Error('PurchaseMedicine record not found');
+        }
 
-      if (purchaseMedicine.purchased_medicines.length > 0) {
-        await transactionalEntityManager.delete(PurchasedMedicine, {
-          purchase_medicines_id: id,
-        });
-      }
+        if (purchaseMedicine.purchased_medicines.length > 0) {
+          await transactionalEntityManager.delete(PurchasedMedicine, {
+            purchase_medicines_id: id,
+          });
+        }
 
-      await transactionalEntityManager.delete(PurchaseMedicine, id);
-    });
+        await transactionalEntityManager.delete(PurchaseMedicine, id);
+      },
+    );
   }
 
-  async getMedicineForExport(clinicId : number) {
+  async getMedicineForExport(clinicId: number) {
     const medicines = await this.purchaseMedicineRepository.find({
-      where : {
-        clinic_id: clinicId
-      }
+      where: {
+        clinic_id: clinicId,
+      },
     });
     return medicines;
   }
 
-  async getAllSelect(clinicId : number) {
-    const labels = await this.labelRepo.findBy({clinic_id : clinicId});
-    const suppliers = await this.brandRepo.findBy({clinic_id : clinicId});
+  async getAllSelect(clinicId: number) {
+    const labels = await this.labelRepo.findBy({ clinic_id: clinicId });
+    const suppliers = await this.brandRepo.findBy({ clinic_id: clinicId });
 
     return {
-      labels : labels.map(label => { return {label: label.name, value: label.id}}),
-      suppliers : suppliers.map(supplier => { return {label: supplier.name, value: supplier.id}})
-    }
+      labels: labels.map((label) => {
+        return { label: label.name, value: label.id };
+      }),
+      suppliers: suppliers.map((supplier) => {
+        return { label: supplier.name, value: supplier.id };
+      }),
+    };
   }
 
   async generateUniquePurchaseNumber() {

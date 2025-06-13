@@ -24,7 +24,7 @@ import { Patient } from '../entites/patient.entity';
       Visit,
     ]),
     AuthModule,
-    DatabaseServiceModule
+    DatabaseServiceModule,
   ],
   controllers: [DashboardController],
   providers: [DashboardService],

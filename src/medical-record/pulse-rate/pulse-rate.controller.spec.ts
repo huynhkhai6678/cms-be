@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BloodPressureController } from './pulse-rate.controller';
-import { BloodPressureService } from './pulse-rate.service';
+import { PulseRateController } from './pulse-rate.controller';
+import { PulseRateService } from './pulse-rate.service';
 
-describe('BloodPressureController', () => {
-  let controller: BloodPressureController;
+describe('PulseRateController', () => {
+  let controller: PulseRateController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [BloodPressureController],
-      providers: [BloodPressureService],
+      controllers: [PulseRateController],
+      providers: [PulseRateService],
     }).compile();
 
-    controller = module.get<BloodPressureController>(BloodPressureController);
+    controller = module.get<PulseRateController>(PulseRateController);
   });
 
   it('should be defined', () => {

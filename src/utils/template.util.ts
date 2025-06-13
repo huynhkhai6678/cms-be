@@ -1,8 +1,11 @@
-export function parseTemplateContent(string, variables) {
-  const parsedNameTag = string.replace(/{{(.*?)}}/g, (match, index) => {
+export function parseTemplateContent(
+  string: string,
+  variables: Record<string, string>,
+) {
+  const parsedNameTag = string.replace(/{{(.*?)}}/g, (match, key) => {
     // Check if the index exists in the variables object
-    if (variables.hasOwnProperty(index)) {
-      return variables[index];
+    if (Object.prototype.hasOwnProperty.call(variables, key)) {
+      return variables[key];
     }
     return match; // If no variable match, return the original placeholder
   });

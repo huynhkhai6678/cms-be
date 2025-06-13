@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, UseGuards, UseInterceptors, UploadedFile, Req, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  Req,
+  ValidationPipe,
+} from '@nestjs/common';
 import { StaffsService } from './staffs.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
@@ -7,6 +20,7 @@ import { RoleGuardFactory } from '../guards/role.guard.factory';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { createFileUploadStorage } from '../utils/upload-file.util';
 import { fileFilter } from '../utils/file-util';
+import { QueryParamsDto } from '../shared/dto/query-params.dto';
 
 @UseGuards(AuthGuard, RoleGuardFactory('manage_staff'))
 @Controller('staffs')
@@ -23,7 +37,7 @@ export class StaffsController {
   create(
     @UploadedFile() avatar: Express.Multer.File,
     @Req() req: any,
-    @Body(new ValidationPipe()) createStaffDto: CreateStaffDto
+    @Body(new ValidationPipe()) createStaffDto: CreateStaffDto,
   ) {
     const clinicIds = createStaffDto.clinic_ids.split(',') || [];
     const clinicId = clinicIds[0] || req['user'].clinic_id;
@@ -35,12 +49,12 @@ export class StaffsController {
   }
 
   @Get()
-  findAll(@Query() query) {
+  findAll(@Query() query: QueryParamsDto) {
     return this.staffsService.findAll(query);
   }
 
   @Get('detail/:id')
-  findDetail(@Param('id') id: Number) {
+  findDetail(@Param('id') id: number) {
     return this.staffsService.findDetail(+id);
   }
 
@@ -59,8 +73,8 @@ export class StaffsController {
   update(
     @UploadedFile() avatar: Express.Multer.File,
     @Req() req: any,
-    @Param('id') id: string, 
-    @Body(new ValidationPipe()) updateStaffDto: UpdateStaffDto
+    @Param('id') id: string,
+    @Body(new ValidationPipe()) updateStaffDto: UpdateStaffDto,
   ) {
     const clinicIds = updateStaffDto.clinic_ids?.split(',') || [];
     const clinicId = clinicIds[0] || req['user'].clinic_id;

@@ -10,7 +10,10 @@ import { Country } from '../entites/country.entity';
 import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Address, City, State, Country]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([User, Address, City, State, Country]),
+    AuthModule,
+  ],
   controllers: [ProfileController],
   providers: [ProfileService],
 })

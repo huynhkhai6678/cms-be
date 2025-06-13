@@ -6,7 +6,13 @@ import { MedicineInventory } from '../../entites/medicine-inventory.entity';
 import { MedicineInventoryUsage } from '../../entites/medicine-inventory-usage.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Medicine, MedicineInventory, MedicineInventoryUsage])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Medicine,
+      MedicineInventory,
+      MedicineInventoryUsage,
+    ]),
+  ],
   providers: [ShareMedicineService],
   exports: [ShareMedicineService],
 })

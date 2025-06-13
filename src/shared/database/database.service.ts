@@ -133,7 +133,6 @@ export class DatabaseService {
     query: any,
     filterFields: string[],
     alias: string,
-    searchQuery: string,
   ): { filterQuery: string; filterParams: FilterParams } {
     let filterQuery = '';
     let filterParams: FilterParams = {};
@@ -183,7 +182,6 @@ export class DatabaseService {
       query,
       filterFields,
       alias,
-      searchQuery,
     );
 
     let finalQuery = '';

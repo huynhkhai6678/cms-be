@@ -9,9 +9,7 @@ import { MedicalRecordModule } from '../medical-record/medical-record.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      PatientMedicalRecordBloodPressure,
-    ]),
+    TypeOrmModule.forFeature([PatientMedicalRecordBloodPressure]),
     MedicalRecordModule,
     DatabaseServiceModule,
     AuthModule,

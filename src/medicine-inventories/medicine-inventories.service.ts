@@ -15,13 +15,16 @@ export class MedicineInventoriesService {
     private readonly medicineInvenRepo: Repository<MedicineInventory>,
     private dataTable: DatabaseService,
     private shareMedicineService: ShareMedicineService,
-  ) { }
+  ) {}
 
   async create(createMedicineInventoryDto: CreateMedicineInventoryDto) {
     const dto = this.medicineInvenRepo.create(createMedicineInventoryDto);
-    dto.expiration_date = moment(createMedicineInventoryDto.expiration_date, 'DD/MM/YYYY').toDate();
+    dto.expiration_date = moment(
+      createMedicineInventoryDto.expiration_date,
+      'DD/MM/YYYY',
+    ).toDate();
     await this.medicineInvenRepo.save(dto);
-    this.shareMedicineService.calculateAvailableMedicine(dto.medicine_id);
+    await this.shareMedicineService.calculateAvailableMedicine(dto.medicine_id);
     return true;
   }
 
@@ -44,24 +47,32 @@ export class MedicineInventoriesService {
 
   async findOne(id: number) {
     const data = await this.medicineInvenRepo.findOne({
-      where : {
-        id
+      where: {
+        id,
       },
-      relations : ['medicine']
-    })
+      relations: ['medicine'],
+    });
     return {
-      data
-    }
+      data,
+    };
   }
 
-  async update(id: number, updateMedicineInventoryDto: UpdateMedicineInventoryDto) {
+  async update(
+    id: number,
+    updateMedicineInventoryDto: UpdateMedicineInventoryDto,
+  ) {
     const medicine = await this.medicineInvenRepo.findOneBy({ id });
     if (!medicine) throw new NotFoundException('Medicine Inventory not found');
-    
+
     Object.assign(medicine, updateMedicineInventoryDto);
-    medicine.expiration_date = moment(updateMedicineInventoryDto.expiration_date, 'DD/MM/YYYY').toDate();
+    medicine.expiration_date = moment(
+      updateMedicineInventoryDto.expiration_date,
+      'DD/MM/YYYY',
+    ).toDate();
     await this.medicineInvenRepo.save(medicine);
-    this.shareMedicineService.calculateAvailableMedicine(medicine.medicine_id);
+    await this.shareMedicineService.calculateAvailableMedicine(
+      medicine.medicine_id,
+    );
     return true;
   }
 
@@ -69,7 +80,9 @@ export class MedicineInventoriesService {
     const medicine = await this.medicineInvenRepo.findOneBy({ id });
     if (!medicine) throw new NotFoundException('Medicine Inventory not found');
     await this.medicineInvenRepo.remove(medicine);
-    this.shareMedicineService.calculateAvailableMedicine(medicine.medicine_id);
+    await this.shareMedicineService.calculateAvailableMedicine(
+      medicine.medicine_id,
+    );
     return true;
   }
 }

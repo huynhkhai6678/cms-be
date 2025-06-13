@@ -13,9 +13,9 @@ export class EnquiriesService {
     private database: DatabaseService,
   ) {}
 
-  create(createEnquiryDto: CreateEnquiryDto) {
+  async create(createEnquiryDto: CreateEnquiryDto) {
     const enquiry = this.enquiryRepo.create(createEnquiryDto);
-    return this.enquiryRepo.save(enquiry);
+    return await this.enquiryRepo.save(enquiry);
   }
 
   async findAll(query) {
@@ -43,7 +43,7 @@ export class EnquiriesService {
 
     if (!enquiry.view) {
       enquiry.view = true;
-      this.enquiryRepo.save(enquiry);
+      await this.enquiryRepo.save(enquiry);
     }
 
     return {
@@ -57,6 +57,6 @@ export class EnquiriesService {
       throw new NotFoundException('Enquiry not found');
     }
 
-    this.enquiryRepo.remove(enquiry);
+    await this.enquiryRepo.remove(enquiry);
   }
 }

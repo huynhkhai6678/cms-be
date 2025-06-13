@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ValidationPipe,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { LabelsService } from './labels.service';
 import { CreateLabelDto } from './dto/create-label.dto';
 import { UpdateLabelDto } from './dto/update-label.dto';
@@ -9,7 +20,10 @@ import { RoleGuardFactory } from '../guards/role.guard.factory';
 @UseGuards(AuthGuard, RoleGuardFactory('manage_medicines'))
 @Controller('labels')
 export class LabelsController {
-  constructor(private readonly labelsService: LabelsService, private i18n : I18nService) {}
+  constructor(
+    private readonly labelsService: LabelsService,
+    private i18n: I18nService,
+  ) {}
 
   @Post()
   create(@Body(new ValidationPipe()) createLabelDto: CreateLabelDto) {
@@ -27,7 +41,10 @@ export class LabelsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body(new ValidationPipe()) updateLabelDto: UpdateLabelDto) {
+  update(
+    @Param('id') id: string,
+    @Body(new ValidationPipe()) updateLabelDto: UpdateLabelDto,
+  ) {
     return this.labelsService.update(+id, updateLabelDto);
   }
 

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PulseRateService } from './pulse-rate.service';
 
-describe('BloodPressureService', () => {
+describe('PulseRateService', () => {
   let service: PulseRateService;
 
   beforeEach(async () => {

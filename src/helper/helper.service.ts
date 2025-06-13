@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRole } from '../constants/user.constant';
 import { City } from '../entites/city.entity';
@@ -25,8 +25,10 @@ export class HelperService {
     @InjectRepository(City) private cityRepo: Repository<City>,
     @InjectRepository(Setting) private settingRepo: Repository<Setting>,
     @InjectRepository(Currency) private currencyRepo: Repository<Currency>,
-    @InjectRepository(PatientMedicalRecord) private patientMedicalRepository: Repository<PatientMedicalRecord>,
-    @InjectRepository(PaymentGateway) private gatewayRepo: Repository<PaymentGateway>,
+    @InjectRepository(PatientMedicalRecord)
+    private patientMedicalRepository: Repository<PatientMedicalRecord>,
+    @InjectRepository(PaymentGateway)
+    private gatewayRepo: Repository<PaymentGateway>,
   ) {}
 
   async clinicDoctor(id: number) {
@@ -44,15 +46,15 @@ export class HelperService {
       'user.id = userClinic.user_id',
     );
 
-    qb.andWhere('userClinic.clinic_id = :clinic_id', { clinic_id : id});
-    qb.andWhere('user.type = :type', { type : UserRole.DOCTOR});
+    qb.andWhere('userClinic.clinic_id = :clinic_id', { clinic_id: id });
+    qb.andWhere('user.type = :type', { type: UserRole.DOCTOR });
 
     qb.select([
       'doctor.id as value',
-      `CONCAT(user.first_name, ' ', user.last_name) as label`
-    ])
+      `CONCAT(user.first_name, ' ', user.last_name) as label`,
+    ]);
 
-    return await qb.getRawMany()
+    return await qb.getRawMany<SingleSelect2Option>();
   }
 
   async clinicPatient(id: number) {
@@ -64,8 +66,8 @@ export class HelperService {
       'patient.user_id = user.id',
     );
 
-    qb.andWhere('user.clinic_id = :clinic_id', { clinic_id : id});
-    qb.andWhere('user.type = :type', { type : UserRole.PATIENT});
+    qb.andWhere('user.clinic_id = :clinic_id', { clinic_id: id });
+    qb.andWhere('user.type = :type', { type: UserRole.PATIENT });
 
     qb.select([
       'patient.id as value',
@@ -74,13 +76,13 @@ export class HelperService {
       'user.id_number as id_number',
       'user.region_code as region_code',
       'user.contact as contact',
-      'user.dob as dob'
-    ])
+      'user.dob as dob',
+    ]);
 
-    return await qb.getRawMany();
+    return await qb.getRawMany<ClinicPatient>();
   }
 
-  async doctorService(id: number, clinicId : number) {
+  async doctorService(id: number, clinicId: number) {
     const services = await this.doctorRepo
       .createQueryBuilder('doctor')
       .leftJoin('doctor.services', 'service')
@@ -89,29 +91,46 @@ export class HelperService {
       .andWhere('service.clinic_id = :clinicId', { clinicId })
       .getRawMany();
 
-    return services.map(service => {return {value:service.id, label: service.name, charges: service.charges}});
+    return services.map((service) => {
+      return {
+        value: service.id,
+        label: service.name,
+        charges: service.charges,
+      };
+    });
   }
 
   async getPaymentGateways(id: number) {
-    const gateways = await this.gatewayRepo.findBy({clinic_id : id});
-    return gateways.map(gateway => {return {value:gateway.payment_gateway_id, label: gateway.payment_gateway}});
+    const gateways = await this.gatewayRepo.findBy({ clinic_id: id });
+    return gateways.map((gateway) => {
+      return {
+        value: gateway.payment_gateway_id,
+        label: gateway.payment_gateway,
+      };
+    });
   }
 
   async getAllCountries() {
     const countries = await this.countryRepo.find();
-    return countries.map(country => { return {label : country.name, value: country.id}});
+    return countries.map((country) => {
+      return { label: country.name, value: country.id };
+    });
   }
 
   async getStateByCountry(id) {
     const states = await this.stateRepo.findBy({
       country_id: id,
     });
-    return states.map(state => { return {label : state.name, value: state.id}});
+    return states.map((state) => {
+      return { label: state.name, value: state.id };
+    });
   }
 
   async getCityByState(id) {
     const cities = await this.cityRepo.findBy({ state_id: id });
-    return cities.map(city => { return {label : city.name, value: city.id}});
+    return cities.map((city) => {
+      return { label: city.name, value: city.id };
+    });
   }
 
   async generateUniqueIdInDatabase(repository, column) {
@@ -130,19 +149,21 @@ export class HelperService {
     return patientUniqueId;
   }
 
-  async getCurrencyCode(clinicId : number) {
+  async getCurrencyCode(clinicId: number) {
     const setting = await this.settingRepo.findOne({
-      where : {
-        key : 'currency',
-        clinic_id : clinicId
-      }
-    })
+      where: {
+        key: 'currency',
+        clinic_id: clinicId,
+      },
+    });
 
     if (!setting) {
       return '';
     }
 
-    const country = await this.currencyRepo.findOneBy({id : parseInt(setting.value)});
+    const country = await this.currencyRepo.findOneBy({
+      id: parseInt(setting.value),
+    });
 
     if (!country) {
       return '';
@@ -188,7 +209,10 @@ export class HelperService {
 
     const patientDto = new Patient();
     patientDto.user_id = user.id;
-    patientDto.patient_unique_id = await this.generateUniqueIdInDatabase(this.patientRepo, 'patient_unique_id');
+    patientDto.patient_unique_id = await this.generateUniqueIdInDatabase(
+      this.patientRepo,
+      'patient_unique_id',
+    );
     patientDto.patient_mrn = await this.generatePatientMRN();
     const patient = await this.patientRepo.save(patientDto);
 
@@ -202,4 +226,14 @@ export class HelperService {
 export interface SingleSelect2Option {
   label: string;
   value: any;
+}
+
+interface ClinicPatient {
+  value: number;
+  label: string;
+  id_type: string;
+  id_number: string;
+  region_code: string;
+  contact: string;
+  dob: string;
 }

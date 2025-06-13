@@ -11,7 +11,9 @@ describe('TransactionMedicalCertificateController', () => {
       providers: [TransactionMedicalCertificateService],
     }).compile();
 
-    controller = module.get<TransactionMedicalCertificateController>(TransactionMedicalCertificateController);
+    controller = module.get<TransactionMedicalCertificateController>(
+      TransactionMedicalCertificateController,
+    );
   });
 
   it('should be defined', () => {

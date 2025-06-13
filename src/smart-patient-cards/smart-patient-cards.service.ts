@@ -13,12 +13,13 @@ import { CreatePatientSmartPatientCardDto } from './dto/create-patient-smart-pat
 import { Address } from '../entites/address.entity';
 import { PdfService } from '../shared/pdf/pdf.service';
 import { join } from 'path';
-import * as ejs from 'ejs';
+import { renderFile } from 'ejs';
 import { City } from 'src/entites/city.entity';
 import { State } from 'src/entites/state.entity';
 import { Country } from 'src/entites/country.entity';
 import { ConfigService } from '@nestjs/config';
 import { QrService } from 'src/shared/qr/qr.service';
+import { QueryParamsDto } from 'src/shared/dto/query-params.dto';
 
 @Injectable()
 export class SmartPatientCardsService {
@@ -39,7 +40,7 @@ export class SmartPatientCardsService {
     private readonly countryRepo: Repository<Country>,
     private config: ConfigService,
     private qrCode: QrService,
-    private helperService : HelperService,
+    private helperService: HelperService,
     private pdfService: PdfService,
     private database: DatabaseService,
   ) {}
@@ -58,7 +59,15 @@ export class SmartPatientCardsService {
       },
       searchFields: ['template_name'],
       filterFields: ['clinic_id'],
-      allowedOrderFields: ['template_name', 'email_show', 'phone_show', 'dob_show', 'blood_group_show', 'address_show', 'show_patient_unique_id'],
+      allowedOrderFields: [
+        'template_name',
+        'email_show',
+        'phone_show',
+        'dob_show',
+        'blood_group_show',
+        'address_show',
+        'show_patient_unique_id',
+      ],
       defaultOrderField: 'created_at',
       defaultOrderDirection: 'DESC',
       selectFields: [],
@@ -66,9 +75,15 @@ export class SmartPatientCardsService {
     });
   }
 
-  async findPatientCard(query) {
-    const take = !isNaN(Number(query.limit)) && Number(query.limit) > 0 ? Number(query.limit) : 10;
-    const page = !isNaN(Number(query.page)) && Number(query.page) > 0 ? Number(query.page) : 1;
+  async findPatientCard(query: QueryParamsDto) {
+    const take =
+      !isNaN(Number(query.limit)) && Number(query.limit) > 0
+        ? Number(query.limit)
+        : 10;
+    const page =
+      !isNaN(Number(query.page)) && Number(query.page) > 0
+        ? Number(query.page)
+        : 1;
     const skip = (page - 1) * take;
 
     const qb = this.patientRepo.createQueryBuilder('patient');
@@ -109,7 +124,9 @@ export class SmartPatientCardsService {
     }
 
     if (query.clinic_id) {
-      qb.andWhere('user.clinic_id = :clinic_id', { clinic_id: query.clinic_id });
+      qb.andWhere('user.clinic_id = :clinic_id', {
+        clinic_id: query.clinic_id,
+      });
     }
 
     qb.andWhere('patient.template_id IS NOT NULL');
@@ -117,16 +134,16 @@ export class SmartPatientCardsService {
     // Order by logic (can also order by concatenated full_name)
     const orderableFieldsMap = {
       full_name: "CONCAT(user.first_name, ' ', user.last_name)",
-      patient_unique_id: "patient.patient_unique_id",
-      template_name: "template.template_name",
+      patient_unique_id: 'patient.patient_unique_id',
+      template_name: 'template.template_name',
     };
 
-    const orderByField =
+    const orderByField: string =
       query.orderBy && orderableFieldsMap[query.orderBy]
         ? orderableFieldsMap[query.orderBy]
         : 'patient.id';
 
-    const orderDirection =
+    const orderDirection: string =
       query.order && ['ASC', 'DESC'].includes(query.order.toUpperCase())
         ? query.order.toUpperCase()
         : 'DESC';
@@ -139,7 +156,7 @@ export class SmartPatientCardsService {
     // Fetch the results and total count
     const data = await qb.getRawMany();
     const total = await qb.getCount();
-    
+
     return {
       data,
       pagination: {
@@ -151,22 +168,22 @@ export class SmartPatientCardsService {
     };
   }
 
-  async findOne(id: number, clinicId : number) {
-    const smartPatientCard = await this.smartCardRepo.findOneBy({id});
+  async findOne(id: number, clinicId: number) {
+    const smartPatientCard = await this.smartCardRepo.findOneBy({ id });
     const settings = await this.settingRepo.find({
-      where : {
-        clinic_id : clinicId,
-        key : In(['clinic_name', 'address_one', 'logo']) 
+      where: {
+        clinic_id: clinicId,
+        key: In(['clinic_name', 'address_one', 'logo']),
       },
-      select : ['value']
+      select: ['value'],
     });
 
     return {
-      data : smartPatientCard,
-      clinic_name : settings[0]?.value || '',
-      address_one : settings[1]?.value || '',
-      logo : settings[2]?.value || '',
-    }
+      data: smartPatientCard,
+      clinic_name: settings[0]?.value || '',
+      address_one: settings[1]?.value || '',
+      logo: settings[2]?.value || '',
+    };
   }
 
   async generatePatientCard(clinicId: number) {
@@ -175,16 +192,20 @@ export class SmartPatientCardsService {
 
     return {
       templates,
-      patients
-    }
+      patients,
+    };
   }
 
   async templateByClinic(clinicId: number) {
-    const templates = await this.smartCardRepo.findBy({clinic_id : clinicId});
-    return templates.map(template => { return {label:template.template_name, value: template.id}});
+    const templates = await this.smartCardRepo.findBy({ clinic_id: clinicId });
+    return templates.map((template) => {
+      return { label: template.template_name, value: template.id };
+    });
   }
 
-  async createPatientCard(createPatientSmartPatientCardDto : CreatePatientSmartPatientCardDto) {
+  async createPatientCard(
+    createPatientSmartPatientCardDto: CreatePatientSmartPatientCardDto,
+  ) {
     if (createPatientSmartPatientCardDto.type === 1) {
       const query = `
         UPDATE patients AS \`patient\`
@@ -193,14 +214,19 @@ export class SmartPatientCardsService {
         WHERE \`user\`.\`clinic_id\` = ?
       `;
 
-      const result = await this.patientRepo.query(query, [
-        createPatientSmartPatientCardDto.template_id, 
-        createPatientSmartPatientCardDto.clinic_id
+      await this.patientRepo.query(query, [
+        createPatientSmartPatientCardDto.template_id,
+        createPatientSmartPatientCardDto.clinic_id,
       ]);
     }
 
-    if (createPatientSmartPatientCardDto.type === 2 && createPatientSmartPatientCardDto.patient_id) {
-      const patient = await this.patientRepo.findOneBy({id: createPatientSmartPatientCardDto.patient_id});
+    if (
+      createPatientSmartPatientCardDto.type === 2 &&
+      createPatientSmartPatientCardDto.patient_id
+    ) {
+      const patient = await this.patientRepo.findOneBy({
+        id: createPatientSmartPatientCardDto.patient_id,
+      });
       if (!patient) {
         throw new NotFoundException('Patient not found');
       }
@@ -208,7 +234,7 @@ export class SmartPatientCardsService {
       await this.patientRepo.save(patient);
     }
 
-    if (createPatientSmartPatientCardDto.type === 3) { 
+    if (createPatientSmartPatientCardDto.type === 3) {
       const query = `
         UPDATE patients AS \`patient\`
         INNER JOIN \`users\` AS \`user\` ON \`user\`.\`id\` = \`patient\`.\`user_id\`
@@ -217,17 +243,20 @@ export class SmartPatientCardsService {
         AND \`user\`.\`clinic_id\` = ?
       `;
 
-      const result = await this.patientRepo.query(query, [
-        createPatientSmartPatientCardDto.template_id, 
-        createPatientSmartPatientCardDto.clinic_id
+      await this.patientRepo.query(query, [
+        createPatientSmartPatientCardDto.template_id,
+        createPatientSmartPatientCardDto.clinic_id,
       ]);
     }
 
     return true;
   }
 
-  async update(id: number, updateSmartPatientCardDto: UpdateSmartPatientCardDto) {
-    const card = await this.smartCardRepo.findOneBy({id});
+  async update(
+    id: number,
+    updateSmartPatientCardDto: UpdateSmartPatientCardDto,
+  ) {
+    const card = await this.smartCardRepo.findOneBy({ id });
     if (!card) {
       throw new NotFoundException('Card not found');
     }
@@ -236,20 +265,19 @@ export class SmartPatientCardsService {
     return await this.smartCardRepo.save(card);
   }
 
-  async updateEntity(id : number, body : any) {
+  async updateEntity(id: number, body: any) {
     const { column, value } = body;
-    const card = await this.smartCardRepo.findOneBy({id});
+    const card = await this.smartCardRepo.findOneBy({ id });
     if (!card) {
       throw new NotFoundException('Card not found');
     }
-    
+
     card[column] = value;
-    this.smartCardRepo.save(card);
-    return true;
+    return await this.smartCardRepo.save(card);
   }
 
   async remove(id: number) {
-    const card = await this.smartCardRepo.findOneBy({id});
+    const card = await this.smartCardRepo.findOneBy({ id });
     if (!card) {
       throw new NotFoundException('Card not found');
     }
@@ -257,8 +285,8 @@ export class SmartPatientCardsService {
     return await this.smartCardRepo.remove(card);
   }
 
-  async removePatientCard(id : number) {
-    const patient = await this.patientRepo.findOneBy({id});
+  async removePatientCard(id: number) {
+    const patient = await this.patientRepo.findOneBy({ id });
     if (!patient) {
       throw new NotFoundException('Patient not found');
     }
@@ -267,12 +295,12 @@ export class SmartPatientCardsService {
     return await this.patientRepo.save(patient);
   }
 
-  async showPatientCard(id : number) {
+  async showPatientCard(id: number) {
     const patient = await this.patientRepo.findOne({
-      where : {
-        id
+      where: {
+        id,
       },
-      relations : ['smart_patient_card', 'user']
+      relations: ['smart_patient_card', 'user'],
     });
 
     if (!patient || !patient.user) {
@@ -280,11 +308,11 @@ export class SmartPatientCardsService {
     }
 
     const settings = await this.settingRepo.find({
-      where : {
-        clinic_id : patient.user.clinic_id,
-        key : In(['clinic_name', 'address_one', 'logo']) 
+      where: {
+        clinic_id: patient.user.clinic_id,
+        key: In(['clinic_name', 'address_one', 'logo']),
       },
-      select : ['value']
+      select: ['value'],
     });
 
     const addrress = await this.addressRepo.findOne({
@@ -295,31 +323,37 @@ export class SmartPatientCardsService {
     });
 
     const webUrl = this.config.get<string>('WEB_URL');
-    const svg = await this.qrCode.generateQRCodeSVG(`${webUrl}/qr-code/t/${patient.patient_unique_id}`);
+    const svg = await this.qrCode.generateQRCodeSVG(
+      `${webUrl}/qr-code/t/${patient.patient_unique_id}`,
+    );
 
     return {
-      data : patient,
+      data: patient,
       patient_address: addrress?.address1,
-      clinic_name : settings[0]?.value || '',
-      address_one : settings[1]?.value || '',
-      logo : settings[2]?.value || '',
-      svg
-    }
+      clinic_name: settings[0]?.value || '',
+      address_one: settings[1]?.value || '',
+      logo: settings[2]?.value || '',
+      svg,
+    };
   }
 
-  async export(id : number) {
+  async export(id: number) {
     const templatePath = join(__dirname, '..', 'templates', 'patient-card.ejs');
     const data = await this.getSmartPatientData(id);
     const setting = await this.getSettingData(data.user.clinic_id);
-    const city = await this.cityRepo.findOneBy({id: setting['city_id']});
-    const country = await this.countryRepo.findOneBy({id: setting['country_id']});
-    const state = await this.stateRepo.findOneBy({id: setting['state_id']});
+    const city = await this.cityRepo.findOneBy({ id: setting['city_id'] });
+    const country = await this.countryRepo.findOneBy({
+      id: setting['country_id'],
+    });
+    const state = await this.stateRepo.findOneBy({ id: setting['state_id'] });
 
     const webUrl = this.config.get<string>('WEB_URL');
-    const apiUrl = this.config.get<string>('API_URL')
-    const svg = await this.qrCode.generateQRCodeSVG(`${webUrl}/qr-code/t/${data.patient_unique_id}`);
+    const apiUrl = this.config.get<string>('API_URL');
+    const svg = await this.qrCode.generateQRCodeSVG(
+      `${webUrl}/qr-code/t/${data.patient_unique_id}`,
+    );
 
-    const htmlContent = await ejs.renderFile(templatePath, {
+    const htmlContent: string = await renderFile(templatePath, {
       city: city?.name ?? '',
       state: state?.name ?? '',
       country: country?.name ?? '',
@@ -333,12 +367,12 @@ export class SmartPatientCardsService {
     return pdfBuffer;
   }
 
-  async getSmartPatientData(id : number) {
+  async getSmartPatientData(id: number) {
     const patient = await this.patientRepo.findOne({
-      where : {
-        id
+      where: {
+        id,
       },
-      relations : ['smart_patient_card', 'user']
+      relations: ['smart_patient_card', 'user'],
     });
 
     if (!patient || !patient.user) {
@@ -356,11 +390,19 @@ export class SmartPatientCardsService {
     return patient;
   }
 
-  async getSettingData(id : number) {
+  async getSettingData(id: number) {
     const settings = await this.settingRepo.find({
-      where : {
-        clinic_id : id,
-        key : In(['clinic_name', 'address_one', 'logo', 'address_two', 'country_id', 'state_id', 'city_id']) 
+      where: {
+        clinic_id: id,
+        key: In([
+          'clinic_name',
+          'address_one',
+          'logo',
+          'address_two',
+          'country_id',
+          'state_id',
+          'city_id',
+        ]),
       },
     });
 

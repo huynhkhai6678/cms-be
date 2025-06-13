@@ -22,7 +22,7 @@ export class CreateServiceDto {
   doctor_ids: string;
 
   @IsDefined()
-  @Transform(({ value }) =>
+  @Transform(({ value }: { value: unknown }) =>
     typeof value === 'string' && !isNaN(Number(value)) ? Number(value) : value,
   )
   @IsNumber()
