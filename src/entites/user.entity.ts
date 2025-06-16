@@ -20,6 +20,7 @@ import { Address } from './address.entity';
 import { UserClinic } from './user-clinic.entity';
 import { PatientMedicalRecordHistory } from './patient-medical-record-history.entity';
 import { Exclude, Expose } from 'class-transformer';
+import { Notification } from './notification.entity';
 
 @Entity('users')
 export class User {
@@ -201,6 +202,9 @@ export class User {
 
   @Column({ type: 'varchar', length: 255 })
   image_url: string;
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications: Notification[];
 
   @Expose()
   get fullName(): string {

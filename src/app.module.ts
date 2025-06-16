@@ -116,6 +116,8 @@ import { TemperatureModule } from './medical-record/temperature/temperature.modu
 import { PulseRateModule } from './medical-record/pulse-rate/pulse-rate.module';
 import { WeightModule } from './medical-record/weight/weight.module';
 import { DocumentModule } from './medical-record/document/document.module';
+import { NotificationModule } from './notification/notification.module';
+import { Notification } from './entites/notification.entity';
 
 @Module({
   imports: [
@@ -208,6 +210,7 @@ import { DocumentModule } from './medical-record/document/document.module';
         MedicineInventoryUsage,
         PurchaseMedicine,
         PurchasedMedicine,
+        Notification
       ],
       synchronize: false,
     }),
@@ -260,6 +263,7 @@ import { DocumentModule } from './medical-record/document/document.module';
     PulseRateModule,
     WeightModule,
     DocumentModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService, ExcelService, QrService],

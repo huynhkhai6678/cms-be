@@ -22,13 +22,15 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { createFileUploadStorage } from '../utils/upload-file.util';
 import { fileFilter } from '../utils/file-util';
 import { I18nService } from 'nestjs-i18n';
-import { QueryParamsDto } from 'src/shared/dto/query-params.dto';
+import { QueryParamsDto } from '../shared/dto/query-params.dto';
+import { NotificationService } from '../notification/notification.service';
 
 @UseGuards(AuthGuard, RoleGuardFactory('manage_patients'))
 @Controller('patients')
 export class PatientsController {
   constructor(
     private readonly patientsService: PatientsService,
+    private readonly notificationService: NotificationService,
     private i18n: I18nService,
   ) {}
 
@@ -56,7 +58,7 @@ export class PatientsController {
   }
 
   @Get()
-  findAll(@Query() query: QueryParamsDto) {
+  async findAll(@Query() query: QueryParamsDto) {
     return this.patientsService.findAll(query);
   }
 

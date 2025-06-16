@@ -199,7 +199,7 @@ export class StaffsService {
       user.region_code = updateStaffDto.region_code || '';
       user.email = updateStaffDto.email || '';
       user.gender = updateStaffDto.gender;
-      user.type = updateStaffDto.type;
+      user.type = updateStaffDto.type || 1;
       user.clinic_id = parseInt(clinicIds[0]);
       user.clinics = clinics;
 

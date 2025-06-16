@@ -10,6 +10,7 @@ import { HelperModule } from '../helper/helper.module';
 import { Address } from '../entites/address.entity';
 import { PatientMedicalRecord } from '../entites/patient-medical-record.entity';
 import { Appointment } from '../entites/appointment.entitty';
+import { NotificationModule } from 'src/notification/notification.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { Appointment } from '../entites/appointment.entitty';
       PatientMedicalRecord,
       Appointment,
     ]),
+    NotificationModule,
     AuthModule,
     HelperModule,
   ],
