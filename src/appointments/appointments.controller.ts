@@ -9,6 +9,8 @@ import {
   ValidationPipe,
   UseGuards,
   Req,
+  Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
@@ -17,6 +19,7 @@ import { AuthGuard } from '../guards/auth.guard';
 import { RoleGuardFactory } from '../guards/role.guard.factory';
 import { I18nService } from 'nestjs-i18n';
 import { User } from '../entites/user.entity';
+import { QueryParamsDto } from '../shared/dto/query-params.dto';
 
 @UseGuards(AuthGuard, RoleGuardFactory('manage_appointments'))
 @Controller('appointments')
@@ -28,7 +31,7 @@ export class AppointmentsController {
 
   @Post()
   async create(
-    @Body(new ValidationPipe()) createAppointmentDto: CreateAppointmentDto,
+    @Body(ValidationPipe) createAppointmentDto: CreateAppointmentDto,
   ) {
     await this.appointmentsService.create(createAppointmentDto);
     return {
@@ -37,12 +40,12 @@ export class AppointmentsController {
   }
 
   @Get()
-  findAll() {
-    return this.appointmentsService.findAll();
+  findAll(@Query() query : QueryParamsDto) {
+    return this.appointmentsService.findAll(query);
   }
 
   @Get('calendar/:id')
-  async findAllCalendar(@Param('id') id: string, @Req() request: any) {
+  async findAllCalendar(@Param('id', ParseIntPipe) id: string, @Req() request: any) {
     const user: User = request.user;
     const data = await this.appointmentsService.findAllCalendar(+id, user);
     return {
@@ -51,14 +54,14 @@ export class AppointmentsController {
   }
 
   @Get(':id/:clinicId')
-  findOne(@Param('id') id: number, @Param('clinicId') clinicId: number) {
+  findOne(@Param('id', ParseIntPipe) id: number, @Param('clinicId') clinicId: number) {
     return this.appointmentsService.findOne(id, clinicId);
   }
 
   @Patch(':id')
   async update(
-    @Param('id') id: string,
-    @Body(new ValidationPipe()) updateAppointmentDto: UpdateAppointmentDto,
+    @Param('id', ParseIntPipe) id: string,
+    @Body(ValidationPipe) updateAppointmentDto: UpdateAppointmentDto,
   ) {
     await this.appointmentsService.update(+id, updateAppointmentDto);
     return {
@@ -67,7 +70,7 @@ export class AppointmentsController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id', ParseIntPipe) id: string) {
     await this.appointmentsService.remove(+id);
     return {
       message: this.i18n.t('main.messages.flash.appointment_delete'),

@@ -1,4 +1,5 @@
-import { IsDefined, IsString, Matches } from 'class-validator';
+import { IsDefined, IsString, Validate } from 'class-validator';
+import { MatchValidator } from 'src/validators/match.validator';
 
 export class ChangePasswordDto {
   @IsDefined()
@@ -11,6 +12,6 @@ export class ChangePasswordDto {
 
   @IsDefined()
   @IsString()
-  @Matches('password')
+  @Validate(MatchValidator, ['new_password'])
   confirm_password: string;
 }

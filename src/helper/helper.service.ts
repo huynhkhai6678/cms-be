@@ -228,7 +228,7 @@ export interface SingleSelect2Option {
   value: any;
 }
 
-interface ClinicPatient {
+export interface ClinicPatient {
   value: number;
   label: string;
   id_type: string;

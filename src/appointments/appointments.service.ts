@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -14,14 +15,31 @@ import { HelperService } from '../helper/helper.service';
 import { UserRole } from '../constants/user.constant';
 import { AuthService } from '../auth/auth.service';
 import { User } from '../entites/user.entity';
+import { AppointmentStatus } from '../constants/appointment-status.constant';
+import { Visit } from '../entites/visit.entity';
+import { VISIT_STATUS, VISIT_TYPE } from '../constants/visit.constant';
+import { NotificationService } from '../notification/notification.service';
+import { Patient } from '../entites/patient.entity';
+import { Doctor } from '../entites/doctor.entity';
+import { REQUEST } from '@nestjs/core';
+import { QueryParamsDto } from '../shared/dto/query-params.dto';
+import { Service } from '../entites/service.entity';
 
 @Injectable()
 export class AppointmentsService {
   constructor(
     @InjectRepository(Appointment)
     private readonly appointmentRepository: Repository<Appointment>,
-    private authService: AuthService,
-    private helpService: HelperService,
+    @InjectRepository(Visit)
+    private readonly visitRepository: Repository<Visit>,
+    @InjectRepository(Patient)
+    private readonly patientRepository: Repository<Patient>,
+    @InjectRepository(Doctor)
+    private readonly doctorRepository: Repository<Doctor>,
+    @Inject(REQUEST) private readonly request: any,
+    private readonly authService: AuthService,
+    private readonly notificationService: NotificationService,
+    private readonly helpService: HelperService,
   ) {}
 
   async create(createAppointmentDto: CreateAppointmentDto) {
@@ -60,8 +78,129 @@ export class AppointmentsService {
     return result;
   }
 
-  findAll() {
-    return `This action returns all appointments`;
+  async findAll(query : QueryParamsDto) {
+    const take = !isNaN(Number(query.limit)) && Number(query.limit) > 0 ? Number(query.limit) : 10;
+    const page = !isNaN(Number(query.page)) && Number(query.page) > 0 ? Number(query.page) : 1;
+    const skip = (page - 1) * take;
+    
+    const qb = this.appointmentRepository.createQueryBuilder('appointment');
+
+    // Join doctor with user
+    qb.leftJoinAndMapOne(
+      'appointment.doctor',
+      Doctor,
+      'doctor',
+      'appointment.doctor_id = doctor.id',
+    );
+
+    qb.leftJoinAndMapOne(
+      'appointment.patient',
+      Patient,
+      'patient',
+      'appointment.patient_id = patient.id',
+    );
+
+    qb.leftJoinAndMapOne(
+      'patient.user',
+      User,
+      'user_patient',
+      'patient.user_id = user_patient.id',
+    );
+
+    qb.leftJoinAndMapOne(
+      'doctor.user',
+      User,
+      'user_doctor',
+      'doctor.user_id = user_doctor.id',
+    );
+
+    qb.leftJoinAndMapOne(
+      'appointment.service',
+      Service,
+      'service',
+      'appointment.service_id = service.id',
+    );
+
+    qb.select([
+      'appointment.id AS appointment_id',
+      'appointment.doctor_id AS doctor_id',
+      'appointment.patient_id AS patient_id',
+      'appointment.clinic_id AS appointment_clinic_id',
+      'appointment.date AS appointment_date',
+      'appointment.from_time AS appointment_from_time',
+      'appointment.from_time_type AS appointment_from_time_type',
+      'appointment.to_time AS appointment_to_time',
+      'appointment.to_time_type AS appointment_to_time_type',
+      'appointment.service_id AS appointment_service_id',
+      'appointment.description AS appointment_description',
+      'service.name AS appointment_service',
+      'user_patient.email AS patient_email',
+      'user_patient.image_url AS patient_image_url',
+      'user_patient.gender AS patient_gender',
+      'user_patient.dob AS patient_dob',
+      'user_patient.id_number AS patient_id_number',
+      'user_patient.region_code AS patient_region_code',
+      'user_patient.contact AS patient_contact',
+      `CONCAT(user_patient.first_name, ' ', user_patient.last_name) as patient_full_name`,
+      `CONCAT(user_doctor.first_name, ' ', user_doctor.last_name) as doctor_full_name`,
+    ]);
+
+    // Search functionality
+    if (query.search) {
+      qb.andWhere(
+        `CONCAT(user.first_name, ' ', user.last_name) LIKE :search OR user.id_number LIKE :search OR user.contact LIKE :search LIKE service.name LIKE :search`,
+        { search: `%${query.search}%` },
+      );
+    }
+
+    if (query.clinic_id) {
+      qb.andWhere('appointment.clinic_id = :clinicId', { clinicId: query.clinic_id });
+    }
+
+    if (query.start_date) {
+      qb.andWhere('appointment.date >= :startDate', {
+        startDate: query.start_date,
+      });
+    }
+
+    if (query.end_date) {
+      qb.andWhere('appointment.date <= :endDate', { endDate: query.end_date });
+    }
+
+    // Order by logic (can also order by concatenated full_name)
+    const orderableFieldsMap = {
+      full_name: "CONCAT(user.first_name, ' ', user.last_name)",
+      appointment_service : "service.name"
+    };
+
+    const orderByField: string =
+      query.orderBy && orderableFieldsMap[query.orderBy]
+        ? orderableFieldsMap[query.orderBy]
+        : 'appointment.id';
+
+    const orderDirection: string =
+      query.order && ['ASC', 'DESC'].includes(query.order.toUpperCase())
+        ? query.order.toUpperCase()
+        : 'DESC';
+
+    qb.orderBy(orderByField, orderDirection as 'ASC' | 'DESC');
+
+    // Apply pagination
+    qb.skip(skip).take(take);
+
+    // Fetch the results and total count
+    const data = await qb.getRawMany();
+    const total = await qb.getCount();
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit: take,
+        total,
+        totalPages: Math.ceil(total / take),
+      },
+    };
   }
 
   async findOne(id: number, clinicId: number) {
@@ -138,8 +277,14 @@ export class AppointmentsService {
       updateAppointmentDto.phone?.dialCode.substring(1) || '';
 
     await this.checkDoctorAvailability(appointment);
+
+    const oldStatus = appointment.status;
     Object.assign(appointment, updateAppointmentDto);
-    const result = this.appointmentRepository.save(appointment);
+    const result = await this.appointmentRepository.save(appointment);
+
+    if (oldStatus !== updateAppointmentDto.status) {
+      await this.checkStatus(appointment);
+    }
     return result;
   }
 
@@ -228,6 +373,115 @@ export class AppointmentsService {
     });
 
     return data;
+  }
+
+  async checkStatus(appointment) {
+    if (appointment.status === AppointmentStatus.CHECK_IN) {
+      // Create visit
+      const data = {
+        doctor_id: appointment.doctor_id,
+        patient_id: appointment.patient_id,
+        visit_type: VISIT_TYPE.APPOINTMENT,
+        visit_date: moment().format('YYYY-MM-DD hh:mm:ss'),
+        id_type: appointment.id_type,
+        id_number: appointment.id_number,
+        dob: appointment.dob,
+        age: moment().diff(moment(appointment.dob, 'DD/MM/YYYY'), 'years'),
+        region_code: appointment.region_code,
+        contact_no: appointment.contact,
+        appointment_id: appointment.id,
+        clinic_id: appointment.clinic_id
+      }
+
+      const visit = this.visitRepository.create(data);
+      return await this.visitRepository.save(visit);
+
+    } else if (appointment.status === AppointmentStatus.CHECK_OUT) {
+
+      const fullTime = `${appointment.from_time}${appointment.from_time_type} - ${appointment.to_time}${appointment.to_time_type} ${moment(appointment.date).format('Do MMM, YYYY')}`;
+      const patient = await this.patientRepository.findOne({
+        where: {
+          id: appointment.patient_id
+        },
+        relations : ['user']
+      });
+
+      if (!patient) {
+        console.log('patient not found');
+        return;
+      }
+
+      const doctor = await this.doctorRepository.findOne({
+        where: {
+          id: appointment.doctor_id
+        },
+        relations : ['user']
+      });
+
+      if (!doctor) {
+        console.log('doctor not found');
+        return;
+      }
+      
+      await this.notificationService.create({
+        title : `Your Appointment has been checkout by ${this.request.user.first_name} ${this.request.user.last_name}`,
+        type: 'checkout',
+        user_id : patient.user.id
+      });
+
+      await this.notificationService.create({
+        title : `${patient.user.first_name} ${patient.user.last_name}'s appointment check out by ${this.request.user.first_name} ${this.request.user.last_name} at ${fullTime}`,
+        type: 'checkout',
+        user_id : doctor.user.id
+      });
+
+      const visit = await this.visitRepository.findOneBy({ appointment_id : appointment.id});
+      if (visit) {
+        visit.checkout_date = moment().toISOString();
+        visit.status = VISIT_STATUS.STATUS_COMPLETED;
+        await this.visitRepository.save(visit);
+      }
+
+      return true;
+    } else if (appointment.status === AppointmentStatus.CANCELLED) {
+      const fullTime = `${appointment.from_time}${appointment.from_time_type} - ${appointment.to_time}${appointment.to_time_type} ${moment(appointment.date).format('Do MMM, YYYY')}`;
+      const patient = await this.patientRepository.findOne({
+        where: {
+          id: appointment.patient_id
+        },
+        relations : ['user']
+      });
+
+      if (!patient) {
+        console.log('patient not found');
+        return;
+      }
+
+      const doctor = await this.doctorRepository.findOne({
+        where: {
+          id: appointment.doctor_id
+        },
+        relations : ['user']
+      });
+
+      if (!doctor) {
+        console.log('doctor not found');
+        return;
+      }
+      
+      await this.notificationService.create({
+        title : `Your Appointment has been cancelled by ${this.request.user.first_name} ${this.request.user.last_name}`,
+        type: 'canceled',
+        user_id : patient.user.id
+      });
+
+      await this.notificationService.create({
+        title : `${patient.user.first_name} ${patient.user.last_name}'s appointment cancelled by ${this.request.user.first_name} ${this.request.user.last_name}  at ${fullTime}`,
+        type: 'canceled',
+        user_id : doctor.user.id
+      });
+
+    }
   }
 
   getStatusClassName(status: number): string {

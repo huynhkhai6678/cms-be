@@ -1,50 +1,74 @@
-import { IsDefined, IsNumber, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsDefined, IsNumber, IsNumberString, IsString } from 'class-validator';
 
 export class UpdateProfileDto {
   @IsDefined()
   @IsString()
-  first_name;
+  first_name : string;
 
   @IsDefined()
   @IsString()
-  last_name;
+  last_name : string;
 
   @IsDefined()
   @IsString()
-  email;
+  email : string;
 
   @IsDefined()
-  @IsNumber()
-  time_zone;
+  @IsNumberString()
+  time_zone : number;
 
   @IsDefined()
-  phone: {
-    e164Number: string;
-    dialCode: string;
-  };
+  @IsString()
+  contact: string;
 
   @IsDefined()
+  @IsString()
+  region_code: string;
+
+  @Transform(({ value }) => {
+    return typeof value === 'string' ? Number(value) : value;
+  })
+  @IsDefined()
   @IsNumber()
-  gender;
+  gender: number;
 
   @IsString()
-  dob;
+  dob : string;
 
+  @Transform(({ value }) => {
+    return typeof value === 'string' ? Number(value) : value;
+  })
   @IsNumber()
-  blood_group;
+  blood_group : string;
 
   @IsString()
-  address1;
+  address1 : string;
 
   @IsString()
-  address2;
+  address2 : string;
 
+  @Transform(({ value }) => {
+    return typeof value === 'string' ? Number(value) : value;
+  })
   @IsNumber()
-  country_id;
+  country_id : number;
 
+  @Transform(({ value }) => {
+    return typeof value === 'string' ? Number(value) : value;
+  })
   @IsNumber()
-  city_id;
+  state_id : number;
 
+  @Transform(({ value }) => {
+    return typeof value === 'string' ? Number(value) : value;
+  })
   @IsNumber()
-  postal_code;
+  city_id : number;
+
+  @Transform(({ value }) => {
+    return typeof value === 'string' ? Number(value) : value;
+  })
+  @IsNumber()
+  postal_code : number;
 }

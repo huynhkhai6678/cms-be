@@ -6,13 +6,18 @@ import {
   ValidationPipe,
   UseGuards,
   Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
-import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { AuthGuard } from '../guards/auth.guard';
 import { I18nService } from 'nestjs-i18n';
-import { User } from 'src/entites/user.entity';
+import { User } from '../entites/user.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { fileFilter } from '../utils/file-util';
+import { createFileUploadStorage } from '../utils/upload-file.util';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @UseGuards(AuthGuard)
 @Controller('profile')
@@ -29,12 +34,24 @@ export class ProfileController {
   }
 
   @Post()
-  updateProfile(
-    @Req() request,
-    @Body(new ValidationPipe()) updateProfileDto: UpdateProfileDto,
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: createFileUploadStorage('profile'),
+      fileFilter,
+    }),
+  )
+  update(
+    @UploadedFile() avatar: Express.Multer.File,
+    @Req() req: any,
+    @Body(ValidationPipe) updateProfileDto: UpdateProfileDto,
   ) {
-    const user: User = request['user'];
-    return this.profileService.updateProfile(user.id, updateProfileDto);
+    const user: User = req['user'];
+    const clinicId = user.clinic_id;
+    let imageUrl = '';
+    if (avatar) {
+      imageUrl = `public/uploads/${clinicId}/profile/${avatar.filename}`;
+    }
+    return this.profileService.updateProfile(user.id, updateProfileDto, imageUrl);
   }
 
   @Post('change-password')
@@ -43,7 +60,10 @@ export class ProfileController {
     @Body(ValidationPipe) changePasswordDto: ChangePasswordDto,
   ) {
     const user: User = request['user'];
-    return await this.profileService.changePassword(user.id, changePasswordDto);
+    await this.profileService.changePassword(user.id, changePasswordDto);
+    return {
+      message: this.i18n.translate('main.messages.flash.password_update'),
+    };
   }
 
   @Post('update-language')

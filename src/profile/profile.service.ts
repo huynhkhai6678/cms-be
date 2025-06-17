@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,6 +9,8 @@ import { Country } from '../entites/country.entity';
 import { City } from '../entites/city.entity';
 import { State } from '../entites/state.entity';
 import { hashPassword } from 'src/utils/hash.util';
+import { I18nService } from 'nestjs-i18n';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class ProfileService {
@@ -23,6 +25,7 @@ export class ProfileService {
     private readonly stateRepo: Repository<State>,
     @InjectRepository(City)
     private readonly cityRepo: Repository<City>,
+    private readonly i18n : I18nService
   ) {}
 
   async getProfile(userId: number) {
@@ -74,8 +77,8 @@ export class ProfileService {
         first_name: user.first_name,
         last_name: user.last_name,
         gender: user.gender,
-        blood_group: user.blood_group,
-        time_zone: user.time_zone,
+        blood_group: user.blood_group ? parseInt(user.blood_group) : null,
+        time_zone: user.time_zone ? parseInt(user.time_zone) : null,
         address1: user.address?.address1,
         address2: user.address?.address2,
         country_id: user.address?.country_id,
@@ -89,16 +92,54 @@ export class ProfileService {
     };
   }
 
-  updateProfile(id: number, updateProfileDto: UpdateProfileDto) {
-    console.log(id);
-    console.log(updateProfileDto);
-    return `This action returns all profile`;
+  async updateProfile(id: number, updateProfileDto: UpdateProfileDto, imageUrl: string) {
+    const user = await this.userRepo.findOne({
+      where: {
+        id,
+      },
+      relations: ['clinics'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    let address = await this.addressRepo.findOne({
+      where: {
+        owner_id: id,
+        owner_type: 'App\\Models\\User',
+      },
+    });
+
+    if (!address) {
+      address = this.addressRepo.create();
+      address.owner_id = id;
+      address.owner_type = 'App\\Models\\User';
+    }
+
+    // Merge the updated fields into the user entity
+    Object.assign(user, updateProfileDto);
+    if (imageUrl) {
+      user.image_url = imageUrl;
+    }
+    await this.userRepo.save(user);
+
+    // Merge the updated fields into the address entity
+    Object.assign(address, updateProfileDto);
+    await this.addressRepo.save(address);
+    return true;
   }
 
   async changePassword(id: number, changePasswordDto: ChangePasswordDto) {
     const user = await this.userRepo.findOneBy({ id });
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+
+    const isMatch = await bcrypt.compare( changePasswordDto.current_password, user.password);
+
+    if (!isMatch) {
+      throw new BadRequestException(this.i18n.translate('main.messages.flash.current_invalid'));
     }
 
     const hashed: string = await hashPassword(changePasswordDto.new_password);

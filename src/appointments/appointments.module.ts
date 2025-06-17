@@ -9,10 +9,13 @@ import { User } from '../entites/user.entity';
 import { Patient } from '../entites/patient.entity';
 import { Doctor } from '../entites/doctor.entity';
 import { HelperModule } from '../helper/helper.module';
+import { Visit } from '../entites/visit.entity';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Appointment, User, Patient, Doctor]),
+    TypeOrmModule.forFeature([Appointment, User, Patient, Doctor, Visit]),
+    NotificationModule,
     AuthModule,
     DatabaseServiceModule,
     HelperModule,
