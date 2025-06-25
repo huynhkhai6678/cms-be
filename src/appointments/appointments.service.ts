@@ -166,6 +166,14 @@ export class AppointmentsService {
     if (query.end_date) {
       qb.andWhere('appointment.date <= :endDate', { endDate: query.end_date });
     }
+    
+    if (query.status) {
+      qb.andWhere('appointment.status = :status', { status: query.status });
+    }
+
+    if (query.payment_type && query.payment_type > 0) {
+      qb.andWhere('appointment.payment_type = :paymentType', { paymentType: query.payment_type });
+    }
 
     // Order by logic (can also order by concatenated full_name)
     const orderableFieldsMap = {

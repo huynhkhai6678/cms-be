@@ -10,6 +10,7 @@ import {
   Query,
   ValidationPipe,
   Res,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -41,17 +42,22 @@ export class TransactionsController {
   }
 
   @Get('get-selection/:id')
-  getAllSelect(@Param('id') id: string) {
+  getAllSelect(@Param('id', ParseIntPipe) id: string) {
     return this.transactionsService.getAllSelect(+id);
   }
 
   @Get('get-services/:id')
-  getTransactionService(@Param('id') id: string) {
+  getTransactionService(@Param('id', ParseIntPipe) id: string) {
     return this.transactionsService.getTransactionService(+id);
   }
 
+  @Get('get-histories/:id')
+  getHistory(@Param('id', ParseIntPipe) id: string) {
+    return this.transactionsService.getHistory(+id);
+  }
+
   @Get('export-invoice/:id')
-  async exportInvoice(@Param('id') id: string, @Res() res: Response) {
+  async exportInvoice(@Param('id', ParseIntPipe) id: string, @Res() res: Response) {
     const pdfBuffer = await this.transactionsService.exportInvoice(+id);
     if (!pdfBuffer) {
       res.status(404).send('PDF not generated');
@@ -67,7 +73,7 @@ export class TransactionsController {
   }
 
   @Get('export-receipt/:id')
-  async exportReceipt(@Param('id') id: string, @Res() res: Response) {
+  async exportReceipt(@Param('id', ParseIntPipe) id: string, @Res() res: Response) {
     const pdfBuffer = await this.transactionsService.exportReceipt(+id);
     if (!pdfBuffer) {
       res.status(404).send('PDF not generated');
@@ -83,20 +89,20 @@ export class TransactionsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseIntPipe) id: string) {
     return this.transactionsService.findOne(+id);
   }
 
   @Patch(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: string,
     @Body(new ValidationPipe()) updateTransactionDto: UpdateTransactionDto,
   ) {
     return this.transactionsService.update(+id, updateTransactionDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id', ParseIntPipe) id: string) {
     await this.transactionsService.remove(+id);
     return {
       message: this.i18n.t('main.messages.transaction.deleted_successfully'),

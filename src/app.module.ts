@@ -121,7 +121,8 @@ import { Notification } from './entites/notification.entity';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
-
+import { WebsocketModule } from './websocket/websocket.module';
+import { AuthService } from './auth/auth.service';
 
 @Module({
   imports: [
@@ -292,6 +293,7 @@ import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
     WeightModule,
     DocumentModule,
     NotificationModule,
+    WebsocketModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService, ExcelService, QrService],

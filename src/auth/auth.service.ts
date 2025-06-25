@@ -11,12 +11,16 @@ import { I18nService } from 'nestjs-i18n';
 import { ConfigService } from '@nestjs/config';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { Setting } from '../entites/setting.entity';
+import { Currency } from 'src/entites/currency.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Role) private roleRepository: Repository<Role>,
+    @InjectRepository(Setting) private settingRepository: Repository<Setting>,
+    @InjectRepository(Currency) private currencyRepository: Repository<Currency>,
     @InjectRepository(UserClinic)
     private readonly userClinicRepo: Repository<UserClinic>,
     private readonly jwtService: JwtService,
@@ -96,7 +100,6 @@ export class AuthService {
       const payload = await this.jwtService.verifyAsync(token);
       userId = payload.sub;
     } catch (error) {
-      console.log(error);
       throw new BadRequestException('Invalid or expired token.');
     }
 
@@ -133,8 +136,17 @@ export class AuthService {
       relations: ['clinics'],
     });
 
+    const clinics = user?.clinics || [];
+    for (const clinic of clinics) {
+      const settingCurrency = await this.settingRepository.findOneBy({ clinic_id: clinic.id, key: 'currency' });
+      if (settingCurrency) {
+        const currency = await this.currencyRepository.findOneBy({ id : parseInt(settingCurrency.value)});
+        clinic.currency = currency;
+      }
+    }
+
     return {
-      data: user?.clinics || [],
+      data: clinics,
     };
   }
 

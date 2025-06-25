@@ -1,30 +1,22 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { NotificationGateway } from './notification.gateway';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification } from '../entites/notification.entity';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import * as moment from 'moment';
+import { WebsocketGateway } from '../websocket/websocket.gateway';
 
 @Injectable()
 export class NotificationService {
     constructor(
-        private readonly gateway: NotificationGateway,
+        private readonly gateway: WebsocketGateway,
         @InjectRepository(Notification) private notificationRepo: Repository<Notification>,
     ) {}
-
-    notifyAllUsers(type : string, message: string) {
-        this.gateway.sendToAll(type, message);
-    }
-
-    notifyUser(userId: string, data: any) {
-        this.gateway.server.to(userId).emit('notification', data);
-    }
 
     async create(createNotificationDto: CreateNotificationDto) {
         const notification = this.notificationRepo.create(createNotificationDto);
         await this.notificationRepo.save(notification);
-        return this.notifyUser(createNotificationDto.user_id.toString(), createNotificationDto);
+        return this.gateway.sendToUser(createNotificationDto.user_id.toString(), 'notification',createNotificationDto);
     }
     
     async findAll(userId : number) {

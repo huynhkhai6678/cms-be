@@ -363,6 +363,19 @@ export class TransactionsService {
     };
   }
 
+  async getHistory(patientId: number) {
+    const transaction = await this.transactionRepo.find({
+      where: {
+        user_id: patientId,
+      },
+      relations: ['doctor', 'doctor.user'],
+    });
+
+    return {
+      data: transaction,
+    };
+  }
+
   async generateReceipt(transactionId: number) {
     const transaction = await this.transactionRepo.findOne({
       where: { id: transactionId },

@@ -5,7 +5,7 @@ import { TransactionInvoice } from '../entites/transaction-invoice.entity';
 import { User } from '../entites/user.entity';
 import { Repository } from 'typeorm';
 import { Patient } from '../entites/patient.entity';
-import moment from 'moment';
+import * as moment from 'moment';
 import { PaymentGateway } from '../entites/payment-gateways.entity';
 import { PAYMENT_TYPE_VALUE } from '../constants/payment.constant';
 import { QueryParamsDto } from 'src/shared/dto/query-params.dto';

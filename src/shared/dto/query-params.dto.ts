@@ -37,4 +37,7 @@ export class QueryParamsDto {
 
   @IsOptional()
   active: number;
+
+  @IsOptional()
+  payment_type: number;
 }

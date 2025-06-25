@@ -14,6 +14,7 @@ import { Visit } from './visit.entity';
 import { TransactionInvoice } from './transaction-invoice.entity';
 import { PatientMedicalRecord } from './patient-medical-record.entity';
 import { PurchaseMedicine } from './purchase-medicines.entity';
+import { Currency } from './currency.entity';
 
 @Entity('clinics')
 export class Clinic {
@@ -80,4 +81,6 @@ export class Clinic {
 
   @OneToMany(() => PurchaseMedicine, (purchase) => purchase.clinic)
   purchases: PurchaseMedicine[];
+
+  currency : Currency | null;
 }

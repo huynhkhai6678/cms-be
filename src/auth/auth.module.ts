@@ -7,10 +7,12 @@ import { User } from '../entites/user.entity';
 import { Role } from '../entites/role.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserClinic } from '../entites/user-clinic.entity';
+import { Setting } from '../entites/setting.entity';
+import { Currency } from '../entites/currency.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Role, UserClinic]),
+    TypeOrmModule.forFeature([User, Role, UserClinic, Setting, Currency]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

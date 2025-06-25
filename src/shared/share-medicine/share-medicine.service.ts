@@ -1,19 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { MedicineInventoryUsage } from '../../entites/medicine-inventory-usage.entity';
 import { MedicineInventory } from '../../entites/medicine-inventory.entity';
-import { Medicine } from 'src/entites/medicine.entity';
+import { Medicine } from '../../entites/medicine.entity';
+import { WebsocketGateway } from '../../websocket/websocket.gateway';
 
 @Injectable()
 export class ShareMedicineService {
   constructor(
+    private readonly gateway: WebsocketGateway,
     @InjectRepository(Medicine)
     private readonly medicineRepo: Repository<Medicine>,
     @InjectRepository(MedicineInventory)
     private readonly medicineInvenRepo: Repository<MedicineInventory>,
-    @InjectRepository(MedicineInventoryUsage)
-    private readonly medicineInvenUsageRepo: Repository<MedicineInventoryUsage>,
   ) {}
 
   async calculateAvailableMedicine(id: number): Promise<void> {
@@ -43,6 +42,7 @@ export class ShareMedicineService {
     medicine.first_expiration_date = earliestInventory?.expiration_date || null;
 
     await this.medicineRepo.save(medicine);
+    this.gateway.sendToAll('updateTransactionAvaiable', availableQuantity);
   }
 
   async calculateAvailableMedicineInventory(id: number): Promise<void> {
