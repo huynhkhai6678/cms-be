@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -122,10 +122,13 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { WebsocketModule } from './websocket/websocket.module';
-import { AuthService } from './auth/auth.service';
+import { ClsMiddleware, ClsModule } from 'nestjs-cls';
 
 @Module({
   imports: [
+    ClsModule.forRoot({
+      global: true,
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -298,4 +301,8 @@ import { AuthService } from './auth/auth.service';
   controllers: [AppController],
   providers: [AppService, PdfService, ExcelService, QrService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(ClsMiddleware).forRoutes('*');
+  }
+}

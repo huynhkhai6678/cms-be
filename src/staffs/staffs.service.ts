@@ -29,15 +29,9 @@ export class StaffsService {
     const clinicIds = createStaffDto.clinic_ids.split(',');
 
     const userDto = new User();
-    userDto.first_name = createStaffDto.first_name;
-    userDto.last_name = createStaffDto.last_name;
-    userDto.contact = createStaffDto.contact;
-    userDto.region_code = createStaffDto.region_code;
-    userDto.email = createStaffDto.email;
-    userDto.gender = createStaffDto.gender;
+    Object.assign(userDto, createStaffDto);
     userDto.status = 1;
     userDto.clinic_id = parseInt(clinicIds[0]);
-    userDto.type = createStaffDto.type;
     userDto.password = hashed;
 
     if (imageUrl) {
@@ -193,13 +187,7 @@ export class StaffsService {
         id: In([clinicIds]),
       });
 
-      user.first_name = updateStaffDto.first_name || '';
-      user.last_name = updateStaffDto.last_name || '';
-      user.contact = updateStaffDto.contact || '';
-      user.region_code = updateStaffDto.region_code || '';
-      user.email = updateStaffDto.email || '';
-      user.gender = updateStaffDto.gender;
-      user.type = updateStaffDto.type || 1;
+      Object.assign(user, updateStaffDto);
       user.clinic_id = parseInt(clinicIds[0]);
       user.clinics = clinics;
 

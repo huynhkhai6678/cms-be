@@ -5,12 +5,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Specialization } from '../entites/specilization.entity';
 import { DatabaseService } from '../shared/database/database.service';
+import { ClsService } from 'nestjs-cls';
 
 @Injectable()
 export class SpecilizationsService {
   constructor(
     @InjectRepository(Specialization)
     private readonly spicializationRepo: Repository<Specialization>,
+    private readonly cls: ClsService,
     private database: DatabaseService,
   ) {}
 
@@ -18,6 +20,10 @@ export class SpecilizationsService {
     const spicialization = this.spicializationRepo.create(
       createSpecilizationDto,
     );
+    if (!spicialization.clinic_id) {
+      const user = this.cls.get('user');
+      spicialization.clinic_id = user.clinic_id;
+    }
     return this.spicializationRepo.save(spicialization);
   }
 

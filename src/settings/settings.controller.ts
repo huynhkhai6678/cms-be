@@ -6,6 +6,7 @@ import {
   Param,
   ValidationPipe,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { SettingsService } from './settings.service';
 import { UpdateGenralDto } from './dto/update-general-setting.dto';
@@ -23,12 +24,12 @@ export class SettingsController {
   ) {}
 
   @Get('general/:id')
-  findGeneralSetting(@Param('id') id: string) {
+  findGeneralSetting(@Param('id', ParseIntPipe) id: string) {
     return this.settingsService.findGeneralSetting(+id);
   }
 
   @Get('contact-information/:id')
-  findContactInformation(@Param('id') id: string) {
+  findContactInformation(@Param('id', ParseIntPipe) id: string) {
     return this.settingsService.findContactInformation(+id);
   }
 

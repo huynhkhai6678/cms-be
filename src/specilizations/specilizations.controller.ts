@@ -9,12 +9,16 @@ import {
   Query,
   ValidationPipe,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { SpecilizationsService } from './specilizations.service';
 import { CreateSpecilizationDto } from './dto/create-specilization.dto';
 import { UpdateSpecilizationDto } from './dto/update-specilization.dto';
 import { I18nService } from 'nestjs-i18n';
+import { AuthGuard } from '../guards/auth.guard';
+import { RoleGuardFactory } from '../guards/role.guard.factory';
 
+@UseGuards(AuthGuard, RoleGuardFactory('manage_settings'))
 @Controller('specializations')
 export class SpecilizationsController {
   constructor(

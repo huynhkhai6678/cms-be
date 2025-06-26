@@ -53,7 +53,7 @@ export class SettingsService {
     const payments = PAYMENT_TYPE_LIST;
 
     const result = settings.reduce((acc, { key, value }) => {
-      if (key === 'specialities') {
+      if (key === 'specialities' && value !== '') {
         value = JSON.parse(value);
       }
       acc[key] = value;

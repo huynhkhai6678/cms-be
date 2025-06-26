@@ -26,7 +26,7 @@ export class EnquiriesService {
         ...query,
       },
       searchFields: ['name', 'message'],
-      filterFields: ['clinic_id', 'status'],
+      filterFields: ['clinic_id', 'view'],
       allowedOrderFields: ['name', 'message', 'created_at'],
       defaultOrderField: 'created_at',
       defaultOrderDirection: 'DESC',

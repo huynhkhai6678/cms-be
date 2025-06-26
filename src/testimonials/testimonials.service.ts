@@ -6,12 +6,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FrontPatientTestimonial } from '../entites/front-patient-testimonial.entity';
 import { Repository } from 'typeorm';
 import { FileService } from '../shared/file/file.service';
+import { ClsService } from 'nestjs-cls';
 
 @Injectable()
 export class TestimonialsService {
   constructor(
     @InjectRepository(FrontPatientTestimonial)
     private readonly testimonialRepo: Repository<FrontPatientTestimonial>,
+    private readonly cls: ClsService,
     private database: DatabaseService,
     private fileService: FileService,
   ) {}
@@ -20,6 +22,10 @@ export class TestimonialsService {
     const testimonial = this.testimonialRepo.create(createTestimonialDto);
     if (imageUrl) {
       testimonial.image_url = imageUrl;
+    }
+    if (!testimonial.clinic_id) {
+      const user = this.cls.get('user');
+      testimonial.clinic_id = user.clinic_id;
     }
     return await this.testimonialRepo.save(testimonial);
   }
